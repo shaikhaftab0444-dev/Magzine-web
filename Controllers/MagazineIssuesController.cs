@@ -71,6 +71,8 @@ namespace Digital_Magzine.Controllers
         // POST: MagazineIssues/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(104857600)] // 100 MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 104857600)]
         public async Task<IActionResult> Create(
             [Bind("Title,Description,Volume,PublishDate,CoverImageUrl,CoverImagePath,SingleIssuePrice,IsPublished,MagazineId,CategoryId,Status")] MagazineIssue magazineIssue,
             IFormFile? coverFile,
@@ -79,45 +81,44 @@ namespace Digital_Magzine.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Handle Cover Image file upload
+                // Process Cover Upload
                 if (coverFile != null && coverFile.Length > 0)
                 {
-                    var coversDir = Path.Combine(_env.WebRootPath, "images", "covers");
-                    if (!Directory.Exists(coversDir))
+                    var coversFolder = Path.Combine(_env.WebRootPath, "images", "covers");
+                    if (!Directory.Exists(coversFolder))
                     {
-                        Directory.CreateDirectory(coversDir);
+                        Directory.CreateDirectory(coversFolder);
                     }
 
-                    var uniqueCoverName = $"{Guid.NewGuid()}_{Path.GetFileName(coverFile.FileName)}";
-                    var coverPath = Path.Combine(coversDir, uniqueCoverName);
+                    var uniqueCoverName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(coverFile.FileName);
+                    var coverPath = Path.Combine(coversFolder, uniqueCoverName);
 
-                    using (var fileStream = new FileStream(coverPath, FileMode.Create))
+                    using (var stream = new FileStream(coverPath, FileMode.Create))
                     {
-                        await coverFile.CopyToAsync(fileStream);
+                        await coverFile.CopyToAsync(stream);
                     }
-
-                    magazineIssue.CoverImagePath = $"/images/covers/{uniqueCoverName}";
+                    magazineIssue.CoverImagePath = "/images/covers/" + uniqueCoverName;
                     magazineIssue.CoverImageUrl = magazineIssue.CoverImagePath;
                 }
 
-                // Handle PDF file upload
+                // Process PDF Upload
                 if (pdfFile != null && pdfFile.Length > 0)
                 {
-                    var uploadsDir = Path.Combine(_env.WebRootPath, "pdfs");
-                    if (!Directory.Exists(uploadsDir))
+                    var pdfsFolder = Path.Combine(_env.WebRootPath, "pdfs");
+                    if (!Directory.Exists(pdfsFolder))
                     {
-                        Directory.CreateDirectory(uploadsDir);
+                        Directory.CreateDirectory(pdfsFolder);
                     }
 
-                    var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(pdfFile.FileName)}";
-                    var filePath = Path.Combine(uploadsDir, uniqueFileName);
+                    var uniquePdfName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(pdfFile.FileName);
+                    var pdfPath = Path.Combine(pdfsFolder, uniquePdfName);
 
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    using (var stream = new FileStream(pdfPath, FileMode.Create))
                     {
-                        await pdfFile.CopyToAsync(fileStream);
+                        await pdfFile.CopyToAsync(stream);
                     }
-
-                    magazineIssue.PdfFilePath = $"/pdfs/{uniqueFileName}";
+                    // Ensure leading slash so static files middleware resolves it from root
+                    magazineIssue.PdfFilePath = "/pdfs/" + uniquePdfName; 
                 }
 
                 // Handle Free Pricing toggle
@@ -170,6 +171,8 @@ namespace Digital_Magzine.Controllers
         // POST: MagazineIssues/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(104857600)] // 100 MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 104857600)]
         public async Task<IActionResult> Edit(
             int id,
             [Bind("Id,Title,Description,Volume,PublishDate,CoverImageUrl,CoverImagePath,SingleIssuePrice,IsPublished,MagazineId,CategoryId,PdfFilePath,Status")] MagazineIssue magazineIssue,
@@ -192,45 +195,49 @@ namespace Digital_Magzine.Controllers
                         return NotFound();
                     }
 
-                    // Handle Cover Image file upload
+                    // Process Cover Upload
                     if (coverFile != null && coverFile.Length > 0)
                     {
-                        var coversDir = Path.Combine(_env.WebRootPath, "images", "covers");
-                        if (!Directory.Exists(coversDir))
+                        var coversFolder = Path.Combine(_env.WebRootPath, "images", "covers");
+                        if (!Directory.Exists(coversFolder))
                         {
-                            Directory.CreateDirectory(coversDir);
+                            Directory.CreateDirectory(coversFolder);
                         }
 
-                        var uniqueCoverName = $"{Guid.NewGuid()}_{Path.GetFileName(coverFile.FileName)}";
-                        var coverPath = Path.Combine(coversDir, uniqueCoverName);
+                        var uniqueCoverName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(coverFile.FileName);
+                        var coverPath = Path.Combine(coversFolder, uniqueCoverName);
 
-                        using (var fileStream = new FileStream(coverPath, FileMode.Create))
+                        using (var stream = new FileStream(coverPath, FileMode.Create))
                         {
-                            await coverFile.CopyToAsync(fileStream);
+                            await coverFile.CopyToAsync(stream);
                         }
 
-                        existingIssue.CoverImagePath = $"/images/covers/{uniqueCoverName}";
-                        existingIssue.CoverImageUrl = existingIssue.CoverImagePath;
+                        magazineIssue.CoverImagePath = "/images/covers/" + uniqueCoverName;
+                        magazineIssue.CoverImageUrl = magazineIssue.CoverImagePath;
+                        existingIssue.CoverImagePath = magazineIssue.CoverImagePath;
+                        existingIssue.CoverImageUrl = magazineIssue.CoverImageUrl;
                     }
 
-                    // Handle new PDF upload if provided
+                    // Process PDF Upload
                     if (pdfFile != null && pdfFile.Length > 0)
                     {
-                        var uploadsDir = Path.Combine(_env.WebRootPath, "pdfs");
-                        if (!Directory.Exists(uploadsDir))
+                        var pdfsFolder = Path.Combine(_env.WebRootPath, "pdfs");
+                        if (!Directory.Exists(pdfsFolder))
                         {
-                            Directory.CreateDirectory(uploadsDir);
+                            Directory.CreateDirectory(pdfsFolder);
                         }
 
-                        var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(pdfFile.FileName)}";
-                        var filePath = Path.Combine(uploadsDir, uniqueFileName);
+                        var uniquePdfName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(pdfFile.FileName);
+                        var pdfPath = Path.Combine(pdfsFolder, uniquePdfName);
 
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        using (var stream = new FileStream(pdfPath, FileMode.Create))
                         {
-                            await pdfFile.CopyToAsync(fileStream);
+                            await pdfFile.CopyToAsync(stream);
                         }
 
-                        existingIssue.PdfFilePath = $"/pdfs/{uniqueFileName}";
+                        // Ensure leading slash so static files middleware resolves it from root
+                        magazineIssue.PdfFilePath = "/pdfs/" + uniquePdfName;
+                        existingIssue.PdfFilePath = magazineIssue.PdfFilePath;
                     }
 
                     // Handle Free Pricing toggle

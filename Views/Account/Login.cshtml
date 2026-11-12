@@ -4,51 +4,51 @@
     ViewData["Title"] = "Log in - Culture Club";
 }
 
-<div class="auth-page-wrapper d-flex align-items-center justify-content-center py-5" style="min-height: calc(100vh - 120px); background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);">
+<div class="auth-page-wrapper d-flex align-items-center justify-content-center py-5" style="min-height: calc(100vh - 120px); background: #eff6ff;">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12 col-sm-10 col-md-8 col-lg-5">
-                <div class="glass-card p-4 p-md-5 text-dark" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.3);">
+                <div class="glass-card p-4 p-md-5" style="background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); color: #2d3436;">
                     <div class="text-center mb-4">
-                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 52px; height: 52px; background: rgba(255, 255, 255, 0.3); border: 1px solid rgba(255, 255, 255, 0.4);">
-                            <i class="bi bi-person-lock fs-3 text-white"></i>
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 52px; height: 52px; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.25);">
+                            <i class="bi bi-person-lock fs-3 text-primary"></i>
                         </div>
-                        <h2 class="h3 fw-bold text-white mb-1" style="letter-spacing: -0.5px;">Welcome Back</h2>
-                        <p class="text-white-50 small mb-0">Sign in to access your digital magazine collection</p>
+                        <h2 class="h3 fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">Welcome Back</h2>
+                        <p class="text-muted small mb-0">Sign in to access your digital magazine collection</p>
                     </div>
 
                     <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 small py-2 px-3 rounded-3 mb-3"></div>
 
                         <div class="mb-3">
-                            <label asp-for="Email" class="form-label text-white fw-semibold small"></label>
-                            <input asp-for="Email" class="form-control rounded-pill py-2 px-3 border-0" placeholder="name@example.com" style="background: rgba(255, 255, 255, 0.9);" required />
-                            <span asp-validation-for="Email" class="text-warning small"></span>
+                            <label asp-for="Email" class="form-label text-dark fw-semibold small"></label>
+                            <input asp-for="Email" class="form-control rounded-pill py-2 px-3 border" placeholder="name@example.com" style="background: rgba(255, 255, 255, 0.95); border-color: #cbd5e1;" required />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Password" class="form-label text-white fw-semibold small"></label>
+                            <label asp-for="Password" class="form-label text-dark fw-semibold small"></label>
                             <div class="input-group">
-                                <input asp-for="Password" type="password" class="form-control rounded-start-pill py-2 px-3 border-0" placeholder="Password" style="background: rgba(255, 255, 255, 0.9);" required />
-                                <button class="btn btn-outline-secondary bg-white rounded-end-pill px-3 border-0" type="button" onclick="togglePasswordVisibility(this)" title="Toggle password visibility">👁️</button>
+                                <input asp-for="Password" type="password" class="form-control rounded-start-pill py-2 px-3 border-top border-bottom border-start" placeholder="Password" style="background: rgba(255, 255, 255, 0.95); border-color: #cbd5e1;" required />
+                                <button class="btn btn-outline-secondary bg-white rounded-end-pill px-3 border-top border-bottom border-end" type="button" onclick="togglePasswordVisibility(this)" title="Toggle password visibility" style="border-color: #cbd5e1;">👁️</button>
                             </div>
-                            <span asp-validation-for="Password" class="text-warning small"></span>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div class="form-check">
                                 <input class="form-check-input" asp-for="RememberMe" />
-                                <label class="form-check-label text-white small" asp-for="RememberMe">
+                                <label class="form-check-label text-dark small" asp-for="RememberMe">
                                     Remember me
                                 </label>
                             </div>
-                            <a href="/Account/ForgotPassword" class="text-decoration-none text-info fw-bold small">Forgot Password?</a>
+                            <a href="/Account/ForgotPassword" class="text-decoration-none text-primary fw-bold small">Forgot Password?</a>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm mb-3">Sign In</button>
 
-                        <div class="text-center text-white-50 small">
-                            Don't have an account? <a asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="text-white fw-bold text-decoration-underline ms-1">Register here</a>
+                        <div class="text-center text-muted small">
+                            Don't have an account? <a asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="text-primary fw-bold text-decoration-underline ms-1">Register here</a>
                         </div>
                     </form>
                 </div>

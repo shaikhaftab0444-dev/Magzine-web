@@ -108,6 +108,11 @@
         box-shadow: 6px 6px 0px #0f172a;
     }
 
+    /* 3D Rotating Stack Positions */
+    .pos-front { z-index: 3; transform: scale(1) translateX(0) translateY(0); opacity: 1; filter: brightness(1); }
+    .pos-back-right { z-index: 2; transform: scale(0.85) translateX(30%) translateY(-10px) rotate(5deg); opacity: 0.8; filter: brightness(0.8); }
+    .pos-back-left { z-index: 1; transform: scale(0.85) translateX(-30%) translateY(-10px) rotate(-5deg); opacity: 0.8; filter: brightness(0.8); }
+
     .hero-magazine-stack {
         position: relative;
         height: 320px;
@@ -314,13 +319,20 @@
                     </div>
                 </div>
 
-                <!-- Right: Illustrative Magazine Stacks (Stacks Vertically on Mobile) -->
+                <!-- Right: Dynamic 3D Rotating Magazine Stack -->
                 <div class="col-12 col-md-6 text-center">
-                    <div class="hero-magazine-stack mx-auto">
-                        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80" alt="Tech Magazine" class="hero-mag-card left" />
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Vogue Magazine" class="hero-mag-card center" />
-                        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80" alt="Business Magazine" class="hero-mag-card right" />
-                    </div>
+                    @if (ViewBag.HeroMagazines != null && ((List<MagazineIssue>)ViewBag.HeroMagazines).Any())
+                    {
+                        <div id="hero3DStack" class="position-relative d-flex justify-content-center align-items-center" style="height: 350px; width: 100%; max-width: 400px; margin: 0 auto;">
+                            @foreach(var (issue, index) in ((List<MagazineIssue>)ViewBag.HeroMagazines).Select((v, i) => (v, i)))
+                            {
+                                var coverSrc = !string.IsNullOrEmpty(issue.CoverImagePath)
+                                    ? issue.CoverImagePath
+                                    : (!string.IsNullOrEmpty(issue.CoverImageUrl) ? issue.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
+                                <img src="@coverSrc" class="hero-stack-img position-absolute shadow-lg" data-index="@index" alt="@issue.Title" onclick="window.location.href='/Magazines/Details/@issue.Id'" style="width: 220px; aspect-ratio: 3/4; object-fit: cover; border-radius: 1.5rem !important; cursor: pointer; transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);" />
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -617,4 +629,27 @@
             el.scrollBy({ left: distance, behavior: 'smooth' });
         }
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const images = document.querySelectorAll('.hero-stack-img');
+        if (images.length === 0) return;
+
+        // CSS classes representing the 3 positions
+        const positions = ['pos-front', 'pos-back-right', 'pos-back-left'];
+
+        // Initialize positions
+        images.forEach((img, i) => {
+            img.classList.add(positions[i % positions.length]);
+        });
+
+        // Rotate classes every 3.5 seconds
+        setInterval(() => {
+            images.forEach(img => {
+                let currentPos = positions.find(p => img.classList.contains(p));
+                let nextIndex = (positions.indexOf(currentPos) + 1) % positions.length;
+                img.classList.remove(currentPos);
+                img.classList.add(positions[nextIndex]);
+            });
+        }, 3500);
+    });
 </script>

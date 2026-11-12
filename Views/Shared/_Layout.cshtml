@@ -49,8 +49,18 @@ else
 
             <!-- Right Controls (Search + Profile) and Standard Navbar Toggler -->
             <div class="d-flex align-items-center gap-2 order-lg-3">
-                <!-- Search Icon -->
-                <button class="nav-icon-btn" type="button" data-bs-toggle="modal" data-bs-target="#searchModal" title="Search digital magazines">
+                <!-- Top Navbar Search Form -->
+                <form asp-controller="Magazines" asp-action="Search" method="get" class="d-flex align-items-center d-none d-md-flex me-1">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="query" class="form-control rounded-pill-start border bg-light px-3" placeholder="Search magazines..." style="font-size: 0.85rem; width: 170px;" />
+                        <button class="btn btn-outline-dark rounded-pill-end border px-3" type="submit" title="Search">
+                            <i class="bi bi-search text-dark"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Search Modal Trigger (Mobile) -->
+                <button class="nav-icon-btn d-md-none" type="button" data-bs-toggle="modal" data-bs-target="#searchModal" title="Search digital magazines">
                     <i class="bi bi-search fs-5 text-dark"></i>
                 </button>
 
@@ -379,9 +389,9 @@ else
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="#" method="get">
+                    <form asp-controller="Magazines" asp-action="Search" method="get" class="d-flex">
                         <div class="input-group">
-                            <input type="text" name="searchString" class="form-control rounded-pill-start py-2 px-3" placeholder="Search magazines, issues..." />
+                            <input type="text" name="query" class="form-control rounded-pill-start py-2 px-3" placeholder="Search magazines, issues..." />
                             <button class="btn btn-dark rounded-pill-end px-4" type="submit"><i class="bi bi-search"></i></button>
                         </div>
                     </form>

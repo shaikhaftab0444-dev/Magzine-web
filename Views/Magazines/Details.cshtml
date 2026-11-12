@@ -13,16 +13,6 @@
 }
 
 <div class="container-fluid px-3 px-lg-5 py-4">
-    <!-- Breadcrumbs -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb small">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Home</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Newsstand</a></li>
-            <li class="breadcrumb-item"><span class="text-muted">@catName</span></li>
-            <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">@Model.Title</li>
-        </ol>
-    </nav>
-
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-warning alert-dismissible fade show border-0 rounded-4 shadow-sm p-3 mb-4 d-flex align-items-center gap-3" role="alert">
@@ -38,7 +28,7 @@
     }
 
     <!-- Main Issue Showcase -->
-    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-5">
+    <div class="p-4 p-md-5 mb-5" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.05);">
         <div class="row g-4 g-lg-5 align-items-center">
             <!-- Left: High-Res Cover Artwork -->
             <div class="col-12 col-md-5 col-lg-4 text-center">
@@ -103,47 +93,80 @@
                             }
                         </div>
 
-                        <!-- Action Buttons (State-Aware Paywall) -->
+                        <!-- Action Buttons (State-Aware Paywall & Digital Asset Availability) -->
                         <div class="d-flex flex-wrap gap-2 align-items-center">
-                            @if (Model.SingleIssuePrice == 0)
+                            @if (string.IsNullOrEmpty(Model.PdfFilePath))
                             {
-                                <!-- Free Issue: Everyone can read -->
-                                <a asp-controller="Reader" asp-action="Issue" asp-route-id="@Model.Id" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
-                                    <i class="bi bi-book-half me-1"></i> Read Free Issue &rarr;
-                                </a>
-                            }
-                            else if (isUserSubscriberOrAdmin)
-                            {
-                                <!-- Paid & User is VIP Subscriber or Admin -->
-                                <a asp-controller="Reader" asp-action="Issue" asp-route-id="@Model.Id" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
-                                    <i class="bi bi-book-half me-1"></i> Read Issue Online &rarr;
-                                </a>
-                                <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 rounded-pill">
-                                    <i class="bi bi-shield-check me-1"></i> VIP Pass Active
-                                </span>
-                            }
-                            else if (hasPurchased)
-                            {
-                                <!-- Paid & User has Purchased Single Issue -->
-                                <a asp-controller="Reader" asp-action="Issue" asp-route-id="@Model.Id" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
-                                    <i class="bi bi-book-half me-1"></i> Read Issue Online &rarr;
-                                </a>
-                                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-2 rounded-pill">
-                                    <i class="bi bi-patch-check-fill me-1"></i> In Your Library
-                                </span>
+                                <!-- If no PDF exists, block reading -->
+                                <button class="btn btn-secondary disabled rounded-pill px-4 py-2 fw-semibold me-2 mb-2" style="cursor: not-allowed; opacity: 0.7;" disabled>
+                                    <i class="bi bi-file-earmark-x me-1"></i> Digital Asset Unavailable
+                                </button>
+
+                                <!-- Still allow purchasing if it's a paid issue and user has not yet purchased/subscribed -->
+                                @if (Model.SingleIssuePrice > 0 && !isUserSubscriberOrAdmin && !hasPurchased)
+                                {
+                                    <a asp-controller="Checkout" asp-action="Payment" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm mb-2">
+                                        <i class="bi bi-gem me-1"></i> Buy VIP Pass (@SettingsService.GetCurrencySymbol()499)
+                                    </a>
+                                    <a asp-controller="Checkout" asp-action="Payment" asp-route-issueId="@Model.Id" class="btn btn-dark rounded-pill px-4 py-2 fw-semibold mb-2">
+                                        <i class="bi bi-cart3 me-1"></i> Buy Issue (@SettingsService.GetCurrencySymbol()@Model.SingleIssuePrice.ToString("0.##"))
+                                    </a>
+                                }
+                                else if (isUserSubscriberOrAdmin)
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 rounded-pill mb-2">
+                                        <i class="bi bi-shield-check me-1"></i> VIP Pass Active
+                                    </span>
+                                }
+                                else if (hasPurchased)
+                                {
+                                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-2 rounded-pill mb-2">
+                                        <i class="bi bi-patch-check-fill me-1"></i> In Your Library
+                                    </span>
+                                }
                             }
                             else
                             {
-                                <!-- Paid & Locked -->
-                                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" disabled title="Unlock with VIP Pass or single purchase">
-                                    <i class="bi bi-lock-fill me-1 text-danger"></i> Read Issue Online (Locked)
-                                </button>
-                                <a asp-controller="Checkout" asp-action="Payment" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
-                                    <i class="bi bi-gem me-1"></i> Buy VIP Pass (@SettingsService.GetCurrencySymbol()499)
-                                </a>
-                                <a asp-controller="Checkout" asp-action="Payment" asp-route-issueId="@Model.Id" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold">
-                                    <i class="bi bi-cart3 me-1"></i> Buy Issue (@SettingsService.GetCurrencySymbol()@Model.SingleIssuePrice.ToString("0.##"))
-                                </a>
+                                @if (Model.SingleIssuePrice == 0)
+                                {
+                                    <!-- Free Issue: Everyone can read -->
+                                    <a asp-controller="Reader" asp-action="Issue" asp-route-id="@Model.Id" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                        <i class="bi bi-book-half me-1"></i> Read Free Issue &rarr;
+                                    </a>
+                                }
+                                else if (isUserSubscriberOrAdmin)
+                                {
+                                    <!-- Paid & User is VIP Subscriber or Admin -->
+                                    <a asp-controller="Reader" asp-action="Issue" asp-route-id="@Model.Id" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                        <i class="bi bi-book-half me-1"></i> Read Issue Online &rarr;
+                                    </a>
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 rounded-pill">
+                                        <i class="bi bi-shield-check me-1"></i> VIP Pass Active
+                                    </span>
+                                }
+                                else if (hasPurchased)
+                                {
+                                    <!-- Paid & User has Purchased Single Issue -->
+                                    <a asp-controller="Reader" asp-action="Issue" asp-route-id="@Model.Id" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                        <i class="bi bi-book-half me-1"></i> Read Issue Online &rarr;
+                                    </a>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-2 rounded-pill">
+                                        <i class="bi bi-patch-check-fill me-1"></i> In Your Library
+                                    </span>
+                                }
+                                else
+                                {
+                                    <!-- Paid & Locked -->
+                                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" disabled title="Unlock with VIP Pass or single purchase">
+                                        <i class="bi bi-lock-fill me-1 text-danger"></i> Read Issue Online (Locked)
+                                    </button>
+                                    <a asp-controller="Checkout" asp-action="Payment" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                        <i class="bi bi-gem me-1"></i> Buy VIP Pass (@SettingsService.GetCurrencySymbol()499)
+                                    </a>
+                                    <a asp-controller="Checkout" asp-action="Payment" asp-route-issueId="@Model.Id" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold">
+                                        <i class="bi bi-cart3 me-1"></i> Buy Issue (@SettingsService.GetCurrencySymbol()@Model.SingleIssuePrice.ToString("0.##"))
+                                    </a>
+                                }
                             }
                         </div>
                     </div>

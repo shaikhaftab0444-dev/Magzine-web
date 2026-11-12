@@ -83,5 +83,29 @@ namespace Digital_Magzine.Controllers
 
             return View(issue);
         }
+
+        // GET: Magazines/Search
+        public async Task<IActionResult> Search(string? query)
+        {
+            ViewBag.Query = query ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return View(new List<MagazineIssue>());
+            }
+
+            var cleanQuery = query.Trim();
+            var results = await _context.MagazineIssues
+                .Include(m => m.Category)
+                .Include(m => m.Magazine)
+                .Where(m => (m.Status == "Published" || m.IsPublished) &&
+                            (m.Title.Contains(cleanQuery) ||
+                             (m.Description != null && m.Description.Contains(cleanQuery)) ||
+                             (m.Category != null && m.Category.Name.Contains(cleanQuery))))
+                .OrderByDescending(m => m.PublishDate)
+                .ToListAsync();
+
+            return View(results);
+        }
     }
 }
