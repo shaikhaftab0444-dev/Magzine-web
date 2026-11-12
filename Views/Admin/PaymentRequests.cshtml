@@ -1,0 +1,205 @@
+@model IEnumerable<Digital_Magzine.Models.AdminPaymentRequestItemViewModel>
+
+@{
+    ViewData["Title"] = "Payment Verification Requests";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Page Header & Metrics Summary -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    FINANCIAL VERIFICATION
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">QR Payment Verification Requests</h1>
+            <p class="text-muted small mb-0">Verify user-submitted UPI transaction IDs and receipts to grant magazine and VIP subscriber access.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white;">
+                @Model.Count() Pending Verification
+            </span>
+        </div>
+    </div>
+
+    <!-- Quick Metrics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Pending In Review</span>
+                    <div class="neumorphic-circle-sm" style="color: #f59e0b;">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #f59e0b;">@Model.Count()</div>
+                <span class="small text-muted">Awaiting administrator approval</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">VIP Plan Requests</span>
+                    <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                        <i class="bi bi-gem"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #0284c7;">@Model.Count(r => r.RequestedItemType.Equals("Plan", StringComparison.OrdinalIgnoreCase))</div>
+                <span class="small text-muted">All-access subscription passes</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Single Issue Requests</span>
+                    <div class="neumorphic-circle-sm" style="color: #10b981;">
+                        <i class="bi bi-journal-bookmark"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #047857;">@Model.Count(r => r.RequestedItemType.Equals("Issue", StringComparison.OrdinalIgnoreCase))</div>
+                <span class="small text-muted">Single digital editions</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Requests Table Card -->
+    <div class="neumorphic-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 fw-bold mb-0" style="color: #2d3436;">Pending Verification Queue</h2>
+            <span class="text-muted small">Scan receipts and cross-verify with your UPI bank statement</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table neumorphic-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Request ID</th>
+                        <th>User Email</th>
+                        <th>Item Type &amp; Details</th>
+                        <th>Amount</th>
+                        <th>Transaction Ref (UTR)</th>
+                        <th>Receipt Screenshot</th>
+                        <th>Date</th>
+                        <th class="text-end" style="min-width: 190px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <div class="neumorphic-circle-btn mx-auto mb-3" style="width: 56px; height: 56px;">
+                                    <i class="bi bi-check2-circle fs-3 text-success"></i>
+                                </div>
+                                <div class="fw-semibold text-dark">No Pending Payment Requests</div>
+                                <div class="small">All submitted QR code payments have been processed and verified.</div>
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var item in Model)
+                    {
+                        var isPlan = item.RequestedItemType.Equals("Plan", StringComparison.OrdinalIgnoreCase);
+
+                        <tr>
+                            <td class="fw-bold font-monospace text-muted">
+                                #@item.Id
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="neumorphic-circle-sm" style="color: #0ea5e9; font-weight: 700;">
+                                        @(item.UserEmail.Length > 0 ? item.UserEmail.Substring(0, 1).ToUpper() : "U")
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold" style="color: #2d3436;">@item.UserEmail</div>
+                                        <div class="text-muted font-monospace small" style="font-size: 0.72rem;">@item.UserId</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <div>
+                                        @if (isPlan)
+                                        {
+                                            <span class="badge rounded-pill px-2 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                                                <i class="bi bi-gem me-1"></i> VIP Plan
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill px-2 py-1" style="background: rgba(16, 185, 129, 0.15); color: #047857; font-weight: 700; font-size: 0.72rem;">
+                                                <i class="bi bi-journal-bookmark me-1"></i> Single Issue
+                                            </span>
+                                        }
+                                    </div>
+                                    <span class="fw-semibold small text-truncate" style="max-width: 220px; color: #2d3436;">
+                                        @item.ItemTitle
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-bold fs-6" style="color: #047857;">
+                                    @SettingsService.GetCurrencySymbol()@item.AmountPaid.ToString("0.00")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="p-2 rounded-2 font-monospace small fw-bold text-truncate" 
+                                     style="background: #e6e9f0; box-shadow: inset 2px 2px 5px #c8ccd6, inset -2px -2px 5px #ffffff; max-width: 180px; color: #2d3436;" 
+                                     title="@item.TransactionReference">
+                                    @item.TransactionReference
+                                </div>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.ReceiptImagePath))
+                                {
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a href="@item.ReceiptImagePath" target="_blank" class="d-block rounded-2 overflow-hidden shadow-xs border" style="width: 42px; height: 42px;">
+                                            <img src="@item.ReceiptImagePath" alt="Receipt Proof" class="w-100 h-100 object-fit-cover" />
+                                        </a>
+                                        <a href="@item.ReceiptImagePath" target="_blank" class="btn btn-neumorphic btn-sm py-1 px-2 small" title="View Full Receipt Screenshot">
+                                            <i class="bi bi-box-arrow-up-right me-1"></i> View Receipt
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">No image uploaded</span>
+                                }
+                            </td>
+                            <td class="text-muted small">
+                                <div>@item.RequestDate.ToString("MMM dd, yyyy")</div>
+                                <div class="text-muted" style="font-size: 0.72rem;">@item.RequestDate.ToString("hh:mm tt")</div>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2 justify-content-end align-items-center">
+                                    <!-- Green Accept Button -->
+                                    <form asp-controller="Admin" asp-action="AcceptPayment" method="post" class="d-inline" onsubmit="return confirm('Approve payment request #@item.Id for @item.UserEmail? This will grant instant access.');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-success btn-sm py-1 px-3 fw-bold text-white shadow-sm" title="Accept &amp; Grant Access">
+                                            <i class="bi bi-check-lg me-1"></i> Accept
+                                        </button>
+                                    </form>
+
+                                    <!-- Red Reject Button -->
+                                    <form asp-controller="Admin" asp-action="RejectPayment" method="post" class="d-inline" onsubmit="return confirm('Reject payment request #@item.Id?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-danger btn-sm py-1 px-2 fw-semibold shadow-sm text-white" title="Reject Payment">
+                                            <i class="bi bi-x-lg me-1"></i> Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

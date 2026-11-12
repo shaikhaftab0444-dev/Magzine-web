@@ -1,0 +1,179 @@
+@model Digital_Magzine.Models.AdminSettingsViewModel
+
+@{
+    ViewData["Title"] = "Settings & Appearance";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Page Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    SYSTEM CONFIGURATION
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Settings &amp; Appearance</h1>
+            <p class="text-muted small mb-0">Configure publication branding, currency formatting, paywall controls, and platform defaults.</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4 small d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+            <div class="fw-semibold">@TempData["SuccessMessage"]</div>
+        </div>
+    }
+
+    <form asp-action="Settings" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <div class="row g-4 mb-4">
+            <!-- Left: General Publication Details & Currency -->
+            <div class="col-12 col-lg-7">
+                <div class="neumorphic-card p-4 p-md-5 mb-4">
+                    <h2 class="h5 fw-bold mb-3" style="color: #2d3436;">
+                        <i class="bi bi-sliders text-primary me-2"></i> General Platform Settings
+                    </h2>
+
+                    <div class="mb-3">
+                        <label asp-for="SiteName" class="form-label small fw-bold" style="color: #2d3436;">Digital Newsstand Brand Name</label>
+                        <input asp-for="SiteName" class="form-control neumorphic-input w-100" />
+                        <span asp-validation-for="SiteName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Tagline" class="form-label small fw-bold" style="color: #2d3436;">Platform Tagline</label>
+                        <input asp-for="Tagline" class="form-control neumorphic-input w-100" />
+                        <span asp-validation-for="Tagline" class="text-danger small"></span>
+                        <div class="form-text text-muted small">Displayed on storefront headers, hero banners, and SEO metadata.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ContactEmail" class="form-label small fw-bold" style="color: #2d3436;">Editorial &amp; Customer Support Email</label>
+                        <input asp-for="ContactEmail" type="email" class="form-control neumorphic-input w-100" />
+                        <span asp-validation-for="ContactEmail" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TimeZone" class="form-label small fw-bold" style="color: #2d3436;">Primary Operating Timezone</label>
+                        <select asp-for="TimeZone" class="form-select neumorphic-input w-100">
+                            <option value="UTC+05:30 (IST)">UTC+05:30 (India Standard Time - IST)</option>
+                            <option value="UTC+03:00 (Arabian Standard Time)">UTC+03:00 (Arabian Standard Time - Saudi Arabia)</option>
+                            <option value="UTC+00:00 (GMT)">UTC+00:00 (Greenwich Mean Time - GMT)</option>
+                            <option value="UTC-05:00 (EST)">UTC-05:00 (Eastern Standard Time - EST)</option>
+                            <option value="UTC-08:00 (PST)">UTC-08:00 (Pacific Standard Time - PST)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Currency & Monetization Settings -->
+                <div class="neumorphic-card p-4 p-md-5">
+                    <h2 class="h5 fw-bold mb-3" style="color: #2d3436;">
+                        <i class="bi bi-currency-exchange text-primary me-2"></i> Currency &amp; Monetization
+                    </h2>
+
+                    <div class="mb-3">
+                        <label asp-for="CurrencySymbol" class="form-label small fw-bold" style="color: #2d3436;">Active Display Currency</label>
+                        <div class="d-flex flex-wrap gap-3 mt-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="CurrencySymbol" value="INR" id="currRupee" />
+                                <label class="form-check-label fw-semibold" for="currRupee" style="color: #2d3436;">
+                                    <span class="fw-bold" style="color: #0284c7;">₹</span> INR (Indian Rupee - Default)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="CurrencySymbol" value="SAR" id="currSAR" />
+                                <label class="form-check-label fw-semibold" for="currSAR" style="color: #2d3436;">
+                                    <span class="fw-bold" style="color: #0284c7;">SAR</span> SAR (Saudi Riyal)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="CurrencySymbol" value="USD" id="currDollar" />
+                                <label class="form-check-label fw-semibold" for="currDollar" style="color: #2d3436;">
+                                    <span class="fw-bold" style="color: #0284c7;">$</span> USD (US Dollar)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="CurrencySymbol" value="EUR" id="currEuro" />
+                                <label class="form-check-label fw-semibold" for="currEuro" style="color: #2d3436;">
+                                    <span class="fw-bold" style="color: #0284c7;">€</span> EUR (Euro)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-text text-muted small">Applied globally to subscription passes, single issue sales, and analytics.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Theme Preferences & Brand Monogram / Logo Preview -->
+            <div class="col-12 col-lg-5">
+                <div class="neumorphic-card p-4 p-md-5 mb-4">
+                    <h2 class="h5 fw-bold mb-3" style="color: #2d3436;">
+                        <i class="bi bi-palette text-primary me-2"></i> Theming &amp; Features
+                    </h2>
+
+                    <div class="form-check form-switch mb-4">
+                        <input class="form-check-input" type="checkbox" asp-for="DefaultDarkMode" id="darkThemeSwitch" />
+                        <label class="form-check-label fw-semibold small" for="darkThemeSwitch" style="color: #2d3436;">
+                            Enable Legacy Dark Theme Mode
+                        </label>
+                        <div class="text-muted small">Toggle between Crisp Sky Blue Neumorphic (Default) and Midnight Slate.</div>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" asp-for="EnableNewsletter" id="newsletterSwitch" checked />
+                        <label class="form-check-label fw-semibold small" for="newsletterSwitch" style="color: #2d3436;">
+                            Enable Newsstand Newsletter Callouts
+                        </label>
+                        <div class="text-muted small">Renders membership newsletter callouts on the public digital storefront.</div>
+                    </div>
+                </div>
+
+                <!-- Branding Monogram & Logo Upload Card -->
+                <div class="neumorphic-card p-4 p-md-5 text-center">
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1 d-block mb-3">Brand Monogram &amp; Logo Preview</span>
+                    
+                    <div class="mb-3 d-flex justify-content-center align-items-center gap-3">
+                        <div class="d-inline-flex align-items-center justify-content-center p-3 rounded-4 shadow-sm" 
+                             style="background: linear-gradient(135deg, #00a8ff, #0ea5e9); color: white; width: 64px; height: 64px; box-shadow: 4px 4px 12px rgba(14, 165, 233, 0.4);">
+                            <span class="fw-bold fs-3 font-monospace">CC</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.LogoPath))
+                        {
+                            <div class="p-2 rounded-3 bg-white shadow-xs border d-inline-block">
+                                <img src="@Model.LogoPath?v=@DateTime.Now.Ticks" alt="Current Brand Logo" style="max-height: 48px; max-width: 140px; object-fit: contain;" />
+                            </div>
+                        }
+                    </div>
+
+                    <div class="fw-bold fs-5" style="color: #2d3436;">@Model.SiteName</div>
+                    <div class="small text-muted letter-spacing-1 mb-4" style="font-size: 0.75rem;">@Model.Tagline</div>
+
+                    <!-- Logo Upload Field Under Brand Monogram Preview -->
+                    <div class="text-start pt-3 border-top">
+                        <label for="logoImage" class="form-label small fw-bold" style="color: #2d3436;">
+                            <i class="bi bi-image text-primary me-1"></i> Upload Brand Logo (.png, .jpg)
+                        </label>
+                        <input type="file" name="logoImage" id="logoImage" accept="image/*" class="form-control neumorphic-input p-2" />
+                        <div class="form-text small text-muted">
+                            Replaces <code>wwwroot/images/system/logo.png</code> globally across storefront and admin navigation.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit & Actions Bar -->
+        <div class="d-flex justify-content-end gap-3 mb-4">
+            <a asp-action="Index" class="btn btn-neumorphic px-4 py-2 small">Discard Changes</a>
+            <button type="submit" class="btn btn-neumorphic-primary px-5 py-2">
+                <i class="bi bi-check2-circle me-1"></i> Save Preferences
+            </button>
+        </div>
+    </form>
+
+</div>

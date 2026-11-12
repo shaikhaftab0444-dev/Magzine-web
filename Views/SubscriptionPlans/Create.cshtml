@@ -1,0 +1,82 @@
+@model Digital_Magzine.Models.SubscriptionPlan
+
+@{
+    ViewData["Title"] = "Create Subscription Plan";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+    <div class="mb-4">
+        <a asp-action="Index" class="btn btn-neumorphic py-2 px-3 small">
+            <i class="bi bi-arrow-left me-1"></i> Back to Subscription Plans
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 col-xl-7">
+            <div class="neumorphic-card p-4 p-md-5">
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3" style="border-bottom: 1px solid rgba(0,0,0,0.06);">
+                    <div class="neumorphic-circle-sm" style="color: #0ea5e9; width: 44px; height: 44px; font-size: 1.2rem;">
+                        <i class="bi bi-tag-fill"></i>
+                    </div>
+                    <div>
+                        <h1 class="h4 fw-bold mb-1" style="color: #2d3436;">Create Subscription Plan</h1>
+                        <p class="text-muted small mb-0">Configure recurring duration, pricing, and all-access entitlement settings.</p>
+                    </div>
+                </div>
+
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="Name" class="form-label small fw-bold" style="color: #2d3436;">Plan Display Name</label>
+                        <input asp-for="Name" class="form-control neumorphic-input" placeholder="e.g. Monthly VIP All-Access, Annual VIP Pass" required />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Price" class="form-label small fw-bold" style="color: #2d3436;">Price (@SettingsService.GetCurrencySymbol())</label>
+                            <div class="input-group">
+                                <span class="input-group-text neumorphic-input border-0 fw-bold" style="color: #0ea5e9; border-top-right-radius: 0; border-bottom-right-radius: 0;">@SettingsService.GetCurrencySymbol()</span>
+                                <input asp-for="Price" type="number" step="0.01" class="form-control neumorphic-input border-0" placeholder="499.00" required style="border-top-left-radius: 0; border-bottom-left-radius: 0;" />
+                            </div>
+                            <span asp-validation-for="Price" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label for="DurationMonths" class="form-label small fw-bold" style="color: #2d3436;">Billing Cycle / Duration</label>
+                            <select name="DurationMonths" id="DurationMonths" class="form-select neumorphic-input">
+                                <option value="1" selected="@(Model.DurationInMonths == 1 ? "selected" : null)">1 Month Plan</option>
+                                <option value="12" selected="@(Model.DurationInMonths == 12 ? "selected" : null)">1 Year Plan</option>
+                            </select>
+                            <span asp-validation-for="DurationInMonths" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 p-3 rounded-3" style="background: rgba(14, 165, 233, 0.05); border: 1px dashed rgba(14, 165, 233, 0.3);">
+                        <div class="form-check form-switch m-0">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" id="isActiveSwitch" checked />
+                            <label class="form-check-label fw-bold small ms-2" for="isActiveSwitch" style="color: #2d3436;">
+                                Enable Plan for Public Customer Checkout
+                            </label>
+                            <div class="text-muted small ms-2 mt-1">When active, readers can select this subscription tier on the storefront.</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3" style="border-top: 1px solid rgba(0,0,0,0.06);">
+                        <a asp-action="Index" class="btn btn-neumorphic px-4">Cancel</a>
+                        <button type="submit" class="btn btn-neumorphic-primary px-4 py-2">
+                            <i class="bi bi-check-lg me-1"></i> Create Plan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

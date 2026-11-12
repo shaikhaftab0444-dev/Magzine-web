@@ -1,0 +1,126 @@
+@model Digital_Magzine.Models.MagazineIssue
+
+@{
+    ViewData["Title"] = "Issue Details - " + Model.Title;
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none">&larr; Back to Magazine Issues</a>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h2 class="h4 mb-0">Magazine Issue Details</h2>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">Edit Issue</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+                @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+                {
+                    <img src="@Model.CoverImageUrl" alt="@Model.Title" class="img-fluid rounded shadow-sm" style="max-height: 320px; object-fit: cover;" />
+                }
+                else
+                {
+                    <div class="bg-light text-muted d-flex align-items-center justify-content-center rounded p-4 shadow-sm" style="height: 250px;">
+                        <span>No Cover Image Provided</span>
+                    </div>
+                }
+            </div>
+            <div class="col-md-9">
+                <h3 class="h3 fw-bold">@Model.Title</h3>
+                <div class="mb-3">
+                    <span class="badge bg-secondary fs-6 me-2">Volume @Model.Volume</span>
+                    @if (Model.IsPublished)
+                    {
+                        <span class="badge bg-success fs-6">Published</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark fs-6">Draft</span>
+                    }
+                </div>
+
+                <dl class="row mt-4">
+                    <dt class="col-sm-3 text-muted">Publish Date</dt>
+                    <dd class="col-sm-9">@Model.PublishDate.ToString("MMMM dd, yyyy")</dd>
+
+                    <dt class="col-sm-3 text-muted">Cover Image URL</dt>
+                    <dd class="col-sm-9 text-break">
+                        @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+                        {
+                            <a href="@Model.CoverImageUrl" target="_blank" rel="noopener noreferrer">@Model.CoverImageUrl</a>
+                        }
+                        else
+                        {
+                            <em>None</em>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3 text-muted">Total Articles</dt>
+                    <dd class="col-sm-9">@(Model.Articles?.Count ?? 0)</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h4 class="h5 mb-0">Articles in this Issue</h4>
+        <a asp-controller="Articles" asp-action="Create" class="btn btn-sm btn-outline-primary">+ Add Article</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Type</th>
+                        <th>Created</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Articles != null && Model.Articles.Any())
+                    {
+                        @foreach (var article in Model.Articles)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@article.Title</td>
+                                <td>@(string.IsNullOrEmpty(article.Author) ? "Unknown" : article.Author)</td>
+                                <td>
+                                    @if (article.IsPremium)
+                                    {
+                                        <span class="badge bg-warning text-dark">Premium</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-dark border">Free</span>
+                                    }
+                                </td>
+                                <td>@article.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td class="text-end">
+                                    <a asp-controller="Articles" asp-action="Details" asp-route-id="@article.Id" class="btn btn-sm btn-outline-secondary">View</a>
+                                    <a asp-controller="Articles" asp-action="Edit" asp-route-id="@article.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <em>No articles added to this issue yet.</em>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

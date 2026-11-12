@@ -1,0 +1,211 @@
+@model Digital_Magzine.Models.MagazineIssue
+
+@{
+    ViewData["Title"] = Model.Title + " - Culture Club";
+    var coverImg = !string.IsNullOrEmpty(Model.CoverImagePath)
+        ? Model.CoverImagePath
+        : (!string.IsNullOrEmpty(Model.CoverImageUrl) ? Model.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
+    var catName = Model.Category?.Name ?? Model.Magazine?.Category?.Name ?? "General";
+    var isFree = Model.SingleIssuePrice <= 0;
+    var related = ViewBag.RelatedIssues as List<Digital_Magzine.Models.MagazineIssue> ?? new List<Digital_Magzine.Models.MagazineIssue>();
+    var isUserSubscriberOrAdmin = User.Identity != null && User.Identity.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("Subscriber"));
+    var hasPurchased = (bool)(ViewBag.HasPurchased ?? false);
+}
+
+<div class="container-fluid px-3 px-lg-5 py-4">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Newsstand</a></li>
+            <li class="breadcrumb-item"><span class="text-muted">@catName</span></li>
+            <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">@Model.Title</li>
+        </ol>
+    </nav>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show border-0 rounded-4 shadow-sm p-3 mb-4 d-flex align-items-center gap-3" role="alert">
+            <div class="rounded-circle bg-warning bg-opacity-25 p-2 text-dark">
+                <i class="bi bi-lock-fill fs-5"></i>
+            </div>
+            <div class="flex-grow-1">
+                <div class="fw-bold">Paywall Notice</div>
+                <div class="small">@TempData["ErrorMessage"]</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Main Issue Showcase -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-5">
+        <div class="row g-4 g-lg-5 align-items-center">
+            <!-- Left: High-Res Cover Artwork -->
+            <div class="col-12 col-md-5 col-lg-4 text-center">
+                <div class="position-relative d-inline-block shadow-lg rounded-4 overflow-hidden" style="max-width: 320px; width: 100%;">
+                    <img src="@coverImg" alt="@Model.Title" class="img-fluid w-100" style="aspect-ratio: 3/4; object-fit: cover;" />
+                    <span class="badge position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill bg-white text-dark shadow-sm fw-bold small text-uppercase">
+                        @catName
+                    </span>
+                    @if (isFree)
+                    {
+                        <span class="badge position-absolute bottom-0 end-0 m-3 px-3 py-2 rounded-pill bg-success text-white shadow-sm fw-bold fs-6">
+                            <i class="bi bi-gift-fill me-1"></i> FREE
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge position-absolute bottom-0 end-0 m-3 px-3 py-2 rounded-pill bg-dark text-white shadow-sm fw-bold fs-6">
+                            @SettingsService.GetCurrencySymbol()@Model.SingleIssuePrice.ToString("0.##")
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <!-- Right: Metadata & Access CTA -->
+            <div class="col-12 col-md-7 col-lg-8">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold text-uppercase px-3 py-1 rounded-pill">
+                        @(Model.Magazine?.Title ?? "Culture Club Publication")
+                    </span>
+                    <span class="text-muted small">&bull; Vol. @Model.Volume</span>
+                    <span class="text-muted small">&bull; Released @Model.PublishDate.ToString("MMMM yyyy")</span>
+                </div>
+
+                <h1 class="fw-bold text-dark mb-3" style="font-size: 2.25rem; letter-spacing: -0.5px; line-height: 1.2;">
+                    @Model.Title
+                </h1>
+
+                <p class="lead text-muted mb-4" style="font-size: 1.05rem;">
+                    Full digital replica edition with crystal-clear typography, flipbook controls, interactive articles, and offline reader compatibility.
+                </p>
+
+                <!-- Pricing Callout -->
+                <div class="p-3 rounded-4 mb-4" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div>
+                            <span class="text-muted small d-block">Digital Edition Access</span>
+                            @if (isFree)
+                            {
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fs-3 fw-bold text-success">FREE</span>
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-semibold">Complimentary Issue</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fs-3 fw-bold text-dark">@SettingsService.GetCurrencySymbol()@Model.SingleIssuePrice.ToString("N2")</span>
+                                    <span class="text-muted small">Single Issue Purchase</span>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Action Buttons (State-Aware Paywall) -->
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            @if (Model.SingleIssuePrice == 0)
+                            {
+                                <!-- Free Issue: Everyone can read -->
+                                <a asp-controller="Reader" asp-action="Issue" asp-route-id="@Model.Id" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                    <i class="bi bi-book-half me-1"></i> Read Free Issue &rarr;
+                                </a>
+                            }
+                            else if (isUserSubscriberOrAdmin)
+                            {
+                                <!-- Paid & User is VIP Subscriber or Admin -->
+                                <a asp-controller="Reader" asp-action="Issue" asp-route-id="@Model.Id" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                    <i class="bi bi-book-half me-1"></i> Read Issue Online &rarr;
+                                </a>
+                                <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 rounded-pill">
+                                    <i class="bi bi-shield-check me-1"></i> VIP Pass Active
+                                </span>
+                            }
+                            else if (hasPurchased)
+                            {
+                                <!-- Paid & User has Purchased Single Issue -->
+                                <a asp-controller="Reader" asp-action="Issue" asp-route-id="@Model.Id" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                    <i class="bi bi-book-half me-1"></i> Read Issue Online &rarr;
+                                </a>
+                                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-2 rounded-pill">
+                                    <i class="bi bi-patch-check-fill me-1"></i> In Your Library
+                                </span>
+                            }
+                            else
+                            {
+                                <!-- Paid & Locked -->
+                                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" disabled title="Unlock with VIP Pass or single purchase">
+                                    <i class="bi bi-lock-fill me-1 text-danger"></i> Read Issue Online (Locked)
+                                </button>
+                                <a asp-controller="Checkout" asp-action="Payment" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                    <i class="bi bi-gem me-1"></i> Buy VIP Pass (@SettingsService.GetCurrencySymbol()499)
+                                </a>
+                                <a asp-controller="Checkout" asp-action="Payment" asp-route-issueId="@Model.Id" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold">
+                                    <i class="bi bi-cart3 me-1"></i> Buy Issue (@SettingsService.GetCurrencySymbol()@Model.SingleIssuePrice.ToString("0.##"))
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trust Points -->
+                <div class="row g-3 text-muted small pt-2">
+                    <div class="col-6 col-sm-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-check2-circle text-primary fs-5"></i>
+                        <span>Read on Any Device</span>
+                    </div>
+                    <div class="col-6 col-sm-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-cloud-arrow-down text-primary fs-5"></i>
+                        <span>Instant Digital Delivery</span>
+                    </div>
+                    <div class="col-6 col-sm-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-shield-check text-primary fs-5"></i>
+                        <span>Ultra-HD Quality</span>
+                    </div>
+                </div>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="mt-4 pt-3 border-top d-flex gap-2">
+                        <a asp-controller="MagazineIssues" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1">
+                            <i class="bi bi-pencil me-1"></i> Admin Edit Issue
+                        </a>
+                        <a asp-controller="MagazineIssues" asp-action="Index" class="btn btn-sm btn-link text-muted text-decoration-none">
+                            Back to Admin Issues
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Issues Section -->
+    @if (related.Any())
+    {
+        <div class="my-5">
+            <h3 class="h4 fw-bold text-dark mb-3">More From @catName</h3>
+            <div class="d-flex flex-nowrap overflow-auto gap-4 py-2" style="-webkit-overflow-scrolling: touch;">
+                @foreach (var rel in related)
+                {
+                    var relCover = !string.IsNullOrEmpty(rel.CoverImagePath)
+                        ? rel.CoverImagePath
+                        : (!string.IsNullOrEmpty(rel.CoverImageUrl) ? rel.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
+                    <a href="/Magazines/Details/@rel.Id" class="text-decoration-none text-dark flex-shrink-0" style="width: 190px;">
+                        <div class="rounded-3 overflow-hidden shadow-xs mb-2 position-relative" style="aspect-ratio: 3/4; background: #f1f5f9;">
+                            <img src="@relCover" alt="@rel.Title" class="w-100 h-100 object-fit-cover" />
+                            @if (rel.SingleIssuePrice <= 0)
+                            {
+                                <span class="badge bg-success position-absolute bottom-0 end-0 m-2 px-2 py-1 rounded-pill fw-bold" style="font-size: 0.72rem;">FREE</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-dark position-absolute bottom-0 end-0 m-2 px-2 py-1 rounded-pill fw-bold" style="font-size: 0.72rem;">@SettingsService.GetCurrencySymbol()@rel.SingleIssuePrice.ToString("0.##")</span>
+                            }
+                        </div>
+                        <div class="fw-bold small text-truncate" title="@rel.Title">@rel.Title</div>
+                        <div class="text-muted small">Vol. @rel.Volume</div>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+</div>

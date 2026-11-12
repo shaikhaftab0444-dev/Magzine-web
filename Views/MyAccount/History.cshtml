@@ -1,0 +1,107 @@
+@model IEnumerable<Digital_Magzine.Models.ReadingHistory>
+
+@{
+    ViewData["Title"] = "Reading History - Culture Club";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Top Header & Metrics Summary -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    DIGITAL READING SHELF
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Reading History</h1>
+            <p class="text-muted small mb-0">Pick up right where you left off across all previously opened digital magazine editions.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white;">
+                @Model.Count() Recent Editions
+            </span>
+            <a asp-controller="MyAccount" asp-action="Index" class="btn btn-neumorphic py-2 px-3 small">
+                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Reading History Cards Grid -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4 mb-5">
+            @foreach (var history in Model)
+            {
+                if (history.MagazineIssue == null) continue;
+
+                var issue = history.MagazineIssue;
+                var coverImg = !string.IsNullOrEmpty(issue.CoverImagePath)
+                    ? issue.CoverImagePath
+                    : (!string.IsNullOrEmpty(issue.CoverImageUrl) ? issue.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
+                var catName = issue.Category?.Name ?? issue.Magazine?.Category?.Name ?? "Culture";
+
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="neumorphic-card h-100 p-3 d-flex flex-column justify-content-between">
+                        <div>
+                            <!-- Uniform Cover Image (Max-Height 250px, img-fluid rounded) -->
+                            <div class="position-relative rounded-3 overflow-hidden mb-3 shadow-xs text-center" style="max-height: 250px; height: 250px; background: #dfe3ea;">
+                                <img src="@coverImg" alt="@issue.Title" class="img-fluid rounded w-100 h-100" style="max-height: 250px; object-fit: cover;" />
+                                <span class="badge position-absolute top-0 start-0 m-2 px-2 py-1 rounded-pill bg-white text-dark shadow-sm fw-bold small text-uppercase" style="font-size: 0.65rem;">
+                                    @catName
+                                </span>
+                                <span class="badge position-absolute bottom-0 end-0 m-2 px-2 py-1 rounded-pill text-white shadow-sm fw-bold small" style="background: rgba(14, 165, 233, 0.9); font-size: 0.65rem;">
+                                    <i class="bi bi-clock-history me-1"></i> Opened
+                                </span>
+                            </div>
+
+                            <!-- Magazine & Volume Info -->
+                            <div class="text-muted small text-uppercase fw-bold mb-1" style="font-size: 0.72rem;">
+                                @(issue.Magazine?.Title ?? "Culture Club") &bull; Vol. @issue.Volume
+                            </div>
+                            <h3 class="fw-bold text-dark text-truncate mb-1" title="@issue.Title" style="font-size: 1.05rem;">
+                                @issue.Title
+                            </h3>
+                            <div class="text-muted small mb-3" style="font-size: 0.75rem;">
+                                <i class="bi bi-calendar3 me-1"></i> Last opened @history.LastReadDate.ToString("MMM dd, yyyy 'at' hh:mm tt")
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <a href="/Reader/Issue/@issue.Id" class="btn btn-neumorphic-primary w-100 py-2 small fw-bold text-center text-decoration-none">
+                                <i class="bi bi-book-half me-1"></i> Continue Reading &rarr;
+                            </a>
+                            <a asp-controller="Magazines" asp-action="Details" asp-route-id="@issue.Id" class="btn btn-neumorphic w-100 py-1 small" style="font-size: 0.8rem;">
+                                <i class="bi bi-info-circle me-1"></i> Issue Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div class="neumorphic-card p-5 text-center my-4">
+            <div class="neumorphic-circle-btn mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 72px; height: 72px; font-size: 1.8rem; color: #0ea5e9;">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <h3 class="h5 fw-bold mb-2" style="color: #2d3436;">No Reading History Yet</h3>
+            <p class="text-muted small mx-auto mb-4" style="max-width: 480px;">
+                Digital magazine editions and articles you open in our high-resolution reader will be logged here automatically so you can resume anytime.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="/" class="btn btn-neumorphic-primary px-4 py-2 fw-semibold text-decoration-none">
+                    <i class="bi bi-shop me-2"></i> Browse Newsstand
+                </a>
+                <a asp-controller="MyAccount" asp-action="Index" class="btn btn-neumorphic px-4 py-2 fw-semibold text-decoration-none">
+                    <i class="bi bi-journal-bookmark me-2" style="color: #0ea5e9;"></i> My Library
+                </a>
+            </div>
+        </div>
+    }
+
+</div>

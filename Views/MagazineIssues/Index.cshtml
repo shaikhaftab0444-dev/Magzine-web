@@ -1,0 +1,187 @@
+@model IEnumerable<Digital_Magzine.Models.MagazineIssue>
+
+@{
+    ViewData["Title"] = "Magazines & Issues";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Top Action Bar & Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    CATALOG MANAGEMENT
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Magazines &amp; Issues</h1>
+            <p class="text-muted small mb-0">Manage digital flipbook publications, pricing, print-ready PDF assets, and release statuses.</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: rgba(14, 165, 233, 0.12); color: #0284c7;">
+                Total Editions: @Model.Count()
+            </span>
+            <a asp-action="Create" class="btn btn-neumorphic-primary py-2 px-3 small">
+                <i class="bi bi-plus-lg me-1"></i> + Create New Issue
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Notifications -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4 small d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+            <div class="fw-semibold">@TempData["SuccessMessage"]</div>
+        </div>
+    }
+
+    <!-- Main Neumorphic Card Container -->
+    <div class="neumorphic-card p-4 mb-4" style="background-color: #e6e9f0; border-radius: 20px; box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.5), -9px -9px 16px rgba(255, 255, 255, 0.8);">
+        
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-3">
+            <div>
+                <h2 class="h5 fw-bold mb-0" style="color: #2d3436;">Published &amp; Draft Editions</h2>
+                <span class="text-muted small">All digital issues available for single purchase or VIP all-access streaming</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 700;">
+                    @Model.Count(i => i.IsPublished) Live Editions
+                </span>
+            </div>
+        </div>
+
+        <!-- Fully Responsive Table Wrapper -->
+        <div class="table-responsive">
+            <table class="table neumorphic-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Cover</th>
+                        <th style="min-width: 200px;">Title &amp; Magazine</th>
+                        <th>Volume</th>
+                        <th>Single Price</th>
+                        <th>Release Date</th>
+                        <th>PDF Asset</th>
+                        <th>Status</th>
+                        <th class="text-end" style="min-width: 220px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <div class="neumorphic-circle-btn mx-auto mb-3" style="width: 56px; height: 56px;">
+                                    <i class="bi bi-journal-album fs-4 text-muted"></i>
+                                </div>
+                                <div class="fw-semibold">No magazine issues found.</div>
+                                <div class="small">Click "+ Create New Issue" to publish your first digital magazine volume.</div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @{
+                                        var cover = !string.IsNullOrEmpty(item.CoverImagePath) ? item.CoverImagePath : item.CoverImageUrl;
+                                    }
+                                    @if (!string.IsNullOrEmpty(cover))
+                                    {
+                                        <img src="@cover" alt="@item.Title" class="rounded-3 shadow-sm object-fit-cover" style="width: 54px; height: 72px; border: 1px solid rgba(163, 177, 198, 0.3);" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-3 d-flex align-items-center justify-content-center text-muted" style="width: 54px; height: 72px; background: rgba(163, 177, 198, 0.2); font-size: 0.72rem;">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="fw-bold fs-6" style="color: #2d3436;">@item.Title</div>
+                                    <div class="text-muted small">
+                                        @(item.Magazine?.Title ?? "Culture Club Edition") &bull; <span class="badge rounded-pill px-2 py-0" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-size: 0.72rem;">@(item.Category?.Name ?? item.Magazine?.Category?.Name ?? "Editorial")</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-2 py-1" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-weight: 700;">
+                                        Vol. @item.Volume
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (item.SingleIssuePrice <= 0)
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.15); color: #047857; font-weight: 700;">
+                                            <i class="bi bi-gift-fill me-1"></i> FREE
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold" style="color: #2d3436;">
+                                            @SettingsService.GetCurrencySymbol()@item.SingleIssuePrice.ToString("0.##")
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-muted small">
+                                    @item.PublishDate.ToString("MMM dd, yyyy")
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.PdfFilePath))
+                                    {
+                                        <a asp-controller="Reader" asp-action="Issue" asp-route-id="@item.Id" target="_blank" class="badge rounded-pill px-3 py-1 text-decoration-none" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 700;">
+                                            <i class="bi bi-file-earmark-pdf-fill me-1"></i> Read PDF
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(100, 116, 139, 0.15); color: #64748b;">
+                                            No PDF
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.IsPublished)
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 700;">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Published
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(245, 158, 11, 0.15); color: #b45309; font-weight: 700;">
+                                            Draft
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        @if (!string.IsNullOrEmpty(item.PdfFilePath))
+                                        {
+                                            <a asp-controller="Reader" asp-action="Issue" asp-route-id="@item.Id" target="_blank" class="btn btn-neumorphic btn-sm py-1 px-2" title="Launch Immersive PDF Reader" style="color: #0284c7;">
+                                                <i class="bi bi-book-half"></i>
+                                            </a>
+                                        }
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-neumorphic btn-sm py-1 px-3 small" title="Edit Issue">
+                                            <i class="bi bi-pencil-square me-1"></i> Edit
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-neumorphic btn-sm py-1 px-2 small" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-neumorphic btn-sm py-1 px-2 text-danger small" title="Delete Issue">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

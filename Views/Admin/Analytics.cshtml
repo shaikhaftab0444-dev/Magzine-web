@@ -1,0 +1,291 @@
+@model Digital_Magzine.Models.AdminAnalyticsViewModel
+
+@{
+    ViewData["Title"] = "Analytics";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Page Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    STOREFRONT VELOCITY
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Editorial &amp; Audience Analytics</h1>
+            <p class="text-muted small mb-0">Deep readership metrics, subscriber acquisition velocity, and digital issue engagement.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-neumorphic py-2 px-3 small" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i> Export Report
+            </button>
+            <a asp-action="Analytics" class="btn btn-neumorphic-primary py-2 px-3 small">
+                <i class="bi bi-arrow-repeat me-1"></i> Refresh Data
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 Key Analytics Metrics Cards -->
+    <div class="row g-4 mb-4">
+        <!-- Published Pieces -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="neumorphic-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Live Catalog Pieces</span>
+                    <div class="neumorphic-circle-sm" style="color: #0284c7;">
+                        <i class="bi bi-journal-richtext"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #2d3436;">@Model.TotalArticles</div>
+                <span class="small text-muted">Across <strong>@Model.TotalIssues</strong> digital editions</span>
+            </div>
+        </div>
+
+        <!-- Active Audience Base -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="neumorphic-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Paid Audience Base</span>
+                    <div class="neumorphic-circle-sm" style="color: #047857;">
+                        <i class="bi bi-people-fill text-success"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #047857;">@Model.TotalSubscribers</div>
+                <span class="small text-muted"><i class="bi bi-arrow-up-right text-success me-1"></i>+14.2% MoM growth</span>
+            </div>
+        </div>
+
+        <!-- Total Readership Views -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="neumorphic-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Total Readership Views</span>
+                    <div class="neumorphic-circle-sm" style="color: #0284c7;">
+                        <i class="bi bi-eye-fill"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #2d3436;">@(Model.TotalViewsEstimate / 1000)K</div>
+                <span class="small text-muted"><i class="bi bi-arrow-up-right text-primary me-1"></i>+28.5% YoY expansion</span>
+            </div>
+        </div>
+
+        <!-- Monthly Revenue -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="neumorphic-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Estimated Monthly Run Rate</span>
+                    <div class="neumorphic-circle-sm" style="color: #0284c7;">
+                        <i class="bi bi-currency-rupee"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #2d3436;">@SettingsService.GetCurrencySymbol()@Model.EstimatedMonthlyRevenue.ToString("N0")</div>
+                <span class="small text-muted">Recurring subscriptions + single sales</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Row 1: Wide Line Chart for Monthly Subscriptions -->
+    <div class="neumorphic-card p-4 mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+            <div>
+                <h2 class="h5 fw-bold mb-0" style="color: #2d3436;">Subscriber Growth Trajectory</h2>
+                <span class="text-muted small">Cumulative paid membership expansion over the last 6 months</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-1 small text-muted">
+                    <span class="d-inline-block rounded-circle" style="width: 10px; height: 10px; background-color: #0ea5e9;"></span> Paid Members
+                </div>
+                <div class="d-flex align-items-center gap-1 small text-muted">
+                    <span class="d-inline-block rounded-circle" style="width: 10px; height: 10px; background-color: #10b981;"></span> Target Trend
+                </div>
+            </div>
+        </div>
+        <div style="height: 300px;">
+            <canvas id="monthlySubscriptionsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart Row 2: Bar Chart for Views by Category & Audience Insights -->
+    <div class="row g-4 mb-4">
+        <!-- Left: Bar Chart for Article Views -->
+        <div class="col-12 col-lg-7">
+            <div class="neumorphic-card p-4 h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h3 class="h5 fw-bold mb-0" style="color: #2d3436;">Readership by Category &amp; Edition</h3>
+                        <span class="text-muted small">Total article and issue impressions across topics</span>
+                    </div>
+                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-weight: 700;">
+                        Views / Volume
+                    </span>
+                </div>
+                <div class="flex-grow-1" style="min-height: 250px;">
+                    <canvas id="articleViewsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Readership Engagement Breakdown -->
+        <div class="col-12 col-lg-5">
+            <div class="neumorphic-card p-4 h-100">
+                <h3 class="h5 fw-bold mb-3" style="color: #2d3436;">Audience &amp; Conversion Insights</h3>
+
+                <div class="d-flex flex-column gap-3">
+                    <!-- Stat 1 -->
+                    <div class="p-3 rounded-4" style="background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(163, 177, 198, 0.25);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold small" style="color: #2d3436;">Average Time Per Issue</span>
+                            <span class="fw-bold font-monospace" style="color: #0284c7;">4m 42s</span>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 4px; background-color: rgba(163, 177, 198, 0.3);">
+                            <div class="progress-bar rounded-pill" style="width: 78%; background: linear-gradient(135deg, #00a8ff, #0ea5e9);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 2 -->
+                    <div class="p-3 rounded-4" style="background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(163, 177, 198, 0.25);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold small" style="color: #2d3436;">Checkout Conversion Rate</span>
+                            <span class="fw-bold font-monospace text-success">11.8%</span>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 4px; background-color: rgba(163, 177, 198, 0.3);">
+                            <div class="progress-bar bg-success rounded-pill" style="width: 58%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 3 -->
+                    <div class="p-3 rounded-4" style="background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(163, 177, 198, 0.25);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold small" style="color: #2d3436;">Mobile &amp; Tablet Readership</span>
+                            <span class="fw-bold font-monospace" style="color: #0284c7;">64.5%</span>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 4px; background-color: rgba(163, 177, 198, 0.3);">
+                            <div class="progress-bar rounded-pill" style="width: 64.5%; background: linear-gradient(135deg, #00a8ff, #0ea5e9);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 4 -->
+                    <div class="p-3 rounded-4" style="background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(163, 177, 198, 0.25);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold small" style="color: #2d3436;">Monthly Subscriber Retention</span>
+                            <span class="fw-bold font-monospace" style="color: #2d3436;">94.2%</span>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 4px; background-color: rgba(163, 177, 198, 0.3);">
+                            <div class="progress-bar bg-dark rounded-pill" style="width: 94.2%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Chart 1: Monthly Subscriptions Wide Line Chart (Sky Blue Theme)
+            const subCtx = document.getElementById('monthlySubscriptionsChart');
+            if (subCtx) {
+                new Chart(subCtx, {
+                    type: 'line',
+                    data: {
+                        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyLabels)),
+                        datasets: [
+                            {
+                                label: 'Subscribers',
+                                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlySubscriberCounts)),
+                                borderColor: '#0ea5e9',
+                                backgroundColor: 'rgba(14, 165, 233, 0.15)',
+                                tension: 0.4,
+                                fill: true,
+                                borderWidth: 3,
+                                pointBackgroundColor: '#0ea5e9',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5
+                            },
+                            {
+                                label: 'Growth Target',
+                                data: [600, 720, 840, 960, 1080, 1200],
+                                borderColor: '#10b981',
+                                borderDash: [5, 5],
+                                tension: 0.4,
+                                fill: false,
+                                borderWidth: 2,
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#636e72', font: { family: 'Inter' } }
+                            },
+                            y: {
+                                grid: { color: 'rgba(163, 177, 198, 0.25)' },
+                                ticks: {
+                                    color: '#636e72',
+                                    font: { family: 'Inter' },
+                                    callback: function (val) { return val.toLocaleString(); }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Chart 2: Article Views Bar Chart (Sky Blue Theme)
+            const viewsCtx = document.getElementById('articleViewsChart');
+            if (viewsCtx) {
+                new Chart(viewsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CategoryLabels)),
+                        datasets: [
+                            {
+                                label: 'Views',
+                                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CategoryArticleCounts)),
+                                backgroundColor: '#0ea5e9',
+                                hoverBackgroundColor: '#0284c7',
+                                borderRadius: 8,
+                                borderSkipped: false,
+                                barThickness: 28
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#636e72', font: { family: 'Inter' } }
+                            },
+                            y: {
+                                grid: { color: 'rgba(163, 177, 198, 0.25)' },
+                                ticks: {
+                                    color: '#636e72',
+                                    font: { family: 'Inter' },
+                                    callback: function (val) { return (val / 1000) + 'k'; }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

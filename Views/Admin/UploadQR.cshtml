@@ -1,0 +1,220 @@
+@{
+    ViewData["Title"] = "Upload Payment QR Code";
+    Layout = "_AdminLayout";
+    bool qrExists = ViewBag.QrExists == true;
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Header Breadcrumb & Section Title -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    STOREFRONT CONFIGURATION
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Payment QR Code Manager</h1>
+            <p class="text-muted small mb-0">Upload and manage the active UPI QR code shown to customers during checkout and subscription purchases.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a asp-controller="Admin" asp-action="PaymentRequests" class="btn btn-neumorphic py-2 px-3 small">
+                <i class="bi bi-qr-code-scan me-1"></i> View Payment Requests
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success d-flex align-items-center gap-3 rounded-4 p-3 mb-4 border-0 shadow-sm" style="background: rgba(16, 185, 129, 0.15); color: #065f46;" role="alert">
+            <i class="bi bi-check-circle-fill fs-4 text-success"></i>
+            <div>
+                <div class="fw-bold">Success</div>
+                <div class="small">@TempData["SuccessMessage"]</div>
+            </div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger d-flex align-items-center gap-3 rounded-4 p-3 mb-4 border-0 shadow-sm" style="background: rgba(239, 68, 68, 0.15); color: #991b1b;" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-4 text-danger"></i>
+            <div>
+                <div class="fw-bold">Upload Error</div>
+                <div class="small">@TempData["ErrorMessage"]</div>
+            </div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Left: Current Active QR Code Preview -->
+        <div class="col-12 col-lg-5">
+            <div class="neumorphic-card p-4 p-md-5 h-100 text-center d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="small fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px; font-size: 0.75rem;">Current Live QR Code</span>
+                        @if (qrExists)
+                        {
+                            <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-1 fw-bold">
+                                <i class="bi bi-broadcast me-1"></i> Live
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle px-3 py-1 fw-bold">
+                                <i class="bi bi-info-circle me-1"></i> Fallback Mode
+                            </span>
+                        }
+                    </div>
+
+                    <!-- Display Current QR or Placeholder Box -->
+                    @if (qrExists)
+                    {
+                        <div class="p-4 rounded-4 my-3 d-inline-block position-relative" 
+                             style="background: #e6e9f0; box-shadow: inset 4px 4px 10px #c8ccd6, inset -4px -4px 10px #ffffff; border: 1px solid rgba(14, 165, 233, 0.2);">
+                            <div class="bg-white p-3 rounded-4 shadow-sm d-inline-block">
+                                <img src="/images/system/active-qr.jpg?v=@DateTime.Now.Ticks" 
+                                     alt="Active Payment QR Code" 
+                                     class="img-fluid rounded-3" 
+                                     style="width: 240px; height: 240px; object-fit: contain; display: block;" />
+                            </div>
+                        </div>
+                        <h5 class="fw-bold mt-2 mb-1" style="color: #2d3436;">Active Payment QR</h5>
+                        <p class="text-muted small mb-0">This QR code is currently visible to all customers on the payment checkout page.</p>
+                    }
+                    else
+                    {
+                        <!-- Placeholder Box Saying No QR Code Uploaded Yet -->
+                        <div class="p-5 rounded-4 my-3 d-flex flex-column align-items-center justify-content-center" 
+                             style="background: #e6e9f0; box-shadow: inset 4px 4px 10px #c8ccd6, inset -4px -4px 10px #ffffff; min-height: 290px; border: 1px dashed rgba(14, 165, 233, 0.4);">
+                            <div class="neumorphic-circle-sm mb-3" style="width: 64px; height: 64px; font-size: 1.8rem; color: #0284c7; background: #e6e9f0; box-shadow: 4px 4px 10px #c8ccd6, -4px -4px 10px #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-qr-code"></i>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1">No QR Code Uploaded Yet</h6>
+                            <p class="text-muted small mb-0 text-center" style="max-width: 260px;">
+                                The system is currently displaying the default fallback QR code at checkout.
+                            </p>
+                        </div>
+                    }
+                </div>
+
+                <!-- Path Info Note -->
+                <div class="mt-4 pt-3 border-top text-start">
+                    <div class="d-flex align-items-center gap-2 text-muted small">
+                        <i class="bi bi-folder2-open text-primary"></i>
+                        <span>Destination path: <code class="small text-dark">wwwroot/images/system/active-qr.jpg</code></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Upload Form & File Selector -->
+        <div class="col-12 col-lg-7">
+            <div class="neumorphic-card p-4 p-md-5 h-100">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: rgba(14, 165, 233, 0.15); color: #0284c7;">
+                        <i class="bi bi-cloud-arrow-up-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0" style="color: #2d3436;">Upload New QR Code</h5>
+                </div>
+                <p class="text-muted small mb-4">
+                    Selecting a new image file will immediately overwrite the existing active QR code upon form submission.
+                </p>
+
+                <form asp-controller="Admin" asp-action="UploadQR" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <!-- File Selector Field -->
+                    <div class="mb-4">
+                        <label for="qrImageInput" class="form-label small fw-bold" style="color: #2d3436;">
+                            Select QR Code Image File
+                        </label>
+                        <input type="file" 
+                               name="qrImage" 
+                               id="qrImageInput" 
+                               accept="image/*" 
+                               class="form-control neumorphic-input p-3" 
+                               required 
+                               onchange="previewSelectedQr(this)" />
+                        <div class="form-text small mt-2">
+                            <i class="bi bi-info-circle me-1"></i> Accepted formats: <strong>PNG, JPG, JPEG, WEBP</strong>. Recommended size: <strong>500 &times; 500 px</strong> square.
+                        </div>
+                    </div>
+
+                    <!-- Client-Side Instant Selection Preview -->
+                    <div id="selectionPreviewContainer" class="p-4 rounded-4 mb-4 text-center d-none" 
+                         style="background: #e6e9f0; box-shadow: inset 4px 4px 10px #c8ccd6, inset -4px -4px 10px #ffffff; border: 1px solid rgba(14, 165, 233, 0.25);">
+                        <span class="badge rounded-pill mb-2 px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                            SELECTED FILE PREVIEW
+                        </span>
+                        <div class="bg-white p-3 rounded-4 shadow-sm d-inline-block my-2">
+                            <img id="selectedImagePreview" 
+                                 src="#" 
+                                 alt="Selected QR Preview" 
+                                 class="img-fluid rounded-3" 
+                                 style="max-width: 200px; max-height: 200px; object-fit: contain; display: block;" />
+                        </div>
+                        <div class="small fw-bold text-dark mt-1" id="selectedFileName"></div>
+                    </div>
+
+                    <!-- Information Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(200, 204, 214, 0.5);">
+                                <div class="d-flex align-items-center gap-2 small fw-bold text-dark mb-1">
+                                    <i class="bi bi-lightning-charge-fill text-warning"></i> Instant Activation
+                                </div>
+                                <p class="text-muted small mb-0" style="font-size: 0.78rem;">
+                                    The active image will be replaced deterministically, meaning customer checkout loads the new code instantly without app restart.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(200, 204, 214, 0.5);">
+                                <div class="d-flex align-items-center gap-2 small fw-bold text-dark mb-1">
+                                    <i class="bi bi-shield-check text-success"></i> High Contrast UPI
+                                </div>
+                                <p class="text-muted small mb-0" style="font-size: 0.78rem;">
+                                    Ensure the QR code has clear borders and high contrast so mobile banking and scanner cameras can scan it without glare.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" 
+                            class="btn btn-neumorphic-primary w-100 py-3 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2 shadow-sm" 
+                            style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; font-size: 1rem; box-shadow: 4px 4px 10px #c8ccd6, -4px -4px 10px #ffffff;">
+                        <i class="bi bi-cloud-arrow-up-fill fs-5"></i>
+                        <span>Upload New QR</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function previewSelectedQr(input) {
+            const container = document.getElementById('selectionPreviewContainer');
+            const previewImg = document.getElementById('selectedImagePreview');
+            const nameLabel = document.getElementById('selectedFileName');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    nameLabel.textContent = input.files[0].name + " (" + (input.files[0].size / 1024).toFixed(1) + " KB)";
+                    container.classList.remove('d-none');
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                container.classList.add('d-none');
+            }
+        }
+    </script>
+}

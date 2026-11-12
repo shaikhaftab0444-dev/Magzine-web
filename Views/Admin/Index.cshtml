@@ -1,0 +1,381 @@
+@model Digital_Magzine.Models.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<!-- Greeting & Quick Actions Bar -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1" style="color: #2d3436; font-size: 1.85rem; letter-spacing: -0.5px;">Welcome back, Admin!</h1>
+        <p class="text-muted mb-0 small">Real-time SaaS digital newsstand overview and marketplace operations.</p>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <div class="dropdown">
+            <button class="btn btn-neumorphic dropdown-toggle py-2 px-3 small" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-calendar3 me-2" style="color: #0ea5e9;"></i>Last 30 Days
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 p-2 mt-2">
+                <li><a class="dropdown-item active rounded-3 py-2" href="#">Last 30 Days</a></li>
+                <li><a class="dropdown-item rounded-3 py-2" href="#">This Quarter</a></li>
+                <li><a class="dropdown-item rounded-3 py-2" href="#">Year to Date</a></li>
+            </ul>
+        </div>
+        <!-- + Add Magazine Primary Button -->
+        <a asp-controller="MagazineIssues" asp-action="Create" class="btn btn-neumorphic-primary px-4 py-2">
+            <i class="bi bi-plus-lg me-1"></i> + Add Magazine
+        </a>
+    </div>
+</div>
+
+<!-- 4 Neumorphic Stats Cards (Charcoal, Sky Blue, Soft Off-White) -->
+<div class="row g-4 mb-4">
+    <!-- Stat 1: Total Magazines & Issues -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Magazines & Issues</span>
+                    <h2 class="display-6 fw-bold mb-0 mt-1" style="color: #2d3436;">@(Model.TotalMagazines + Model.TotalIssues)</h2>
+                </div>
+                <div class="neumorphic-circle-sm">
+                    <i class="bi bi-journal-album"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(4, 120, 87, 0.12); color: #047857;">
+                    <i class="bi bi-arrow-up-right me-1"></i>+@(Model.TotalMagazines) Titles
+                </span>
+                <span class="text-muted small">@Model.TotalIssues issues live</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat 2: Total Subscribers -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Active Subscribers</span>
+                    <h2 class="display-6 fw-bold mb-0 mt-1" style="color: #2d3436;">@Model.TotalSubscribers</h2>
+                </div>
+                <div class="neumorphic-circle-sm">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(14, 165, 233, 0.15); color: #0284c7;">
+                    <i class="bi bi-arrow-up-right me-1"></i>Direct Checkout
+                </span>
+                <span class="text-muted small">instant VIP pass</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat 3: Publishing Model -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Publishing Model</span>
+                    <h2 class="display-6 fw-bold mb-0 mt-1" style="color: #2d3436;">100%</h2>
+                </div>
+                <div class="neumorphic-circle-sm">
+                    <i class="bi bi-journal-check"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(37, 99, 235, 0.12); color: #2563eb;">
+                    <i class="bi bi-shield-check me-1"></i>In-House
+                </span>
+                <span class="text-muted small">Culture Club Press</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat 4: Revenue -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Total Revenue</span>
+                    <h2 class="display-6 fw-bold mb-0 mt-1" style="color: #2d3436;">@SettingsService.GetCurrencySymbol()@Model.TotalRevenue.ToString("N0")</h2>
+                </div>
+                <div class="neumorphic-circle-sm">
+                    <i class="bi bi-currency-rupee"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(14, 165, 233, 0.15); color: #0284c7;">
+                    <i class="bi bi-arrow-up-right me-1"></i>+18.2%
+                </span>
+                <span class="text-muted small">recurring MRR</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Middle Section: Analytics Chart & Top Magazines -->
+<div class="row g-4 mb-4">
+    <!-- Left: Analytics Overview Chart -->
+    <div class="col-12 col-lg-7">
+        <div class="neumorphic-card p-4 h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h3 class="h5 fw-bold mb-0" style="color: #2d3436;">Storefront Readership & Purchases</h3>
+                    <span class="text-muted small">Digital magazine readership velocity vs. direct checkouts</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-1 small text-muted">
+                        <span class="d-inline-block rounded-circle" style="width: 10px; height: 10px; background-color: #0ea5e9;"></span> Readers
+                    </div>
+                    <div class="d-flex align-items-center gap-1 small text-muted">
+                        <span class="d-inline-block rounded-circle" style="width: 10px; height: 10px; background-color: #2d3436;"></span> Purchases
+                    </div>
+                </div>
+            </div>
+            <div class="flex-grow-1" style="min-height: 260px;">
+                <canvas id="adminAnalyticsChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Top Magazines & Issues -->
+    <div class="col-12 col-lg-5">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h3 class="h5 fw-bold mb-0" style="color: #2d3436;">Top Publications</h3>
+                    <span class="text-muted small">Leading digital newsstand titles</span>
+                </div>
+                <a asp-controller="MagazineIssues" asp-action="Index" class="small text-decoration-none fw-bold" style="color: #0ea5e9;">
+                    Manage &rarr;
+                </a>
+            </div>
+
+            <div class="d-flex flex-column gap-3">
+                <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background-color: rgba(255, 255, 255, 0.5);">
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=120&q=80"
+                         alt="Tech Magazine" class="rounded-3 object-fit-cover shadow-sm" style="width: 48px; height: 54px;" />
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="small fw-bold text-truncate" style="color: #2d3436;">Tech Weekly - The AI Supercycle</div>
+                        <div class="text-muted small">Condé Nast Digital &bull; 48.2k readers</div>
+                    </div>
+                    <span class="badge rounded-pill" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700;">@SettingsService.GetCurrencySymbol()99</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background-color: rgba(255, 255, 255, 0.5);">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
+                         alt="Fashion Magazine" class="rounded-3 object-fit-cover shadow-sm" style="width: 48px; height: 54px;" />
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="small fw-bold text-truncate" style="color: #2d3436;">Modern Vogue - Autumn Haute Couture</div>
+                        <div class="text-muted small">Condé Nast Digital &bull; 39.5k readers</div>
+                    </div>
+                    <span class="badge rounded-pill" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700;">@SettingsService.GetCurrencySymbol()149</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background-color: rgba(255, 255, 255, 0.5);">
+                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=120&q=80"
+                         alt="Business Magazine" class="rounded-3 object-fit-cover shadow-sm" style="width: 48px; height: 54px;" />
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="small fw-bold text-truncate" style="color: #2d3436;">Business Insider Daily - Venture 2026</div>
+                        <div class="text-muted small">Hearst Media Global &bull; 27.1k readers</div>
+                    </div>
+                    <span class="badge rounded-pill" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700;">@SettingsService.GetCurrencySymbol()99</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Section: Recent Direct Subscribers & Editorial Shortcuts -->
+<div class="row g-4 mb-4">
+    <!-- Left: Recent Direct VIP Subscribers -->
+    <div class="col-12 col-lg-8">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h3 class="h5 fw-bold mb-0" style="color: #2d3436;">Recent Direct VIP Subscribers</h3>
+                    <span class="text-muted small">Direct customer checkout activations with instant access</span>
+                </div>
+                <a asp-action="Subscribers" class="btn btn-neumorphic btn-sm py-1 px-3 small">
+                    View All &rarr;
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table neumorphic-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Subscriber</th>
+                            <th>Plan</th>
+                            <th>Price</th>
+                            <th>Start Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RecentSubscribers != null && Model.RecentSubscribers.Any())
+                        {
+                            @foreach (var sub in Model.RecentSubscribers)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                                                <i class="bi bi-person-check-fill"></i>
+                                            </div>
+                                            <span class="fw-semibold" style="color: #2d3436;">@sub.UserEmail</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.12); color: #0284c7;">@sub.PlanName</span></td>
+                                    <td class="fw-bold">@SettingsService.GetCurrencySymbol()@sub.PlanPrice.ToString("0.##")</td>
+                                    <td class="text-muted small">@sub.StartDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 700;">
+                                            Active VIP
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <i class="bi bi-people fs-3 d-block text-muted mb-2"></i>
+                                    <em>Direct subscriber signups will appear here as users complete checkout.</em>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Publishing Operations & Shortcuts -->
+    <div class="col-12 col-lg-4">
+        <div class="neumorphic-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h3 class="h5 fw-bold mb-1" style="color: #2d3436;">Editorial Operations</h3>
+                <span class="text-muted small d-block mb-3">Quick shortcuts for platform management</span>
+
+                <div class="d-flex flex-column gap-2 mb-3">
+                    <a asp-controller="MagazineIssues" asp-action="Create" class="btn btn-neumorphic-primary text-start p-3 w-100 d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-file-earmark-plus fs-5"></i>
+                            <div>
+                                <div class="fw-bold small">Publish New Issue</div>
+                                <div class="small opacity-75" style="font-size: 0.72rem;">Upload PDF replica and metadata</div>
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-right small"></i>
+                    </a>
+
+                    <a asp-controller="MagazineIssues" asp-action="Index" class="btn btn-neumorphic text-start p-3 w-100 d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-journal-album fs-5" style="color: #0ea5e9;"></i>
+                            <div>
+                                <div class="fw-bold small" style="color: #2d3436;">Live Issue Catalog</div>
+                                <div class="text-muted small" style="font-size: 0.72rem;">Review & manage @Model.TotalIssues live issues</div>
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-right small text-muted"></i>
+                    </a>
+
+                    <a asp-action="Analytics" class="btn btn-neumorphic text-start p-3 w-100 d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-graph-up fs-5" style="color: #0ea5e9;"></i>
+                            <div>
+                                <div class="fw-bold small" style="color: #2d3436;">Audience Analytics</div>
+                                <div class="text-muted small" style="font-size: 0.72rem;">Velocity, run rate & readership</div>
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-right small text-muted"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="p-3 rounded-4" style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.2);">
+                <div class="d-flex align-items-center gap-2 small fw-bold" style="color: #0284c7;">
+                    <i class="bi bi-patch-check-fill"></i> Single-Publisher Edition
+                </div>
+                <div class="text-muted small mt-1" style="font-size: 0.72rem;">100% company-owned catalog & direct subscriber monetization.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Neumorphic Sky Blue/Charcoal Analytics Chart
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('adminAnalyticsChart');
+        if (!ctx) return;
+
+        const months = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+        const readersData = [18200, 24500, 31000, 39400, 48000, 58200];
+        const purchasesData = [340, 510, 720, 940, 1120, 1380];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Active Readers',
+                        data: readersData,
+                        borderColor: '#0ea5e9',
+                        backgroundColor: 'rgba(14, 165, 233, 0.15)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#0ea5e9',
+                        pointRadius: 4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Direct Purchases & Passes',
+                        data: purchasesData,
+                        borderColor: '#2d3436',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0.35,
+                        pointBackgroundColor: '#2d3436',
+                        pointRadius: 3,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#636e72', font: { family: 'Inter' } }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        grid: { color: 'rgba(163, 177, 198, 0.25)' },
+                        ticks: { color: '#636e72', font: { family: 'Inter' } }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: false,
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    });
+</script>
+}

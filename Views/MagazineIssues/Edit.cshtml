@@ -1,0 +1,189 @@
+@model Digital_Magzine.Models.MagazineIssue
+
+@{
+    ViewData["Title"] = "Edit Issue - " + Model.Title;
+    Layout = "_AdminLayout";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-neumorphic btn-sm py-2 px-3 small">
+        <i class="bi bi-arrow-left me-1"></i> Back to Magazine Issues
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+        <div class="neumorphic-card p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                    <i class="bi bi-pencil-square fs-5"></i>
+                </div>
+                <div>
+                    <h2 class="h4 fw-bold mb-0" style="color: #2d3436;">Edit Magazine Issue</h2>
+                    <span class="text-muted small">Update metadata, categories, pricing, and digital PDF assets</span>
+                </div>
+            </div>
+
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="PdfFilePath" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 neumorphic-card small mb-3"></div>
+
+                <!-- Issue Title -->
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label small fw-bold" style="color: #2d3436;">Issue Title</label>
+                    <input asp-for="Title" class="form-control neumorphic-input w-100" required />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <!-- Magazine Title & Category Dropdowns -->
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6">
+                        <label asp-for="MagazineId" class="form-label small fw-bold" style="color: #2d3436;">Parent Magazine Title</label>
+                        <select asp-for="MagazineId" asp-items="ViewBag.Magazines" class="form-select neumorphic-input w-100" required>
+                        </select>
+                        <span asp-validation-for="MagazineId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="CategoryId" class="form-label small fw-bold" style="color: #2d3436;">Category Taxonomy</label>
+                        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select neumorphic-input w-100">
+                            <option value="">-- Inherit from Magazine --</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Volume & Publish Date -->
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Volume" class="form-label small fw-bold" style="color: #2d3436;">Volume / Edition #</label>
+                        <input asp-for="Volume" type="number" class="form-control neumorphic-input w-100" min="1" required />
+                        <span asp-validation-for="Volume" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label asp-for="PublishDate" class="form-label small fw-bold" style="color: #2d3436;">Publish Date</label>
+                        <input asp-for="PublishDate" type="date" class="form-control neumorphic-input w-100" required />
+                        <span asp-validation-for="PublishDate" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Price & Free Issue Toggle -->
+                <div class="mb-3">
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" id="isFreeToggle" name="isFreeToggle" @(Model.SingleIssuePrice <= 0 ? "checked" : "") />
+                        <label class="form-check-label fw-bold small ms-1" for="isFreeToggle" style="color: #047857;">
+                            <i class="bi bi-gift-fill me-1"></i> Make this issue FREE
+                        </label>
+                    </div>
+                    <label asp-for="SingleIssuePrice" class="form-label small fw-bold" style="color: #2d3436;">Single Issue Price (@SettingsService.GetCurrencySymbol())</label>
+                    <input asp-for="SingleIssuePrice" type="number" step="0.01" class="form-control neumorphic-input w-100" id="singleIssuePriceInput" required />
+                    <span asp-validation-for="SingleIssuePrice" class="text-danger small"></span>
+                </div>
+
+                <!-- Cover Image Artwork Upload -->
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: #2d3436;">
+                        <i class="bi bi-image text-primary me-1"></i> Replace Cover Image Artwork (Optional)
+                    </label>
+                    <input type="file" name="coverFile" class="form-control neumorphic-input w-100" accept="image/*" />
+                    @if (!string.IsNullOrEmpty(Model.CoverImagePath) || !string.IsNullOrEmpty(Model.CoverImageUrl))
+                    {
+                        var activeCover = !string.IsNullOrEmpty(Model.CoverImagePath) ? Model.CoverImagePath : Model.CoverImageUrl;
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <img src="@activeCover" alt="Cover" class="rounded shadow-xs" style="width: 48px; height: 64px; object-fit: cover;" />
+                            <div class="small text-muted">
+                                Current artwork: <span class="font-monospace text-primary">@activeCover</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Digital PDF Asset Upload -->
+                <div class="mb-4">
+                    <label class="form-label small fw-bold" style="color: #2d3436;">
+                        <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> Replace Digital PDF Asset (Optional)
+                    </label>
+                    <input type="file" name="pdfFile" class="form-control neumorphic-input w-100" accept=".pdf" />
+                    @if (!string.IsNullOrEmpty(Model.PdfFilePath))
+                    {
+                        <div class="form-text text-muted small mt-1">
+                            Current file: <span class="font-monospace text-primary">@Model.PdfFilePath</span> &bull;
+                            <a asp-controller="Reader" asp-action="Issue" asp-route-id="@Model.Id" target="_blank" class="fw-semibold text-decoration-none">
+                                Preview in Reader &rarr;
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-text text-muted small mt-1">No PDF uploaded yet (reader uses sample fallback).</div>
+                    }
+                </div>
+
+                <!-- Published Toggle -->
+                <div class="p-3 rounded-4 mb-4" style="background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(163, 177, 198, 0.25);">
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input" type="checkbox" asp-for="IsPublished" id="isPublishedSwitch" />
+                        <label class="form-check-label fw-bold small ms-2" for="isPublishedSwitch" style="color: #2d3436;">
+                            Publicly Published on Storefront &amp; Library
+                        </label>
+                        <div class="form-text text-muted small ms-2">If unchecked, this issue is hidden from public view and only accessible to administrators.</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                    <a asp-action="Index" class="btn btn-neumorphic px-4 py-2 small">Cancel</a>
+                    <button type="submit" class="btn btn-neumorphic-primary px-4 py-2 fw-bold">
+                        <i class="bi bi-check2-circle me-1"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const isFreeToggle = document.getElementById('isFreeToggle');
+            const priceInput = document.getElementById('singleIssuePriceInput');
+            let previousPrice = priceInput.value || "99.00";
+
+            if (isFreeToggle && priceInput) {
+                function updatePriceState() {
+                    if (isFreeToggle.checked) {
+                        if (priceInput.value !== "0" && priceInput.value !== "0.00") {
+                            previousPrice = priceInput.value;
+                        }
+                        priceInput.value = "0";
+                        priceInput.disabled = true;
+                    } else {
+                        priceInput.disabled = false;
+                        if (priceInput.value === "0" || priceInput.value === "0.00") {
+                            priceInput.value = previousPrice && previousPrice !== "0" ? previousPrice : "99.00";
+                        }
+                    }
+                }
+
+                isFreeToggle.addEventListener('change', updatePriceState);
+                if (isFreeToggle.checked) {
+                    updatePriceState();
+                }
+
+                const form = priceInput.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function () {
+                        if (isFreeToggle.checked) {
+                            priceInput.disabled = false;
+                            priceInput.value = "0";
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+}

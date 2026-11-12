@@ -1,0 +1,223 @@
+@model Digital_Magzine.Models.PaymentViewModel
+
+@{
+    ViewData["Title"] = (Model.IsSingleIssue ? "Buy Single Issue" : "VIP Checkout") + " - Culture Club";
+}
+
+<div class="neumorphic-theme py-5" style="min-height: 85vh; background-color: var(--neu-bg, #e6e9f0);">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+
+                <!-- Header Breadcrumb / Return Link -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-neumorphic py-2 px-3 small">
+                        <i class="bi bi-arrow-left me-2"></i> Return to Newsstand
+                    </a>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge rounded-pill px-3 py-2" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700;">
+                            <i class="bi bi-qr-code-scan me-1"></i> QR Code Payment Verification
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Left: QR Code & Verification Form -->
+                    <div class="col-12 col-lg-7">
+                        <div class="neumorphic-card p-4 p-md-5">
+
+                            <!-- Section Title -->
+                            <div class="mb-4">
+                                @if (Model.IsSingleIssue)
+                                {
+                                    <span class="badge rounded-pill mb-2 px-3 py-1" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; font-weight: 700; font-size: 0.75rem;">
+                                        CHECKOUT &bull; SINGLE DIGITAL EDITION
+                                    </span>
+                                    <h1 class="h4 fw-bold mb-1" style="color: #2d3436;">Scan &amp; Pay via UPI</h1>
+                                    <p class="text-muted small mb-0">Scan the QR code to complete payment, then submit your transaction reference and screenshot for instant verification.</p>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill mb-2 px-3 py-1" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; font-weight: 700; font-size: 0.75rem;">
+                                        CHECKOUT &bull; VIP ALL-ACCESS SUBSCRIPTION
+                                    </span>
+                                    <h1 class="h4 fw-bold mb-1" style="color: #2d3436;">Scan &amp; Pay via UPI</h1>
+                                    <p class="text-muted small mb-0">Scan the QR code to complete your VIP pass payment, then submit your confirmation details.</p>
+                                }
+                            </div>
+
+                            <!-- QR Code Showcase Card -->
+                            <div class="text-center p-4 mb-4 rounded-4 position-relative overflow-hidden" 
+                                 style="background: #e6e9f0; box-shadow: inset 4px 4px 10px #c8ccd6, inset -4px -4px 10px #ffffff; border: 1px solid rgba(14, 165, 233, 0.2);">
+                                
+                                <div class="badge rounded-pill px-3 py-1 mb-3" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700;">
+                                    UPI INSTANT SCANNER
+                                </div>
+
+                                <div class="mx-auto p-3 rounded-4 mb-3 d-inline-block shadow-sm" style="background: #ffffff;">
+                                    <img src="/images/system/active-qr.jpg?v=@DateTime.Now.Ticks" 
+                                         alt="Culture Club Payment QR Code" 
+                                         class="img-fluid rounded-3" 
+                                         style="width: 220px; height: 220px; display: block; object-fit: contain;" 
+                                         onerror="this.onerror=null; this.src='/images/placeholders/default-qr.png';" />
+                                </div>
+
+                                <p class="fw-bold mb-1" style="color: #2d3436; font-size: 1.05rem;">
+                                    Scan the QR code to pay the Total Due Amount.
+                                </p>
+                                <div class="text-muted small mb-3">
+                                    Supports Google Pay, PhonePe, Paytm, BHIM, and all UPI applications.
+                                </div>
+
+                                <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill" style="background: #ffffff; box-shadow: 2px 2px 6px #c8ccd6;">
+                                    <span class="text-muted small">Total Due:</span>
+                                    <span class="h5 fw-bold mb-0" style="color: #047857;">@SettingsService.GetCurrencySymbol()@Model.Price.ToString("0.##")</span>
+                                </div>
+                            </div>
+
+                            <!-- Payment Proof Submission Form -->
+                            <form asp-controller="Checkout" asp-action="ProcessPayment" method="post" enctype="multipart/form-data" id="qrPaymentForm">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" asp-for="PlanId" />
+                                <input type="hidden" asp-for="PlanName" />
+                                <input type="hidden" asp-for="IssueId" />
+                                <input type="hidden" asp-for="IssueTitle" />
+                                <input type="hidden" asp-for="IssueCoverImage" />
+                                <input type="hidden" asp-for="Price" />
+                                <input type="hidden" asp-for="DurationInMonths" />
+
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                                <!-- Transaction Reference Input -->
+                                <div class="mb-4">
+                                    <label for="TransactionReference" class="form-label small fw-bold" style="color: #2d3436;">
+                                        UPI / Bank Transaction Reference (UTR ID)
+                                    </label>
+                                    <div class="position-relative">
+                                        <i class="bi bi-hash position-absolute top-50 start-0 translate-middle-y ms-3 text-muted fs-5"></i>
+                                        <input type="text" name="TransactionReference" id="TransactionReference" 
+                                               class="form-control neumorphic-input w-100" 
+                                               placeholder="e.g. 412356789012 or UPI Ref / UTR ID" 
+                                               required 
+                                               style="padding-left: 2.5rem !important;" />
+                                    </div>
+                                    <span asp-validation-for="TransactionReference" class="text-danger small"></span>
+                                    <div class="form-text text-muted small mt-1">
+                                        Copy and paste the 12-digit UTR/Reference number from your UPI app receipt.
+                                    </div>
+                                </div>
+
+                                <!-- Screenshot Upload Input -->
+                                <div class="mb-4">
+                                    <label for="receiptImage" class="form-label small fw-bold" style="color: #2d3436;">
+                                        Payment Screenshot / Receipt Image
+                                    </label>
+                                    <div class="position-relative">
+                                        <input type="file" name="receiptImage" id="receiptImage" 
+                                               class="form-control neumorphic-input w-100" 
+                                               accept="image/*" 
+                                               required />
+                                    </div>
+                                    <div class="form-text text-muted small mt-1">
+                                        Upload a clear screenshot showing transaction confirmation and reference ID.
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <button type="submit" class="btn btn-neumorphic-primary w-100 py-3 fs-6 fw-bold">
+                                    <i class="bi bi-send-check-fill me-2"></i> Submit Payment Verification
+                                </button>
+
+                                <div class="text-center text-muted small mt-3" style="font-size: 0.78rem;">
+                                    <i class="bi bi-clock-history me-1 text-primary"></i> 
+                                    Your request will be submitted to the editorial administrator for verification.
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+
+                    <!-- Right: Order Summary Card -->
+                    <div class="col-12 col-lg-5">
+                        <div class="neumorphic-card p-4 p-md-5 h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <h2 class="h5 fw-bold mb-3" style="color: #2d3436;">Order Summary</h2>
+
+                                @if (Model.IsSingleIssue)
+                                {
+                                    <div class="p-3 rounded-4 mb-4" style="background-color: rgba(255, 255, 255, 0.6); border: 1px solid rgba(163, 177, 198, 0.2);">
+                                        <div class="d-flex gap-3 align-items-center">
+                                            @if (!string.IsNullOrEmpty(Model.IssueCoverImage))
+                                            {
+                                                <img src="@Model.IssueCoverImage" alt="@Model.IssueTitle" class="rounded-3 shadow-xs" style="width: 50px; aspect-ratio: 3/4; object-fit: cover;" />
+                                            }
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                                    <span class="fw-bold" style="color: #2d3436;">Single Issue Purchase</span>
+                                                    <span class="fw-bold" style="color: #0284c7;">@SettingsService.GetCurrencySymbol()@Model.Price.ToString("0.##")</span>
+                                                </div>
+                                                <div class="text-primary fw-semibold small text-truncate" style="max-width: 220px;">
+                                                    @(Model.IssueTitle ?? "Selected Digital Issue")
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.75rem;">
+                                                    Lifetime Digital Library Access
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="p-3 rounded-4 mb-4" style="background-color: rgba(255, 255, 255, 0.6); border: 1px solid rgba(163, 177, 198, 0.2);">
+                                        <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                            <span class="fw-bold" style="color: #2d3436;">VIP Subscription: @Model.PlanName</span>
+                                            <span class="fw-bold" style="color: #0284c7;">@SettingsService.GetCurrencySymbol()@Model.Price.ToString("0.##")</span>
+                                        </div>
+                                        <div class="text-muted small mb-2">
+                                            @Model.DurationInMonths @(Model.DurationInMonths == 1 ? "Month" : "Months") All-Access Membership
+                                        </div>
+                                        <span class="badge rounded-pill px-2 py-1" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-size: 0.7rem;">
+                                            Unlimited Digital Reading
+                                        </span>
+                                    </div>
+                                }
+
+                                <div class="d-flex justify-content-between align-items-center mb-2 text-muted small">
+                                    <span>Subtotal</span>
+                                    <span>@SettingsService.GetCurrencySymbol()@Model.Price.ToString("0.##")</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2 text-muted small">
+                                    <span>Processing &amp; Taxes</span>
+                                    <span class="text-success fw-bold">@SettingsService.GetCurrencySymbol()0.00 (Included)</span>
+                                </div>
+                                <hr style="border-color: rgba(163, 177, 198, 0.4);" />
+                                <div class="d-flex justify-content-between align-items-baseline mb-4">
+                                    <span class="h6 fw-bold mb-0" style="color: #2d3436;">Total Amount</span>
+                                    <span class="h4 fw-bold mb-0" style="color: #0284c7;">@SettingsService.GetCurrencySymbol()@Model.Price.ToString("0.##")</span>
+                                </div>
+
+                                <div class="p-3 rounded-3 mb-3" style="background: rgba(14, 165, 233, 0.08); border-left: 3px solid #0ea5e9;">
+                                    <div class="d-flex align-items-start gap-2">
+                                        <i class="bi bi-info-circle-fill text-primary mt-1"></i>
+                                        <div class="small" style="color: #334155;">
+                                            <strong>Verification Timeline:</strong> Your payment request is typically verified within minutes by the platform administrator.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center text-muted small pt-3" style="border-top: 1px solid rgba(0,0,0,0.06); font-size: 0.75rem;">
+                                Culture Club Publishing &bull; Secured with end-to-end QR UPI verification.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

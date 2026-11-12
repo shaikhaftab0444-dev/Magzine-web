@@ -1,0 +1,92 @@
+@model IEnumerable<Digital_Magzine.Models.Category>
+
+@{
+    ViewData["Title"] = "Categories";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1" style="color: #2d3436; font-size: 1.85rem; letter-spacing: -0.5px;">Categories</h1>
+        <p class="text-muted mb-0 small">Manage publication categories, storefront navigation taxonomy, and issue filters.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-neumorphic-primary px-4 py-2">
+        <i class="bi bi-plus-lg me-1"></i> + Add Category
+    </a>
+</div>
+
+<!-- Neumorphic Categories Table Card -->
+<div class="neumorphic-card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="h5 fw-bold mb-0" style="color: #2d3436;">Active Categories</h2>
+            <span class="text-muted small">Catalog taxonomy connected to all magazine editions</span>
+        </div>
+        <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700;">
+            @Model.Count() Categories Live
+        </span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table neumorphic-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Category Name</th>
+                    <th style="width: 40%;">Description</th>
+                    <th style="width: 15%;" class="text-center">Magazines</th>
+                    <th style="width: 10%;" class="text-center">Issues</th>
+                    <th style="width: 10%;" class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="bi bi-tags fs-3 d-block text-muted mb-2"></i>
+                            <em>No categories found. Click "+ Add Category" to create one.</em>
+                        </td>
+                    </tr>
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                                    <i class="bi bi-tag-fill"></i>
+                                </div>
+                                <div>
+                                    <span class="fw-bold fs-6" style="color: #2d3436;">@item.Name</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted small">@(string.IsNullOrEmpty(item.Description) ? "No description provided." : item.Description)</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-weight: 600;">
+                                @(item.Magazines?.Count ?? 0) Titles
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 600;">
+                                @(item.MagazineIssues?.Count ?? 0) Issues
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-neumorphic btn-sm py-1 px-3 small" title="Edit">
+                                    <i class="bi bi-pencil me-1"></i> Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-neumorphic btn-sm py-1 px-3 small text-danger" title="Delete">
+                                    <i class="bi bi-trash me-1"></i> Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

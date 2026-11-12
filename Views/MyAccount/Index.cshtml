@@ -1,0 +1,236 @@
+@model Digital_Magzine.Models.MyAccountViewModel
+
+@{
+    ViewData["Title"] = "My Account & Library";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Top Header: Welcome Banner & Membership Badge -->
+    <div class="neumorphic-card p-4 p-md-5 mb-5 position-relative overflow-hidden">
+        <div class="row align-items-center g-4">
+            <div class="col-12 col-md-8">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    @if (Model.IsVipSubscriber)
+                    {
+                        <span class="badge rounded-pill px-3 py-1 shadow-xs fw-bold" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; font-size: 0.8rem;">
+                            <i class="bi bi-star-fill me-1"></i> VIP Subscriber
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge rounded-pill px-3 py-1 text-white shadow-xs fw-bold" style="background-color: #64748b !important; font-size: 0.8rem;">
+                            <i class="bi bi-person-fill me-1"></i> Free Member
+                        </span>
+                    }
+                </div>
+
+                <h1 class="h3 fw-bold mb-1" style="color: #2d3436;">
+                    Welcome, @(Model.UserName.Contains("@") ? Model.UserName.Split('@')[0] : Model.UserName)!
+                </h1>
+                <p class="text-muted small mb-0">
+                    Signed in as <strong>@Model.UserEmail</strong>. Manage your digital magazine shelf, access purchased editions, and discover suggested reading.
+                </p>
+            </div>
+
+            <!-- Upgrade to VIP All-Access CTA linking to /SubscriptionPlans -->
+            <div class="col-12 col-md-4 text-md-end">
+                @if (!Model.IsVipSubscriber)
+                {
+                    <div class="d-flex flex-column align-items-md-end gap-2">
+                        <a asp-controller="SubscriptionPlans" asp-action="Index" class="btn btn-neumorphic-primary py-3 px-4 shadow-sm fs-6 fw-bold text-decoration-none">
+                            <i class="bi bi-gem me-2"></i> Upgrade to VIP All-Access
+                        </a>
+                        <span class="text-muted small" style="font-size: 0.78rem;">Unlock unlimited digital editions across all magazines</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex flex-column align-items-md-end gap-1">
+                        <span class="badge rounded-pill px-3 py-2 text-success fw-bold" style="background: rgba(16, 185, 129, 0.12); font-size: 0.85rem;">
+                            <i class="bi bi-shield-check me-1"></i> All-Access VIP Active
+                        </span>
+                        <span class="text-muted small" style="font-size: 0.75rem;">Full library unlocked</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 1: My Library (Purchased Issues) -->
+    <div id="library" class="mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h2 class="h4 fw-bold mb-1" style="color: #2d3436;">
+                    <i class="bi bi-journal-bookmark-fill text-primary me-2"></i> My Library
+                </h2>
+                <p class="text-muted small mb-0">Issues permanently purchased and saved in your digital archive.</p>
+            </div>
+            <span class="badge rounded-pill px-3 py-2" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-weight: 700;">
+                @(Model.Purchases?.Count ?? 0) Purchased
+            </span>
+        </div>
+
+        @if (Model.Purchases != null && Model.Purchases.Any())
+        {
+            <div class="row g-4">
+                @foreach (var purchase in Model.Purchases)
+                {
+                    if (purchase.MagazineIssue == null) continue;
+
+                    var issue = purchase.MagazineIssue;
+                    var coverImg = !string.IsNullOrEmpty(issue.CoverImagePath)
+                        ? issue.CoverImagePath
+                        : (!string.IsNullOrEmpty(issue.CoverImageUrl) ? issue.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
+                    var catName = issue.Category?.Name ?? issue.Magazine?.Category?.Name ?? "General";
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <div class="neumorphic-card h-100 p-3 d-flex flex-column justify-content-between">
+                            <div>
+                                <!-- Cover Image Thumbnail -->
+                                <div class="position-relative rounded-3 overflow-hidden mb-3 shadow-xs text-center" style="max-height: 250px; height: 250px; background: #dfe3ea;">
+                                    <img src="@coverImg" alt="@issue.Title" class="img-fluid rounded w-100 h-100" style="max-height: 250px; object-fit: cover;" />
+                                    <span class="badge position-absolute top-0 start-0 m-2 px-2 py-1 rounded-pill bg-white text-dark shadow-sm fw-bold small text-uppercase" style="font-size: 0.65rem;">
+                                        @catName
+                                    </span>
+                                    <span class="badge position-absolute bottom-0 end-0 m-2 px-2 py-1 rounded-pill bg-primary text-white shadow-sm fw-bold small" style="font-size: 0.65rem;">
+                                        <i class="bi bi-patch-check-fill me-1"></i> Owned
+                                    </span>
+                                </div>
+
+                                <!-- Issue Title & Metadata -->
+                                <div class="text-muted small text-uppercase fw-bold mb-1" style="font-size: 0.72rem;">
+                                    @(issue.Magazine?.Title ?? "Culture Club") &bull; Vol. @issue.Volume
+                                </div>
+                                <h3 class="fw-bold text-dark text-truncate mb-1" title="@issue.Title" style="font-size: 1.05rem;">
+                                    @issue.Title
+                                </h3>
+                                <div class="text-muted small mb-3" style="font-size: 0.75rem;">
+                                    Purchased on @purchase.PurchaseDate.ToString("MMM dd, yyyy")
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons: Sky Blue "Read Now" linking to /Reader/Issue/{id} -->
+                            <div class="d-flex flex-column gap-2 mt-2">
+                                <a href="/Reader/Issue/@purchase.MagazineIssue.Id" class="btn btn-neumorphic-primary w-100 py-2 small fw-bold text-center text-decoration-none">
+                                    <i class="bi bi-book-half me-1"></i> Read Now
+                                </a>
+                                <a asp-controller="Magazines" asp-action="Details" asp-route-id="@purchase.MagazineIssue.Id" class="btn btn-neumorphic w-100 py-1 small" style="font-size: 0.8rem;">
+                                    <i class="bi bi-info-circle me-1"></i> Issue Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <!-- Empty Library State (0 Purchases) -->
+            <div class="neumorphic-card p-5 text-center my-3">
+                <div class="neumorphic-circle-btn mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 72px; height: 72px; font-size: 1.8rem; color: #0ea5e9;">
+                    <i class="bi bi-journal-plus"></i>
+                </div>
+                <h3 class="h5 fw-bold mb-2" style="color: #2d3436;">Your Library is Empty</h3>
+                <p class="text-muted small mx-auto mb-4" style="max-width: 480px;">
+                    You haven't purchased any individual digital issues yet. Browse our newsstand or upgrade to VIP All-Access to unlock every title.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="/" class="btn btn-neumorphic-primary px-4 py-2 fw-semibold text-decoration-none">
+                        <i class="bi bi-shop me-2"></i> Browse Newsstand
+                    </a>
+                    @if (!Model.IsVipSubscriber)
+                    {
+                        <a asp-controller="SubscriptionPlans" asp-action="Index" class="btn btn-neumorphic px-4 py-2 fw-semibold text-decoration-none">
+                            <i class="bi bi-gem me-2" style="color: #0ea5e9;"></i> Upgrade to VIP All-Access
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Section 2: Suggested Reading (Latest Published Issues) -->
+    <div class="mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h2 class="h4 fw-bold mb-1" style="color: #2d3436;">
+                    <i class="bi bi-compass text-primary me-2"></i> Suggested Reading
+                </h2>
+                <p class="text-muted small mb-0">Explore our latest published digital magazine editions.</p>
+            </div>
+            <a href="/" class="btn btn-neumorphic py-2 px-3 small">
+                Browse All Titles &rarr;
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var issue in Model.SuggestedReading)
+            {
+                var coverImg = !string.IsNullOrEmpty(issue.CoverImagePath)
+                    ? issue.CoverImagePath
+                    : (!string.IsNullOrEmpty(issue.CoverImageUrl) ? issue.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
+                var isFree = issue.SingleIssuePrice <= 0;
+                var isPurchased = Model.Purchases != null && Model.Purchases.Any(p => p.MagazineIssueId == issue.Id);
+                var canRead = isFree || isPurchased || Model.IsVipSubscriber;
+
+                <div class="col-12 col-md-4">
+                    <div class="neumorphic-card p-3 p-md-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="rounded-3 overflow-hidden position-relative mb-3 shadow-xs text-center" style="max-height: 250px; height: 250px; background: #dfe3ea;">
+                                <img src="@coverImg" alt="@issue.Title" class="img-fluid rounded w-100 h-100" style="max-height: 250px; object-fit: cover;" />
+                                @if (isFree)
+                                {
+                                    <span class="badge position-absolute top-0 end-0 m-2 px-2 py-1 rounded-pill bg-success text-white fw-bold" style="font-size: 0.7rem;">
+                                        FREE
+                                    </span>
+                                }
+                                else if (isPurchased)
+                                {
+                                    <span class="badge position-absolute top-0 end-0 m-2 px-2 py-1 rounded-pill bg-primary text-white fw-bold" style="font-size: 0.7rem;">
+                                        <i class="bi bi-patch-check-fill me-1"></i> OWNED
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge position-absolute top-0 end-0 m-2 px-2 py-1 rounded-pill bg-dark text-white fw-bold" style="font-size: 0.7rem;">
+                                        @SettingsService.GetCurrencySymbol()@issue.SingleIssuePrice.ToString("0.##")
+                                    </span>
+                                }
+                            </div>
+                            <div class="text-muted small text-uppercase fw-bold mb-1" style="font-size: 0.72rem;">
+                                @(issue.Magazine?.Title ?? "Culture Club") &bull; Vol. @issue.Volume
+                            </div>
+                            <h3 class="fw-bold text-dark text-truncate mb-1" title="@issue.Title" style="font-size: 1.1rem;">
+                                @issue.Title
+                            </h3>
+                            <div class="text-muted small mb-3" style="font-size: 0.75rem;">
+                                Released @issue.PublishDate.ToString("MMMM yyyy")
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-2">
+                            @if (canRead)
+                            {
+                                <a href="/Reader/Issue/@issue.Id" class="btn btn-neumorphic-primary flex-grow-1 py-2 small fw-bold text-center text-decoration-none">
+                                    <i class="bi bi-book-half me-1"></i> Read Now
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Magazines" asp-action="Details" asp-route-id="@issue.Id" class="btn btn-neumorphic-primary flex-grow-1 py-2 small fw-bold text-center text-decoration-none">
+                                    <i class="bi bi-cart3 me-1"></i> Buy Issue
+                                </a>
+                            }
+                            <a asp-controller="Magazines" asp-action="Details" asp-route-id="@issue.Id" class="btn btn-neumorphic py-2 px-3 small" title="Details">
+                                <i class="bi bi-info-circle"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>

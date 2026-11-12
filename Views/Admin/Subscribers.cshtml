@@ -1,0 +1,182 @@
+@model Digital_Magzine.Models.AdminSubscribersViewModel
+
+@{
+    ViewData["Title"] = "Subscribers & Memberships";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Page Header & Metrics Summary -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    CUSTOMER SUBSCRIPTIONS
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Subscribers & Memberships</h1>
+            <p class="text-muted small mb-0">Manage customer VIP tiers, recurring all-access billing, and member lifecycles.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a asp-controller="SubscriptionPlans" asp-action="Index" class="btn btn-neumorphic py-2 px-3 small">
+                <i class="bi bi-tag me-1"></i> Pricing Plans
+            </a>
+            <a asp-controller="SubscriptionPlans" asp-action="Create" class="btn btn-neumorphic-primary py-2 px-3 small">
+                <i class="bi bi-plus-lg me-1"></i> + New Plan
+            </a>
+        </div>
+    </div>
+
+    <!-- Subscribers Metric Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Active VIP Subscribers</span>
+                    <div class="neumorphic-circle-sm" style="color: #047857;">
+                        <i class="bi bi-person-check-fill text-success"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #047857;">@Model.ActiveCount</div>
+                <span class="small text-muted"><i class="bi bi-shield-check text-success me-1"></i>Full all-access pass holders</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Monthly Run Rate (MRR)</span>
+                    <div class="neumorphic-circle-sm" style="color: #0284c7;">
+                        <i class="bi bi-currency-rupee"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #2d3436;">@SettingsService.GetCurrencySymbol()@Model.MonthlyRecurringRevenue.ToString("0.00")</div>
+                <span class="small text-muted">Recurring subscription revenue</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Total Member Passes</span>
+                    <div class="neumorphic-circle-sm" style="color: #636e72;">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #2d3436;">@Model.TotalSubscribersCount</div>
+                <span class="small text-muted">Historical & active customer accounts</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Subscribers Table -->
+    <div class="neumorphic-card p-4 mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+            <div>
+                <h2 class="h5 fw-bold mb-0" style="color: #2d3436;">Active &amp; Historical Subscriptions</h2>
+                <span class="text-muted small">Real-time status of readers registered through direct checkout and customer onboarding</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white;">
+                    @Model.ActiveSubscribers.Count Records
+                </span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table neumorphic-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Pass ID</th>
+                        <th>User Email</th>
+                        <th>Subscribed Plan</th>
+                        <th>Price</th>
+                        <th>Start Date</th>
+                        <th>Valid Until</th>
+                        <th>Status</th>
+                        <th class="text-end" style="min-width: 190px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.ActiveSubscribers.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <div class="neumorphic-circle-btn mx-auto mb-3" style="width: 56px; height: 56px;">
+                                    <i class="bi bi-people fs-4 text-muted"></i>
+                                </div>
+                                <div class="fw-semibold">No subscriber records found.</div>
+                                <div class="small">Subscriptions created via direct checkout will appear here automatically.</div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var sub in Model.ActiveSubscribers)
+                        {
+                            <tr>
+                                <td class="fw-bold font-monospace text-muted">#@sub.SubscriptionId</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="neumorphic-circle-sm" style="color: #0284c7;">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold d-block" style="color: #2d3436;">@sub.UserEmail</span>
+                                            <span class="text-muted small font-monospace" style="font-size: 0.72rem;">@sub.UserId</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-weight: 700;">
+                                        @sub.PlanName
+                                    </span>
+                                </td>
+                                <td class="fw-bold" style="color: #2d3436;">@SettingsService.GetCurrencySymbol()@sub.PlanPrice.ToString("0.00")</td>
+                                <td class="text-muted small">@sub.StartDate.ToString("MMM dd, yyyy")</td>
+                                <td class="text-muted small">@sub.EndDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @if (sub.Status == "Active")
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 700;">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Active VIP
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(100, 116, 139, 0.15); color: #64748b; font-weight: 700;">
+                                            @sub.Status
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1 justify-content-end align-items-center">
+                                        @if (sub.Status == "Active")
+                                        {
+                                            <form asp-controller="Admin" asp-action="DeactivateSubscription" method="post" class="d-inline" onsubmit="return confirm('Deactivate subscription #@sub.SubscriptionId?');">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@sub.SubscriptionId" />
+                                                <button type="submit" class="btn btn-warning btn-sm py-1 px-2 fw-semibold shadow-sm" title="Deactivate Subscription">
+                                                    <i class="bi bi-pause-circle me-1"></i> Deactivate
+                                                </button>
+                                            </form>
+                                        }
+                                        <form asp-controller="Admin" asp-action="DeleteSubscription" method="post" class="d-inline" onsubmit="return confirm('Permanently delete subscription record #@sub.SubscriptionId?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@sub.SubscriptionId" />
+                                            <button type="submit" class="btn btn-danger btn-sm py-1 px-2 fw-semibold shadow-sm text-white" title="Delete Subscription">
+                                                <i class="bi bi-trash3 me-1"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

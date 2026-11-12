@@ -1,0 +1,378 @@
+@model IEnumerable<Digital_Magzine.Models.AdminUserItemViewModel>
+
+@{
+    ViewData["Title"] = "User Accounts";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Page Header & Actions -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    IDENTITY & ACCESS MANAGEMENT
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">User Accounts</h1>
+            <p class="text-muted small mb-0">Manage registered readers, administrators, and role-based access privileges.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: #e6e9f0; color: #2d3436; box-shadow: 2px 2px 5px #c8ccd6, -2px -2px 5px #ffffff;">
+                Total Accounts: <span id="totalUserCount" class="fw-bold" style="color: #0ea5e9;">@Model.Count()</span>
+            </span>
+            <button type="button" class="btn btn-neumorphic-primary py-2 px-3 small" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                <i class="bi bi-person-plus-fill me-1"></i> + Create User
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stat Cards (Sky Blue Neumorphic) -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-sm-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Administrators</span>
+                    <div class="neumorphic-circle-sm" style="color: #ef4444;">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #ef4444;">@Model.Count(u => u.Roles.Contains("Admin"))</div>
+                <span class="small text-muted"><i class="bi bi-shield-check text-danger me-1"></i>Full system & content access</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Paid VIP Subscribers</span>
+                    <div class="neumorphic-circle-sm" style="color: #0284c7;">
+                        <i class="bi bi-star-fill text-primary"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #0284c7;">@Model.Count(u => u.Roles.Contains("Subscriber"))</div>
+                <span class="small text-muted"><i class="bi bi-check-circle-fill text-primary me-1"></i>Premium paywall bypassed</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Free Members</span>
+                    <div class="neumorphic-circle-sm" style="color: #64748b;">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #2d3436;">@Model.Count(u => u.Roles.Contains("FreeUser") || !u.Roles.Any())</div>
+                <span class="small text-muted">Standard public readers</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table Card (Sky Blue Neumorphic) -->
+    <div class="neumorphic-card p-4 mb-4">
+        <!-- Control Bar (Search & Role Filter) -->
+        <div class="row g-3 align-items-center mb-4 pb-3" style="border-bottom: 1px solid rgba(0,0,0,0.06);">
+            <div class="col-12 col-md-7 col-lg-8">
+                <div class="input-group">
+                    <span class="input-group-text neumorphic-input border-0 text-muted" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" id="searchInput" class="form-control neumorphic-input border-0" placeholder="Search by email, username, or ID..." autocomplete="off" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                    <button type="button" class="btn btn-neumorphic ms-2" id="clearSearchBtn" title="Clear search">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-12 col-md-5 col-lg-4">
+                <div class="input-group">
+                    <span class="input-group-text neumorphic-input border-0 text-muted" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                        <i class="bi bi-funnel"></i>
+                    </span>
+                    <select id="roleFilter" class="form-select neumorphic-input border-0" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                        <option value="">All Roles</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Subscriber">Subscriber</option>
+                        <option value="FreeUser">FreeUser</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 fw-bold mb-0" style="color: #2d3436;">Registered Users Directory</h2>
+            <div class="text-muted small">
+                Showing <span id="filteredCount" class="fw-bold" style="color: #0ea5e9;">@Model.Count()</span> of @Model.Count() accounts
+            </div>
+        </div>
+
+        <!-- Responsive Neumorphic Table -->
+        <div class="table-responsive">
+            <table class="table neumorphic-table align-middle mb-0" id="usersTable">
+                <thead>
+                    <tr>
+                        <th style="min-width: 240px;">Email / User</th>
+                        <th style="min-width: 140px;">User ID</th>
+                        <th>Role</th>
+                        <th>Account Status</th>
+                        <th class="text-end" style="min-width: 220px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <div class="neumorphic-circle-btn mx-auto mb-3" style="width: 56px; height: 56px;">
+                                    <i class="bi bi-people fs-4 text-muted"></i>
+                                </div>
+                                <div class="fw-semibold">No user accounts found.</div>
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var user in Model)
+                    {
+                        var primaryRole = user.Roles.FirstOrDefault() ?? "FreeUser";
+                        <tr class="user-row"
+                            data-email="@user.Email.ToLower()"
+                            data-username="@user.UserName.ToLower()"
+                            data-id="@user.Id.ToLower()"
+                            data-role="@primaryRole"
+                            data-status="@(user.IsLockedOut ? "inactive" : "active")">
+                            <td>
+                                <div class="d-flex align-items-center gap-2 py-1">
+                                    <div class="neumorphic-circle-sm" style="color: #0ea5e9; font-weight: 700;">
+                                        @(user.Email.Length > 0 ? user.Email.Substring(0, 1).ToUpper() : "U")
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="fw-bold mb-0 text-truncate user-email-text" style="color: #2d3436;">@user.Email</div>
+                                        <div class="text-muted small text-truncate">@user.UserName</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="font-monospace text-muted small user-id-text" title="@user.Id">
+                                    @(user.Id.Length > 14 ? user.Id.Substring(0, 14) + "..." : user.Id)
+                                </span>
+                            </td>
+                            <td>
+                                @if (user.Roles.Contains("Admin"))
+                                {
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; font-weight: 700;">
+                                        <i class="bi bi-shield-lock-fill me-1"></i> Admin
+                                    </span>
+                                }
+                                else if (user.Roles.Contains("Subscriber"))
+                                {
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-weight: 700;">
+                                        <i class="bi bi-star-fill me-1"></i> Subscriber
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(100, 116, 139, 0.15); color: #64748b; font-weight: 600;">
+                                        FreeUser
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.IsLockedOut)
+                                {
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; font-weight: 700;">
+                                        <i class="bi bi-lock-fill me-1"></i> Inactive
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 700;">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Active
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (!user.Email.Equals("admin@magazine.com", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <div class="d-inline-flex gap-2 justify-content-end align-items-center">
+                                        <!-- Role Selector Dropdown -->
+                                        <div class="dropdown d-inline">
+                                            <button class="btn btn-neumorphic btn-sm py-1 px-2 small dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Change Role">
+                                                Role
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="background: #e6e9f0; box-shadow: 4px 4px 10px #c8ccd6, -4px -4px 10px #ffffff;">
+                                                <li>
+                                                    <form asp-action="ChangeUserRole" method="post">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <input type="hidden" name="newRole" value="FreeUser" />
+                                                        <button type="submit" class="dropdown-item small @(user.Roles.Contains("FreeUser") ? "fw-bold text-primary" : "")">
+                                                            Assign FreeUser
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form asp-action="ChangeUserRole" method="post">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <input type="hidden" name="newRole" value="Subscriber" />
+                                                        <button type="submit" class="dropdown-item small @(user.Roles.Contains("Subscriber") ? "fw-bold text-primary" : "")">
+                                                            Promote to Subscriber
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form asp-action="ChangeUserRole" method="post">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <input type="hidden" name="newRole" value="Admin" />
+                                                        <button type="submit" class="dropdown-item small @(user.Roles.Contains("Admin") ? "fw-bold text-danger" : "")">
+                                                            Promote to Admin
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- Red Delete Account Button -->
+                                        <form asp-action="DeleteUser" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to permanently delete user account: @user.Email?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <button type="submit" class="btn btn-danger btn-sm py-1 px-3 fw-semibold shadow-sm text-white" title="Delete Account">
+                                                <i class="bi bi-trash3 me-1"></i> Delete Account
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700;">
+                                        <i class="bi bi-shield-check me-1"></i> Root Administrator
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    <!-- Dynamic No Results Row -->
+                    <tr id="noResultsRow" style="display: none;">
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-search fs-3 d-block text-muted mb-2"></i>
+                            <em>No user accounts match your search and filter criteria.</em>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Neumorphic Modal: Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 p-3" style="background-color: #e6e9f0; border-radius: 20px; box-shadow: 10px 10px 25px #c8ccd6, -10px -10px 25px #ffffff;">
+            <div class="modal-header border-0 pb-2">
+                <div>
+                    <h5 class="modal-title fw-bold" id="createUserModalLabel" style="color: #2d3436;">Create User Account</h5>
+                    <p class="text-muted small mb-0">Register a new reader or administrator in the live SQL database.</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="AddUser" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body py-3">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold" style="color: #2d3436;">Email Address</label>
+                        <input type="email" name="Email" class="form-control neumorphic-input border-0" placeholder="name@example.com" required autocomplete="off" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold" style="color: #2d3436;">Password</label>
+                        <input type="password" name="Password" class="form-control neumorphic-input border-0" placeholder="Minimum 6 characters (e.g. Reader@123)" required autocomplete="new-password" />
+                        <div class="form-text text-muted small">Must contain uppercase, lowercase, digit, and special character.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold" style="color: #2d3436;">Initial Assigned Role</label>
+                        <select name="Role" class="form-select neumorphic-input border-0">
+                            <option value="FreeUser" selected>FreeUser (Standard Public Reader)</option>
+                            <option value="Subscriber">Subscriber (Paid VIP Tier)</option>
+                            <option value="Admin">Admin (Full System Administrator)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-check form-switch pt-1">
+                        <input class="form-check-input" type="checkbox" name="EmailConfirmed" value="true" id="emailConfModalSwitch" checked />
+                        <label class="form-check-label text-muted small" for="emailConfModalSwitch">
+                            Mark email as pre-verified
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-2 d-flex justify-content-between">
+                    <button type="button" class="btn btn-neumorphic px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-neumorphic-primary px-4">
+                        <i class="bi bi-person-check-fill me-1"></i> Create Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Vanilla JavaScript: Real-time Auto-Search & Role Filter without page reload
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const roleFilter = document.getElementById('roleFilter');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            const rows = document.querySelectorAll('.user-row');
+            const filteredCount = document.getElementById('filteredCount');
+            const noResultsRow = document.getElementById('noResultsRow');
+
+            function filterRows() {
+                const query = (searchInput.value || '').trim().toLowerCase();
+                const selectedRole = (roleFilter.value || '').trim();
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const email = row.getAttribute('data-email') || '';
+                    const username = row.getAttribute('data-username') || '';
+                    const id = row.getAttribute('data-id') || '';
+                    const role = row.getAttribute('data-role') || '';
+
+                    const matchesQuery = !query || email.includes(query) || username.includes(query) || id.includes(query);
+                    const matchesRole = !selectedRole || role === selectedRole;
+
+                    if (matchesQuery && matchesRole) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (filteredCount) {
+                    filteredCount.textContent = visibleCount;
+                }
+
+                if (noResultsRow) {
+                    noResultsRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
+                }
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', filterRows);
+            }
+            if (roleFilter) {
+                roleFilter.addEventListener('change', filterRows);
+            }
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', function () {
+                    if (searchInput) {
+                        searchInput.value = '';
+                        filterRows();
+                    }
+                });
+            }
+        });
+    </script>
+}
