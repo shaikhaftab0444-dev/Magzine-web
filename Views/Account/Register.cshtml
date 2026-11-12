@@ -1,48 +1,68 @@
 @model Digital_Magzine.Models.RegisterViewModel
 
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Register - Culture Club";
 }
 
-<div class="row justify-content-center mt-4">
-    <div class="col-md-5">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white py-3 text-center">
-                <h2 class="h4 mb-0 fw-bold">Create an Account</h2>
-                <p class="text-muted small mb-0">Sign up to subscribe and read digital issues</p>
-            </div>
-            <div class="card-body p-4">
-                <form asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label fw-semibold"></label>
-                        <input asp-for="Email" class="form-control" placeholder="name@example.com" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
+<div class="auth-page-wrapper d-flex align-items-center justify-content-center py-5" style="min-height: calc(100vh - 120px); background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-5">
+                <div class="glass-card p-4 p-md-5 text-dark" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.3);">
+                    <div class="text-center mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 52px; height: 52px; background: rgba(255, 255, 255, 0.3); border: 1px solid rgba(255, 255, 255, 0.4);">
+                            <i class="bi bi-person-plus-fill fs-3 text-white"></i>
+                        </div>
+                        <h2 class="h3 fw-bold text-white mb-1" style="letter-spacing: -0.5px;">Create an Account</h2>
+                        <p class="text-white-50 small mb-0">Join Culture Club to read, subscribe, and explore</p>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label fw-semibold"></label>
-                        <input asp-for="Password" class="form-control" placeholder="Password (minimum 6 characters)" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
+                    <form asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 small py-2 px-3 rounded-3 mb-3"></div>
 
-                    <div class="mb-3">
-                        <label asp-for="ConfirmPassword" class="form-label fw-semibold"></label>
-                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Re-enter password" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                    </div>
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label text-white fw-semibold small"></label>
+                            <input asp-for="Email" class="form-control rounded-pill py-2 px-3 border-0" placeholder="name@example.com" style="background: rgba(255, 255, 255, 0.9);" required />
+                            <span asp-validation-for="Email" class="text-warning small"></span>
+                        </div>
 
-                    <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Create Account</button>
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label text-white fw-semibold small"></label>
+                            <div class="input-group">
+                                <input asp-for="Password" type="password" class="form-control rounded-start-pill py-2 px-3 border-0" placeholder="Password (min. 6 characters)" style="background: rgba(255, 255, 255, 0.9);" required />
+                                <button class="btn btn-outline-secondary bg-white rounded-end-pill px-3 border-0" type="button" onclick="togglePasswordVisibility(this)" title="Toggle password visibility">👁️</button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-warning small"></span>
+                        </div>
 
-                    <div class="text-center text-muted small">
-                        Already have an account? <a asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]">Sign In</a>
-                    </div>
-                </form>
+                        <div class="mb-4">
+                            <label asp-for="ConfirmPassword" class="form-label text-white fw-semibold small"></label>
+                            <div class="input-group">
+                                <input asp-for="ConfirmPassword" type="password" class="form-control rounded-start-pill py-2 px-3 border-0" placeholder="Re-enter password" style="background: rgba(255, 255, 255, 0.9);" required />
+                                <button class="btn btn-outline-secondary bg-white rounded-end-pill px-3 border-0" type="button" onclick="togglePasswordVisibility(this)" title="Toggle password visibility">👁️</button>
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-warning small"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm mb-3">Create Account</button>
+
+                        <div class="text-center text-white-50 small">
+                            Already have an account? <a asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="text-white fw-bold text-decoration-underline ms-1">Sign In</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function togglePasswordVisibility(btn) {
+  const input = btn.previousElementSibling;
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁️'; }
+}
+</script>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

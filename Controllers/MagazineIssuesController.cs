@@ -72,7 +72,7 @@ namespace Digital_Magzine.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("Title,Volume,PublishDate,CoverImageUrl,CoverImagePath,SingleIssuePrice,IsPublished,MagazineId,CategoryId,Status")] MagazineIssue magazineIssue,
+            [Bind("Title,Description,Volume,PublishDate,CoverImageUrl,CoverImagePath,SingleIssuePrice,IsPublished,MagazineId,CategoryId,Status")] MagazineIssue magazineIssue,
             IFormFile? coverFile,
             IFormFile? pdfFile,
             string? isFreeToggle)
@@ -172,7 +172,7 @@ namespace Digital_Magzine.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            [Bind("Id,Title,Volume,PublishDate,CoverImageUrl,CoverImagePath,SingleIssuePrice,IsPublished,MagazineId,CategoryId,PdfFilePath,Status")] MagazineIssue magazineIssue,
+            [Bind("Id,Title,Description,Volume,PublishDate,CoverImageUrl,CoverImagePath,SingleIssuePrice,IsPublished,MagazineId,CategoryId,PdfFilePath,Status")] MagazineIssue magazineIssue,
             IFormFile? coverFile,
             IFormFile? pdfFile,
             string? isFreeToggle)
@@ -244,6 +244,7 @@ namespace Digital_Magzine.Controllers
                     }
 
                     existingIssue.Title = magazineIssue.Title;
+                    existingIssue.Description = magazineIssue.Description;
                     existingIssue.Volume = magazineIssue.Volume;
                     existingIssue.PublishDate = magazineIssue.PublishDate;
                     existingIssue.IsPublished = magazineIssue.IsPublished;

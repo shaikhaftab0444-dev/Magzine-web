@@ -66,7 +66,7 @@
             <div class="col-12 col-md-7 col-lg-8">
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <span class="badge bg-primary bg-opacity-10 text-primary fw-bold text-uppercase px-3 py-1 rounded-pill">
-                        @(Model.Magazine?.Title ?? "Culture Club Publication")
+                        @(Model.Category?.Name ?? catName)
                     </span>
                     <span class="text-muted small">&bull; Vol. @Model.Volume</span>
                     <span class="text-muted small">&bull; Released @Model.PublishDate.ToString("MMMM yyyy")</span>
@@ -77,7 +77,9 @@
                 </h1>
 
                 <p class="lead text-muted mb-4" style="font-size: 1.05rem;">
-                    Full digital replica edition with crystal-clear typography, flipbook controls, interactive articles, and offline reader compatibility.
+                    @(!string.IsNullOrWhiteSpace(Model.Description) 
+                        ? Model.Description 
+                        : "Full digital replica edition with crystal-clear typography, flipbook controls, interactive articles, and offline reader compatibility.")
                 </p>
 
                 <!-- Pricing Callout -->

@@ -7,12 +7,13 @@
 <style>
     /* Clean Zinio-style Storefront Styles */
     .zinio-storefront {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         color: #111827;
         background-color: #ffffff;
+        min-height: 100vh;
     }
 
-    /* Hide scrollbars for carousels */
+    /* Hide scrollbars for carousels with padding for 3D hover effects */
     .magazine-carousel-scroll {
         display: flex;
         flex-wrap: nowrap;
@@ -21,35 +22,90 @@
         -webkit-overflow-scrolling: touch;
         -ms-overflow-style: none; /* IE and Edge */
         scrollbar-width: none; /* Firefox */
-        padding-bottom: 1rem;
-        padding-top: 0.5rem;
+        padding-bottom: 1.25rem;
+        padding-top: 1rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
     }
     .magazine-carousel-scroll::-webkit-scrollbar {
         display: none; /* Chrome, Safari and Opera */
     }
 
-    /* Hero Banner */
+    /* Clean Modern Editorial / Light Brutalism Hero Banner */
     .zinio-hero-banner {
-        background: linear-gradient(135deg, #f4f5f8 0%, #e9edf4 100%);
+        background-color: #eff6ff;
+        border: 2px solid #0f172a;
         border-radius: 20px;
-        border: 1px solid #e2e8f0;
+        box-shadow: 6px 6px 0px #0f172a;
         overflow: hidden;
         position: relative;
     }
 
     .zinio-hero-title {
         font-size: clamp(2.2rem, 4vw, 3.5rem);
-        font-weight: 800;
-        letter-spacing: -0.03em;
+        font-weight: 900;
+        letter-spacing: -0.035em;
         line-height: 1.1;
         color: #0f172a;
     }
 
     .zinio-hero-sub {
         font-size: 1.15rem;
-        color: #475569;
+        color: #0f172a;
         max-width: 540px;
         line-height: 1.5;
+        font-weight: 500;
+    }
+
+    /* Solid Bold Buttons with Distinct Hover States (Light Brutalism Style) */
+    .btn-editorial-primary {
+        background-color: #0f172a;
+        color: #ffffff !important;
+        border: 2px solid #0f172a;
+        font-weight: 800;
+        border-radius: 50px;
+        padding: 0.75rem 1.75rem;
+        transition: all 0.2s ease;
+        box-shadow: 4px 4px 0px #0284c7;
+        text-transform: uppercase;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+    .btn-editorial-primary:hover {
+        background-color: #0284c7;
+        border-color: #0f172a;
+        color: #ffffff !important;
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0px #0f172a;
+    }
+
+    .btn-editorial-secondary {
+        background-color: #ffffff;
+        color: #0f172a !important;
+        border: 2px solid #0f172a;
+        font-weight: 800;
+        border-radius: 50px;
+        padding: 0.75rem 1.75rem;
+        transition: all 0.2s ease;
+        box-shadow: 4px 4px 0px rgba(15, 23, 42, 0.25);
+        text-transform: uppercase;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+    .btn-editorial-secondary:hover {
+        background-color: #fef08a; /* Bold highlight yellow */
+        border-color: #0f172a;
+        color: #0f172a !important;
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0px #0f172a;
     }
 
     .hero-magazine-stack {
@@ -86,26 +142,6 @@
         z-index: 2;
     }
 
-    /* Trust Bar */
-    .zinio-trust-bar {
-        background-color: #ffffff;
-        border-top: 1px solid #f1f5f9;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .trust-item-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background-color: #eff6ff;
-        color: #2563eb;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.4rem;
-        flex-shrink: 0;
-    }
-
     /* Magazine Cards in Carousel */
     .magazine-card-item {
         width: 200px;
@@ -113,23 +149,18 @@
         flex: 0 0 auto;
         text-decoration: none;
         color: inherit;
-        transition: transform 0.2s ease;
+        display: block;
     }
 
     .magazine-cover-container {
         position: relative;
         width: 100%;
         aspect-ratio: 3/4;
-        border-radius: 10px;
+        border-radius: 14px;
         overflow: hidden;
         background-color: #f1f5f9;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .magazine-card-item:hover .magazine-cover-container {
-        transform: translateY(-6px);
-        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.16);
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.6);
     }
 
     .magazine-cover-img {
@@ -201,9 +232,10 @@
         width: 38px;
         height: 38px;
         border-radius: 50%;
-        background-color: #ffffff;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(6px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -224,32 +256,35 @@
         gap: 0.4rem;
         padding: 0.45rem 1.1rem;
         border-radius: 50px;
-        background-color: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background-color: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
         font-size: 0.88rem;
         font-weight: 600;
         color: #334155;
         text-decoration: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         transition: all 0.2s ease;
     }
     .category-browse-pill:hover {
         background-color: #0f172a;
         color: #ffffff;
         border-color: #0f172a;
+        transform: translateY(-2px);
     }
 </style>
 
-<div class="zinio-storefront">
+<div class="zinio-storefront bg-white py-4">
     <!-- ========================================================================
-         1. Hero Section (Wide, Light-Gray Zinio Promotional Banner)
+         1. Hero Section (Clean Editorial / Light Brutalism Banner)
          ======================================================================== -->
-    <div class="container-fluid px-3 px-lg-5 pt-4 pb-2">
+    <div class="container-fluid px-3 px-lg-5 pt-2 pb-4">
         <div class="zinio-hero-banner p-4 p-md-5">
             <div class="row align-items-center g-4">
                 <!-- Left: Headline, Subtitle, CTA Button -->
                 <div class="col-12 col-md-6">
-                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold text-uppercase px-3 py-2 rounded-pill mb-3">
-                        <i class="bi bi-stars me-1"></i> Special Digital Newsstand Offer
+                    <span class="badge border border-dark text-dark fw-bold text-uppercase px-3 py-2 rounded-pill mb-3" style="background-color: #dbeafe; font-size: 0.75rem; letter-spacing: 0.5px;">
+                        <i class="bi bi-stars me-1 text-primary"></i> Special Digital Newsstand Offer
                     </span>
                     <h1 class="zinio-hero-title mb-3">
                         Unmissable Savings!
@@ -260,20 +295,20 @@
                     <div class="d-flex flex-wrap align-items-center gap-3">
                         @if (User.Identity == null || !User.Identity.IsAuthenticated)
                         {
-                            <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg rounded-pill px-4 fw-bold shadow-sm">
+                            <a asp-controller="Account" asp-action="Register" class="btn-editorial-primary">
                                 CREATE AN ACCOUNT &rarr;
                             </a>
-                            <a asp-controller="Checkout" asp-action="Payment" class="btn btn-outline-dark btn-lg rounded-pill px-4 fw-semibold">
-                                <i class="bi bi-gem me-1"></i> VIP Pass (@SettingsService.GetCurrencySymbol()499)
+                            <a asp-controller="SubscriptionPlans" asp-action="Index" class="btn-editorial-secondary">
+                                <i class="bi bi-gem me-1 text-primary"></i> VIP Pass (@SettingsService.GetCurrencySymbol()@ViewBag.VipPrice)
                             </a>
                         }
                         else
                         {
-                            <a href="#popular-section" class="btn btn-primary btn-lg rounded-pill px-4 fw-bold shadow-sm">
+                            <a href="#popular-section" class="btn-editorial-primary">
                                 EXPLORE MAGAZINES &rarr;
                             </a>
-                            <a asp-controller="Checkout" asp-action="Payment" class="btn btn-outline-dark btn-lg rounded-pill px-4 fw-semibold">
-                                <i class="bi bi-gem me-1"></i> VIP All-Access (@SettingsService.GetCurrencySymbol()499)
+                            <a asp-controller="SubscriptionPlans" asp-action="Index" class="btn-editorial-secondary">
+                                <i class="bi bi-gem me-1 text-primary"></i> VIP Pass (@SettingsService.GetCurrencySymbol()@ViewBag.VipPrice)
                             </a>
                         }
                     </div>
@@ -291,284 +326,66 @@
         </div>
     </div>
 
-    <!-- ========================================================================
-         2. Trust Bar (Full-Width Horizontal Row with 4 Icons & Text)
-         ======================================================================== -->
-    <div class="zinio-trust-bar py-4 my-4">
-        <div class="container-fluid px-3 px-lg-5">
-            <div class="row g-4 text-start">
-                <!-- Feature 1 -->
-                <div class="col-6 col-lg-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="trust-item-icon">
-                            <i class="bi bi-collection"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold text-dark fs-6">10,000+ Digital Magazines</div>
-                            <div class="text-muted small">Global titles across every passion</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="col-6 col-lg-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="trust-item-icon">
-                            <i class="bi bi-laptop"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold text-dark fs-6">Read On Any Device</div>
-                            <div class="text-muted small">Seamless across web, iOS & Android</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="col-6 col-lg-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="trust-item-icon">
-                            <i class="bi bi-arrow-repeat"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold text-dark fs-6">Cancel Anytime</div>
-                            <div class="text-muted small">No lock-ins or hidden contracts</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feature 4 -->
-                <div class="col-6 col-lg-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="trust-item-icon">
-                            <i class="bi bi-cloud-arrow-down"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold text-dark fs-6">Download & Read Offline</div>
-                            <div class="text-muted small">Take your reading anywhere</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Quick Browse Categories (Connected to Live Database) -->
     @if (Model.Categories != null && Model.Categories.Any())
     {
         <div class="container-fluid px-3 px-lg-5 mb-4">
-            <div class="d-flex flex-wrap gap-2 justify-content-center py-2">
-                <a href="#popular-section" class="category-browse-pill">
-                    <i class="bi bi-grid-fill text-primary small"></i> All Titles
-                </a>
-                @foreach (var cat in Model.Categories)
-                {
-                    var catTarget = "cat-" + cat.Name.ToLower().Replace(" ", "-").Replace("&", "-");
-                    <a href="#@catTarget" class="category-browse-pill">
-                        <i class="bi bi-tag-fill text-primary small"></i> @cat.Name
+            <div class="glass-card p-3">
+                <div class="d-flex flex-wrap gap-2 justify-content-center py-1">
+                    <a href="#popular-section" class="category-browse-pill">
+                        <i class="bi bi-grid-fill text-primary small"></i> All Titles
                     </a>
-                }
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <a href="#cat-@cat.Id" class="category-browse-pill">
+                            <i class="bi bi-tag-fill text-primary small"></i> @cat.Name
+                        </a>
+                    }
+                </div>
             </div>
         </div>
     }
 
     <!-- ========================================================================
-         3. Horizontal Carousel 1: Most Popular
+         2. Horizontal Carousel 1: Most Popular (Glassmorphism Container + 3D Cards)
          ======================================================================== -->
     <section class="py-3" id="popular-section">
         <div class="container-fluid px-3 px-lg-5">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h2 class="h4 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                        <span>Most Popular</span>
-                        <span class="badge bg-danger bg-opacity-10 text-danger fs-6 fw-semibold rounded-pill px-2">HOT</span>
-                    </h2>
-                    <p class="text-muted small mb-0">The top trending and most-read magazine issues this week.</p>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button class="carousel-nav-btn" onclick="scrollMagazineRow('popularCarousel', -450)" title="Previous">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <button class="carousel-nav-btn" onclick="scrollMagazineRow('popularCarousel', 450)" title="Next">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="magazine-carousel-scroll d-flex flex-nowrap overflow-auto gap-4" id="popularCarousel">
-                @if (Model.MostPopular != null && Model.MostPopular.Any())
-                {
-                    @foreach (var issue in Model.MostPopular)
-                    {
-                        var coverImg = !string.IsNullOrEmpty(issue.CoverImagePath)
-                            ? issue.CoverImagePath
-                            : (!string.IsNullOrEmpty(issue.CoverImageUrl) ? issue.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
-                        var pubName = issue.Magazine?.Title ?? "Culture Club Publishing";
-                        var catName = issue.Category?.Name ?? issue.Magazine?.Category?.Name ?? "General";
-                        var isFree = issue.SingleIssuePrice <= 0;
-
-                        <a href="/Magazines/Details/@issue.Id" class="magazine-card-item text-decoration-none text-dark">
-                            <div class="magazine-cover-container">
-                                <img src="@coverImg" alt="@issue.Title" class="magazine-cover-img" loading="lazy" />
-                                <span class="badge-category-tag">@catName</span>
-                                @if (isFree)
-                                {
-                                    <span class="badge bg-success text-white position-absolute bottom-0 end-0 m-2 px-2 py-1 rounded-pill fw-bold" style="font-size: 0.78rem;">
-                                        <i class="bi bi-gift-fill me-1"></i> FREE
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge-price-tag">@SettingsService.GetCurrencySymbol()@issue.SingleIssuePrice.ToString("0.##")</span>
-                                }
-                            </div>
-                            <div class="magazine-meta-title" title="@issue.Title">
-                                @issue.Title
-                            </div>
-                            <div class="magazine-meta-pub">
-                                @pubName
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mt-1">
-                                @if (isFree)
-                                {
-                                    <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1 rounded-pill">FREE</span>
-                                }
-                                else
-                                {
-                                    <span class="magazine-meta-price">@SettingsService.GetCurrencySymbol()@issue.SingleIssuePrice.ToString("0.##")</span>
-                                }
-                                <span class="text-muted small">Vol. @issue.Volume</span>
-                            </div>
-                        </a>
-                    }
-                }
-                else
-                {
-                    <div class="text-muted py-4">No popular magazine issues currently available.</div>
-                }
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================================================
-         4. Horizontal Carousel 2: New Arrivals
-         ======================================================================== -->
-    <section class="py-4 my-2" id="new-arrivals-section">
-        <div class="container-fluid px-3 px-lg-5">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h2 class="h4 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                        <span>New Arrivals</span>
-                        <span class="badge bg-success bg-opacity-10 text-success fs-6 fw-semibold rounded-pill px-2">FRESH</span>
-                    </h2>
-                    <p class="text-muted small mb-0">Just added to our digital newsstand. Stay ahead with the latest releases.</p>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button class="carousel-nav-btn" onclick="scrollMagazineRow('newArrivalsCarousel', -450)" title="Previous">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <button class="carousel-nav-btn" onclick="scrollMagazineRow('newArrivalsCarousel', 450)" title="Next">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="magazine-carousel-scroll d-flex flex-nowrap overflow-auto gap-4" id="newArrivalsCarousel">
-                @if (Model.NewArrivals != null && Model.NewArrivals.Any())
-                {
-                    @foreach (var issue in Model.NewArrivals)
-                    {
-                        var coverImg = !string.IsNullOrEmpty(issue.CoverImagePath)
-                            ? issue.CoverImagePath
-                            : (!string.IsNullOrEmpty(issue.CoverImageUrl) ? issue.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
-                        var pubName = issue.Magazine?.Title ?? "Culture Club Publishing";
-                        var catName = issue.Category?.Name ?? issue.Magazine?.Category?.Name ?? "General";
-                        var isFree = issue.SingleIssuePrice <= 0;
-
-                        <a href="/Magazines/Details/@issue.Id" class="magazine-card-item text-decoration-none text-dark">
-                            <div class="magazine-cover-container">
-                                <img src="@coverImg" alt="@issue.Title" class="magazine-cover-img" loading="lazy" />
-                                <span class="badge-category-tag">@catName</span>
-                                @if (isFree)
-                                {
-                                    <span class="badge bg-success text-white position-absolute bottom-0 end-0 m-2 px-2 py-1 rounded-pill fw-bold" style="font-size: 0.78rem;">
-                                        <i class="bi bi-gift-fill me-1"></i> FREE
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge-price-tag">@SettingsService.GetCurrencySymbol()@issue.SingleIssuePrice.ToString("0.##")</span>
-                                }
-                            </div>
-                            <div class="magazine-meta-title" title="@issue.Title">
-                                @issue.Title
-                            </div>
-                            <div class="magazine-meta-pub">
-                                @pubName
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mt-1">
-                                @if (isFree)
-                                {
-                                    <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1 rounded-pill">FREE</span>
-                                }
-                                else
-                                {
-                                    <span class="magazine-meta-price">@SettingsService.GetCurrencySymbol()@issue.SingleIssuePrice.ToString("0.##")</span>
-                                }
-                                <span class="text-muted small">@issue.PublishDate.ToString("MMM yyyy")</span>
-                            </div>
-                        </a>
-                    }
-                }
-                else
-                {
-                    <div class="text-muted py-4">No new arrivals currently available.</div>
-                }
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================================================
-         5. Dynamic Connected Category Sections (Database Driven)
-         ======================================================================== -->
-    @if (Model.IssuesByCategory != null && Model.IssuesByCategory.Any())
-    {
-        @foreach (var catGroup in Model.IssuesByCategory)
-        {
-            var carouselId = "catCarousel_" + catGroup.Key.Replace(" ", "_").Replace("&", "_");
-            var catTargetId = "cat-" + catGroup.Key.ToLower().Replace(" ", "-").Replace("&", "-");
-            <section class="py-3 my-2" id="@catTargetId">
-                <div class="container-fluid px-3 px-lg-5">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <h2 class="h4 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                                <span>@catGroup.Key Editions</span>
-                                <span class="badge bg-primary bg-opacity-10 text-primary fs-6 fw-semibold rounded-pill px-2">@catGroup.Value.Count Issues</span>
-                            </h2>
-                            <p class="text-muted small mb-0">Curated in-house publications and special issues in @catGroup.Key.</p>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <button class="carousel-nav-btn" onclick="scrollMagazineRow('@carouselId', -450)" title="Previous">
-                                <i class="bi bi-chevron-left"></i>
-                            </button>
-                            <button class="carousel-nav-btn" onclick="scrollMagazineRow('@carouselId', 450)" title="Next">
-                                <i class="bi bi-chevron-right"></i>
-                            </button>
-                        </div>
+            <div class="glass-card p-4 p-md-5 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="h4 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                            <span>Most Popular</span>
+                            <span class="badge bg-danger bg-opacity-10 text-danger fs-6 fw-semibold rounded-pill px-2">HOT</span>
+                        </h2>
+                        <p class="text-muted small mb-0">The top trending and most-read magazine issues this week.</p>
                     </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="carousel-nav-btn" onclick="scrollMagazineRow('popularCarousel', -450)" title="Previous">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button class="carousel-nav-btn" onclick="scrollMagazineRow('popularCarousel', 450)" title="Next">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
 
-                    <div class="magazine-carousel-scroll d-flex flex-nowrap overflow-auto gap-4" id="@carouselId">
-                        @foreach (var issue in catGroup.Value)
+                <div class="magazine-carousel-scroll d-flex flex-nowrap overflow-auto gap-4" id="popularCarousel">
+                    @if (Model.MostPopular != null && Model.MostPopular.Any())
+                    {
+                        @foreach (var issue in Model.MostPopular)
                         {
                             var coverImg = !string.IsNullOrEmpty(issue.CoverImagePath)
                                 ? issue.CoverImagePath
                                 : (!string.IsNullOrEmpty(issue.CoverImageUrl) ? issue.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
                             var pubName = issue.Magazine?.Title ?? "Culture Club Publishing";
+                            var catName = issue.Category?.Name ?? issue.Magazine?.Category?.Name ?? "General";
                             var isFree = issue.SingleIssuePrice <= 0;
 
-                            <a href="/Magazines/Details/@issue.Id" class="magazine-card-item text-decoration-none text-dark">
+                            <a href="/Magazines/Details/@issue.Id" class="magazine-card-item hover-3d text-decoration-none text-dark">
                                 <div class="magazine-cover-container">
                                     <img src="@coverImg" alt="@issue.Title" class="magazine-cover-img" loading="lazy" />
-                                    <span class="badge-category-tag">@catGroup.Key</span>
+                                    <span class="badge-category-tag">@catName</span>
                                     @if (isFree)
                                     {
                                         <span class="badge bg-success text-white position-absolute bottom-0 end-0 m-2 px-2 py-1 rounded-pill fw-bold" style="font-size: 0.78rem;">
@@ -599,6 +416,172 @@
                                 </div>
                             </a>
                         }
+                    }
+                    else
+                    {
+                        <div class="text-muted py-4">No popular magazine issues currently available.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         3. Horizontal Carousel 2: New Arrivals (Glassmorphism Container + 3D Cards)
+         ======================================================================== -->
+    <section class="py-3" id="new-arrivals-section">
+        <div class="container-fluid px-3 px-lg-5">
+            <div class="glass-card p-4 p-md-5 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="h4 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                            <span>New Arrivals</span>
+                            <span class="badge bg-success bg-opacity-10 text-success fs-6 fw-semibold rounded-pill px-2">FRESH</span>
+                        </h2>
+                        <p class="text-muted small mb-0">Just added to our digital newsstand. Stay ahead with the latest releases.</p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="carousel-nav-btn" onclick="scrollMagazineRow('newArrivalsCarousel', -450)" title="Previous">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button class="carousel-nav-btn" onclick="scrollMagazineRow('newArrivalsCarousel', 450)" title="Next">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="magazine-carousel-scroll d-flex flex-nowrap overflow-auto gap-4" id="newArrivalsCarousel">
+                    @if (Model.NewArrivals != null && Model.NewArrivals.Any())
+                    {
+                        @foreach (var issue in Model.NewArrivals)
+                        {
+                            var coverImg = !string.IsNullOrEmpty(issue.CoverImagePath)
+                                ? issue.CoverImagePath
+                                : (!string.IsNullOrEmpty(issue.CoverImageUrl) ? issue.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
+                            var pubName = issue.Magazine?.Title ?? "Culture Club Publishing";
+                            var catName = issue.Category?.Name ?? issue.Magazine?.Category?.Name ?? "General";
+                            var isFree = issue.SingleIssuePrice <= 0;
+
+                            <a href="/Magazines/Details/@issue.Id" class="magazine-card-item hover-3d text-decoration-none text-dark">
+                                <div class="magazine-cover-container">
+                                    <img src="@coverImg" alt="@issue.Title" class="magazine-cover-img" loading="lazy" />
+                                    <span class="badge-category-tag">@catName</span>
+                                    @if (isFree)
+                                    {
+                                        <span class="badge bg-success text-white position-absolute bottom-0 end-0 m-2 px-2 py-1 rounded-pill fw-bold" style="font-size: 0.78rem;">
+                                            <i class="bi bi-gift-fill me-1"></i> FREE
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-price-tag">@SettingsService.GetCurrencySymbol()@issue.SingleIssuePrice.ToString("0.##")</span>
+                                    }
+                                </div>
+                                <div class="magazine-meta-title" title="@issue.Title">
+                                    @issue.Title
+                                </div>
+                                <div class="magazine-meta-pub">
+                                    @pubName
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    @if (isFree)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1 rounded-pill">FREE</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="magazine-meta-price">@SettingsService.GetCurrencySymbol()@issue.SingleIssuePrice.ToString("0.##")</span>
+                                    }
+                                    <span class="text-muted small">@issue.PublishDate.ToString("MMM yyyy")</span>
+                                </div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-muted py-4">No new arrivals currently available.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================
+         4. Dynamic Connected Category Sections (Database Driven Glassmorphism)
+         ======================================================================== -->
+    @if (Model.IssuesByCategory != null && Model.IssuesByCategory.Any())
+    {
+        @foreach (var catGroup in Model.IssuesByCategory)
+        {
+            var matchedCat = Model.Categories?.FirstOrDefault(c => c.Name.Equals(catGroup.Key, StringComparison.OrdinalIgnoreCase));
+            var catSectionId = matchedCat != null ? $"cat-{matchedCat.Id}" : "cat-" + catGroup.Key.ToLower().Replace(" ", "-").Replace("&", "-");
+            var carouselId = "catCarousel_" + catGroup.Key.Replace(" ", "_").Replace("&", "_");
+
+            <section class="py-3 my-2" id="@catSectionId">
+                <div class="container-fluid px-3 px-lg-5">
+                    <div class="glass-card p-4 p-md-5 mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h2 class="h4 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                                    <span>@catGroup.Key Editions</span>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary fs-6 fw-semibold rounded-pill px-2">@catGroup.Value.Count Issues</span>
+                                </h2>
+                                <p class="text-muted small mb-0">Curated in-house publications and special issues in @catGroup.Key.</p>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button class="carousel-nav-btn" onclick="scrollMagazineRow('@carouselId', -450)" title="Previous">
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+                                <button class="carousel-nav-btn" onclick="scrollMagazineRow('@carouselId', 450)" title="Next">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="magazine-carousel-scroll d-flex flex-nowrap overflow-auto gap-4" id="@carouselId">
+                            @foreach (var issue in catGroup.Value)
+                            {
+                                var coverImg = !string.IsNullOrEmpty(issue.CoverImagePath)
+                                    ? issue.CoverImagePath
+                                    : (!string.IsNullOrEmpty(issue.CoverImageUrl) ? issue.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
+                                var pubName = issue.Magazine?.Title ?? "Culture Club Publishing";
+                                var isFree = issue.SingleIssuePrice <= 0;
+
+                                <a href="/Magazines/Details/@issue.Id" class="magazine-card-item hover-3d text-decoration-none text-dark">
+                                    <div class="magazine-cover-container">
+                                        <img src="@coverImg" alt="@issue.Title" class="magazine-cover-img" loading="lazy" />
+                                        <span class="badge-category-tag">@catGroup.Key</span>
+                                        @if (isFree)
+                                        {
+                                            <span class="badge bg-success text-white position-absolute bottom-0 end-0 m-2 px-2 py-1 rounded-pill fw-bold" style="font-size: 0.78rem;">
+                                                <i class="bi bi-gift-fill me-1"></i> FREE
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-price-tag">@SettingsService.GetCurrencySymbol()@issue.SingleIssuePrice.ToString("0.##")</span>
+                                        }
+                                    </div>
+                                    <div class="magazine-meta-title" title="@issue.Title">
+                                        @issue.Title
+                                    </div>
+                                    <div class="magazine-meta-pub">
+                                        @pubName
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        @if (isFree)
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1 rounded-pill">FREE</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="magazine-meta-price">@SettingsService.GetCurrencySymbol()@issue.SingleIssuePrice.ToString("0.##")</span>
+                                        }
+                                        <span class="text-muted small">Vol. @issue.Volume</span>
+                                    </div>
+                                </a>
+                            }
+                        </div>
                     </div>
                 </div>
             </section>
@@ -607,18 +590,18 @@
 
     <!-- Mid-Page Digital Experience Banner -->
     <div class="container-fluid px-3 px-lg-5 my-5">
-        <div class="card border-0 rounded-4 p-4 p-md-5 text-white" style="background: linear-gradient(135deg, #111827 0%, #1e293b 100%);">
+        <div class="glass-card p-4 p-md-5 text-dark" style="background: rgba(255, 255, 255, 0.55);">
             <div class="row align-items-center g-4">
                 <div class="col-lg-7">
                     <span class="badge bg-warning text-dark fw-bold mb-2">ALL-ACCESS PASS</span>
                     <h3 class="fw-bold mb-2">Read Every Issue Seamlessly In Ultra HD</h3>
-                    <p class="text-white-50 mb-0">Experience interactive digital replicas, crystal clear typography, audio narration, and offline reading on any device.</p>
+                    <p class="text-muted mb-0">Experience interactive digital replicas, crystal clear typography, audio narration, and offline reading on any device.</p>
                 </div>
                 <div class="col-lg-5 text-lg-end d-flex flex-wrap gap-2 justify-content-lg-end">
-                    <a asp-controller="Checkout" asp-action="Payment" class="btn btn-primary rounded-pill px-4 py-2 fw-bold">
-                        <i class="bi bi-gem me-1"></i> Get All-Access Pass (@SettingsService.GetCurrencySymbol()499)
+                    <a asp-controller="SubscriptionPlans" asp-action="Index" class="btn btn-primary rounded-pill px-4 py-2 fw-bold">
+                        <i class="bi bi-gem me-1"></i> Get All-Access Pass (@SettingsService.GetCurrencySymbol()@ViewBag.VipPrice)
                     </a>
-                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light rounded-pill px-4 py-2 fw-semibold">
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold">
                         Join Free &rarr;
                     </a>
                 </div>

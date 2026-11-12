@@ -18,6 +18,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
+    <!-- PDF.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -25,12 +28,16 @@
             padding: 0;
         }
 
-        html, body {
+        /* Anti-Theft: Disable Text/Canvas Selection Globally */
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
             background-color: #121212;
             margin: 0;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
             color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
@@ -42,7 +49,7 @@
             left: 0;
             width: 100%;
             height: 56px;
-            background: rgba(18, 18, 18, 0.88);
+            background: rgba(18, 18, 18, 0.92);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -114,14 +121,80 @@
             border-color: #38bdf8;
         }
 
-        /* Fullscreen PDF Viewport */
+        /* Centered PDF Viewer Viewport */
         .pdf-viewport {
-            width: 100%;
-            height: 100vh;
-            padding-top: 56px;
-            box-sizing: border-box;
+            min-height: 100vh;
+            padding-top: 76px;
+            padding-bottom: 96px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
             background-color: #121212;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        #pdf-render {
+            display: block;
+            margin: 0 auto;
+            max-width: 95vw;
+            height: auto;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            border-radius: 4px;
+            pointer-events: none; /* Prevents dragging canvas image */
+        }
+
+        /* Neumorphic Reader Navigation Pill */
+        .neumorphic-reader-nav {
+            background: rgba(24, 28, 36, 0.95);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 1px 1px 1px rgba(255, 255, 255, 0.08);
+            pointer-events: auto;
+        }
+
+        .neumorphic-reader-btn {
+            background: #1e2430;
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4), -1px -1px 3px rgba(255, 255, 255, 0.06);
+            transition: all 0.18s ease;
+        }
+
+        .neumorphic-reader-btn:hover:not(:disabled) {
+            background: #283142;
+            color: #38bdf8;
+            border-color: #38bdf8;
+            box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .neumorphic-reader-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .neumorphic-reader-icon-btn {
+            background: #1e2430;
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4), -1px -1px 3px rgba(255, 255, 255, 0.06);
+            transition: all 0.18s ease;
+        }
+
+        .neumorphic-reader-icon-btn:hover {
+            color: #38bdf8;
+            border-color: #38bdf8;
         }
 
         body.is-fullscreen .reader-topbar {
@@ -129,13 +202,13 @@
         }
 
         body.is-fullscreen .pdf-viewport {
-            padding-top: 0;
+            padding-top: 20px;
         }
     </style>
 </head>
-<body style="background-color: #121212; margin: 0; overflow: hidden;">
+<body oncontextmenu="return false;">
 
-    <!-- Fixed Top Navigation Bar (Dark, Slightly Transparent) -->
+    <!-- Fixed Top Navigation Bar -->
     <header class="reader-topbar">
         <!-- Left: <- Back to Details Link -->
         <div>
@@ -150,33 +223,178 @@
             @Model.Title
         </div>
 
-        <!-- Right: Actions (Fullscreen, Pop-out, Close) -->
+        <!-- Right: Actions (Fullscreen, Close) -->
         <div class="reader-tools">
             <button type="button" class="reader-tool-btn" id="fsToggleBtn" onclick="toggleFullScreen()" title="Toggle Fullscreen">
                 <i class="bi bi-arrows-fullscreen" id="fsIcon"></i>
             </button>
-            <a href="@displayPdfPath" target="_blank" class="reader-tool-btn" title="Open PDF in new tab">
-                <i class="bi bi-box-arrow-up-right"></i>
-            </a>
             <a href="/Magazines/Details/@Model.Id" class="reader-tool-btn" title="Close Reader">
                 <i class="bi bi-x-lg"></i>
             </a>
         </div>
     </header>
 
-    <!-- Full-Screen PDF Embed -->
+    <!-- Secure HTML5 Canvas PDF Viewport -->
     <main class="pdf-viewport">
-        <object data="@(string.IsNullOrEmpty(Model.PdfFilePath) ? displayPdfPath : Model.PdfFilePath)#toolbar=0&navpanes=0" type="application/pdf" width="100%" height="100%" style="height: 100vh; border: none;">
-            <iframe src="@(string.IsNullOrEmpty(Model.PdfFilePath) ? displayPdfPath : Model.PdfFilePath)#toolbar=0&navpanes=0" width="100%" height="100%" style="height: 100vh; border: none;">
-                <div style="color: #ffffff; text-align: center; padding: 4rem;">
-                    <p class="fs-5 mb-3">Unable to display PDF directly in your browser frame.</p>
-                    <a href="@displayPdfPath" target="_blank" class="btn btn-outline-info rounded-pill px-4">Open PDF Document &rarr;</a>
-                </div>
-            </iframe>
-        </object>
+        <div class="position-relative text-center">
+            <!-- PDF Canvas: Text rendered as flat pixels, preventing text highlight and copy -->
+            <canvas id="pdf-render" class="shadow-lg"></canvas>
+
+            <div id="loading-spinner" class="position-absolute top-50 start-50 translate-middle text-center" style="display: none;">
+                <div class="spinner-border text-info" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+                <div class="text-light small mt-2 fw-semibold">Rendering Page...</div>
+            </div>
+        </div>
     </main>
 
+    <!-- Fixed Bottom Neumorphic Navigation Controls -->
+    <div class="fixed-bottom d-flex align-items-center justify-content-center p-3" style="pointer-events: none; z-index: 1060;">
+        <div class="d-flex align-items-center gap-3 px-4 py-2 rounded-pill neumorphic-reader-nav">
+            <button id="prev-page" class="btn btn-sm neumorphic-reader-btn rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1" title="Previous Page">
+                <i class="bi bi-chevron-left"></i>
+                <span>Prev Page</span>
+            </button>
+
+            <div class="text-light small fw-bold px-2 text-nowrap">
+                Page <span id="page-num" class="text-info fw-bold">1</span> of <span id="page-count" class="text-muted">-</span>
+            </div>
+
+            <button id="next-page" class="btn btn-sm neumorphic-reader-btn rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1" title="Next Page">
+                <span>Next Page</span>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+
+            <div class="vr bg-secondary opacity-50 mx-1" style="height: 18px;"></div>
+
+            <button id="zoom-out" class="neumorphic-reader-icon-btn" title="Zoom Out">
+                <i class="bi bi-zoom-out"></i>
+            </button>
+            <button id="zoom-in" class="neumorphic-reader-icon-btn" title="Zoom In">
+                <i class="bi bi-zoom-in"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Secure PDF.js Rendering Script & Anti-Theft Listeners -->
     <script>
+        // Configure PDF.js Worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        const pdfUrl = '@(string.IsNullOrEmpty(Model.PdfFilePath) ? displayPdfPath : Model.PdfFilePath)';
+        let pdfDoc = null,
+            pageNum = 1,
+            pageRendering = false,
+            pageNumPending = null,
+            scale = 1.35,
+            canvas = document.getElementById('pdf-render'),
+            ctx = canvas.getContext('2d'),
+            spinner = document.getElementById('loading-spinner');
+
+        function renderPage(num) {
+            pageRendering = true;
+            if (spinner) spinner.style.display = 'block';
+
+            pdfDoc.getPage(num).then(function(page) {
+                const viewport = page.getViewport({ scale: scale });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                const renderTask = page.render(renderContext);
+
+                renderTask.promise.then(function() {
+                    pageRendering = false;
+                    if (spinner) spinner.style.display = 'none';
+
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            }).catch(function(err) {
+                console.error('Error rendering page:', err);
+                pageRendering = false;
+                if (spinner) spinner.style.display = 'none';
+            });
+
+            document.getElementById('page-num').textContent = num;
+            document.getElementById('prev-page').disabled = (num <= 1);
+            document.getElementById('next-page').disabled = (num >= (pdfDoc ? pdfDoc.numPages : 1));
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        function onPrevPage() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        }
+
+        function onNextPage() {
+            if (!pdfDoc || pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        }
+
+        document.getElementById('prev-page').addEventListener('click', onPrevPage);
+        document.getElementById('next-page').addEventListener('click', onNextPage);
+
+        document.getElementById('zoom-in').addEventListener('click', function() {
+            if (scale >= 3.0) return;
+            scale += 0.2;
+            queueRenderPage(pageNum);
+        });
+
+        document.getElementById('zoom-out').addEventListener('click', function() {
+            if (scale <= 0.6) return;
+            scale -= 0.2;
+            queueRenderPage(pageNum);
+        });
+
+        // Initialize and Load Document
+        pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
+            pdfDoc = pdfDoc_;
+            document.getElementById('page-count').textContent = pdfDoc.numPages;
+            renderPage(pageNum);
+        }).catch(function(err) {
+            console.error('Error loading PDF document:', err);
+            if (spinner) {
+                spinner.innerHTML = '<div class="text-danger fw-bold"><i class="bi bi-exclamation-triangle me-1"></i>Unable to display document.</div>';
+                spinner.style.display = 'block';
+            }
+        });
+
+        // Anti-Theft: Disable Keyboard Shortcuts (Ctrl+S, Ctrl+P, Ctrl+C, etc.)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                const key = e.key.toLowerCase();
+                if (key === 's' || key === 'p' || key === 'c' || key === 'u' || key === 'a') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+            if (e.key === 'PrintScreen') {
+                e.preventDefault();
+            }
+            // Keyboard Page Navigation
+            if (e.key === 'ArrowLeft') {
+                onPrevPage();
+            } else if (e.key === 'ArrowRight') {
+                onNextPage();
+            }
+        });
+
+        // Fullscreen Toggle
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().then(() => {

@@ -152,6 +152,14 @@ namespace Digital_Magzine.Controllers
             return View();
         }
 
+        // GET: /Account/ForgotPassword
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
         // GET: /Account/Manage
         [HttpGet]
         [Authorize]

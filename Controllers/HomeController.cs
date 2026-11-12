@@ -57,6 +57,10 @@ namespace Digital_Magzine.Controllers
                 viewModel.NewArrivals = issues.ToList();
             }
 
+            var allPlans = await _context.SubscriptionPlans.ToListAsync();
+            var vipPlan = allPlans.FirstOrDefault(p => p.Name.Contains("VIP", StringComparison.OrdinalIgnoreCase) || p.DurationMonths == 12 || p.DurationInMonths == 12);
+            ViewBag.VipPrice = vipPlan != null ? vipPlan.Price.ToString("0") : "999";
+
             ViewBag.Categories = categories;
             ViewBag.Issues = issues;
 

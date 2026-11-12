@@ -35,6 +35,13 @@
                     <span asp-validation-for="Title" class="text-danger small"></span>
                 </div>
 
+                <!-- Issue Description -->
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label small fw-bold" style="color: #2d3436;">Issue Description</label>
+                    <textarea asp-for="Description" class="form-control neumorphic-input" rows="4" placeholder="Brief summary of the issue content, featured interviews, and cover stories..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
                 <!-- Magazine Title & Category Dropdowns -->
                 <div class="row g-3 mb-3">
                     <div class="col-12 col-md-6">

@@ -1,3 +1,4 @@
+@inject Digital_Magzine.Data.ApplicationDbContext _context
 <!DOCTYPE html>
 <html lang="en" id="top">
 <head>
@@ -135,28 +136,22 @@ else
             <!-- Center: Collapsible Navigation for MAGAZINES, EXPLORE, and MY LIBRARY -->
             <div class="collapse navbar-collapse order-lg-2" id="storefrontNavbarNav">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3 pt-3 pt-lg-0">
-                    <!-- MAGAZINES Dropdown -->
+                    <!-- CATEGORIES Dynamic Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle fw-bold text-dark text-uppercase letter-spacing-1 d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.88rem;">
-                            MAGAZINES <i class="bi bi-chevron-down small text-muted" style="font-size: 0.7rem;"></i>
+                            CATEGORIES <i class="bi bi-chevron-down small text-muted" style="font-size: 0.7rem;"></i>
                         </a>
                         <ul class="dropdown-menu border-0 shadow-lg rounded-3 py-2 mt-2">
                             <li><a class="dropdown-item py-2 fw-semibold" asp-controller="Home" asp-action="Index"><i class="bi bi-grid-fill me-2 text-primary"></i>All Titles</a></li>
                             <li><hr class="dropdown-divider my-1"></li>
-                            <li><a class="dropdown-item py-2" href="/#popular-section"><i class="bi bi-fire me-2 text-danger"></i>Most Popular</a></li>
-                            <li><a class="dropdown-item py-2" href="/#new-arrivals-section"><i class="bi bi-sparkles me-2 text-success"></i>New Arrivals</a></li>
-                        </ul>
-                    </li>
-
-                    <!-- EXPLORE Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle fw-bold text-dark text-uppercase letter-spacing-1 d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.88rem;">
-                            EXPLORE <i class="bi bi-chevron-down small text-muted" style="font-size: 0.7rem;"></i>
-                        </a>
-                        <ul class="dropdown-menu border-0 shadow-lg rounded-3 py-2 mt-2">
-                            <li><a class="dropdown-item py-2 fw-semibold" href="/#popular-section"><i class="bi bi-fire me-2 text-danger"></i>Most Popular</a></li>
-                            <li><a class="dropdown-item py-2 fw-semibold" href="/#new-arrivals-section"><i class="bi bi-sparkles me-2 text-warning"></i>New Arrivals</a></li>
-                            <li><a class="dropdown-item py-2 fw-semibold" asp-controller="Checkout" asp-action="Payment"><i class="bi bi-gem me-2 text-primary"></i>VIP All-Access</a></li>
+                            @foreach (var cat in _context.Categories.OrderBy(c => c.Name).ToList())
+                            {
+                                <li>
+                                    <a class="dropdown-item py-2" href="/#cat-@cat.Id">
+                                        <i class="bi bi-tag-fill me-2 text-primary small"></i>@cat.Name
+                                    </a>
+                                </li>
+                            }
                         </ul>
                     </li>
 
@@ -313,16 +308,14 @@ else
                     </p>
                 </div>
 
-                <!-- Col 2: Explore -->
+                <!-- Col 2: Categories (Dynamic Database Driven) -->
                 <div class="col-lg-2 col-md-6 col-6">
-                    <div class="footer-col-title">Explore</div>
+                    <div class="footer-col-title">Categories</div>
                     <ul class="footer-links-list">
-                        <li><a href="#">Fashion</a></li>
-                        <li><a href="#">Tech</a></li>
-                        <li><a href="#">Lifestyle</a></li>
-                        <li><a href="#">News</a></li>
-                        <li><a href="#">Entertainment</a></li>
-                        <li><a href="#">Culture</a></li>
+                        @foreach (var cat in _context.Categories.OrderBy(c => c.Name).ToList())
+                        {
+                            <li><a href="/#cat-@cat.Id">@cat.Name</a></li>
+                        }
                     </ul>
                 </div>
 
@@ -330,11 +323,8 @@ else
                 <div class="col-lg-2 col-md-6 col-6">
                     <div class="footer-col-title">About</div>
                     <ul class="footer-links-list">
-                        <li><a href="#">Our Story</a></li>
-                        <li><a href="#">Advertise</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Contact</a></li>
-                        <li><a asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
+                        <li><a asp-controller="Support" asp-action="Index">Contact</a></li>
+                        <li><a asp-controller="Legal" asp-action="Privacy">Privacy Policy</a></li>
                     </ul>
                 </div>
 
@@ -363,14 +353,14 @@ else
             <!-- Bottom Row: Copyright, Policy Links, Back to top -->
             <div class="footer-bottom-bar d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
-                    &copy; 2025 Culture Club. All rights reserved.
+                    &copy; @DateTime.Now.Year Culture Club. All rights reserved.
                 </div>
                 <div class="d-flex gap-3">
-                    <a href="#">Privacy Policy</a>
+                    <a asp-controller="Legal" asp-action="Privacy">Privacy Policy</a>
                     <span class="text-secondary">|</span>
-                    <a href="#">Terms of Service</a>
+                    <a asp-controller="Legal" asp-action="Terms">Terms of Service</a>
                     <span class="text-secondary">|</span>
-                    <a href="#">Cookie Settings</a>
+                    <a asp-controller="Legal" asp-action="Cookies">Cookie Preferences</a>
                 </div>
                 <div>
                     <a href="#top" class="text-decoration-none">Back to top &uarr;</a>

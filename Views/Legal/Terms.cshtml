@@ -1,0 +1,70 @@
+@{
+    ViewData["Title"] = "Terms of Service";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+    <!-- Breadcrumb / Return Navigation -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    TERMS OF USE
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Terms of Service</h1>
+            <p class="text-muted small mb-0">Rules, licensing guidelines, and terms governing the use of Culture Club.</p>
+        </div>
+        <div>
+            <a href="/" class="btn btn-neumorphic py-2 px-3 small">
+                <i class="bi bi-house-door me-1"></i> Storefront
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content Neumorphic Card -->
+    <div class="neumorphic-card p-4 p-md-5 mb-4">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-secondary border-opacity-10">
+            <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                <i class="bi bi-file-earmark-text-fill fs-5"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0" style="color: #2d3436;">Culture Club Digital Newsstand Terms of Service</h4>
+                <span class="text-muted small">Last Revised: November 2026 &bull; Agreement Version 3.1</span>
+            </div>
+        </div>
+
+        <div class="legal-content" style="color: #4a5568; line-height: 1.8;">
+            <h5 class="fw-bold text-dark mt-4 mb-2">1. Acceptance of Terms</h5>
+            <p>
+                By creating an account, browsing our storefront, purchasing single issues, or subscribing to Culture Club VIP All-Access, 
+                you agree to be bound by these Terms of Service. If you do not accept these terms in their entirety, you must discontinue platform use.
+            </p>
+
+            <h5 class="fw-bold text-dark mt-4 mb-2">2. Digital Reader & Intellectual Property License</h5>
+            <p>
+                All digital magazine issues, articles, illustrations, high-resolution covers, and typography rendered through Culture Club 
+                are proprietary copyrighted assets owned by Culture Club and its contributing publishers. 
+                Subscribers and single-issue purchasers are granted a non-exclusive, non-transferable, revocable personal license to view publications 
+                exclusively through the secured HTML5 canvas reader.
+            </p>
+            <p>
+                <strong>Prohibited Conduct:</strong> You may not bypass access controls, extract raw PDF binaries, screen-scrape, print, republish, 
+                redistribute, or reverse-engineer any publication content.
+            </p>
+
+            <h5 class="fw-bold text-dark mt-4 mb-2">3. Subscriptions & Payments</h5>
+            <p>
+                Subscriptions provide unlimited access to published digital editions for the active duration of the plan. 
+                Payment requests submitted via UPI QR codes undergo administrator verification before activation. 
+                Culture Club reserves the right to suspend or reject payment requests found to be fraudulent or unverified.
+            </p>
+
+            <h5 class="fw-bold text-dark mt-4 mb-2">4. Account Termination & Liability</h5>
+            <p>
+                We reserve the right to suspend or terminate accounts that breach copyright protections or platform conduct guidelines. 
+                For legal inquiries or account assistance, please contact us through the <a asp-controller="Support" asp-action="Index" class="fw-semibold text-primary">Customer Support Portal</a>.
+            </p>
+        </div>
+    </div>
+</div>

@@ -26,6 +26,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBY2Nlc3NEZW5pZWQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Admin/source/repos/Digital-Magzine/Views/Account/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Admin/source/repos/Digital-Magzine/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -104,6 +108,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Admin/source/repos/Digital-Magzine/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/source/repos/Digital-Magzine/Views/Legal/Cookies.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVnYWxcQ29va2llcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/source/repos/Digital-Magzine/Views/Legal/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVnYWxcUHJpdmFjeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/source/repos/Digital-Magzine/Views/Legal/Terms.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVnYWxcVGVybXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Admin/source/repos/Digital-Magzine/Views/MagazineIssues/Create.cshtml]

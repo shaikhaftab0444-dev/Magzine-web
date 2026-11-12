@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "Privacy Policy";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+    <!-- Breadcrumb / Return Navigation -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    LEGAL COMPLIANCE
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Privacy Policy</h1>
+            <p class="text-muted small mb-0">Learn how Culture Club protects, processes, and safeguards your personal data.</p>
+        </div>
+        <div>
+            <a href="/" class="btn btn-neumorphic py-2 px-3 small">
+                <i class="bi bi-house-door me-1"></i> Storefront
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content Neumorphic Card -->
+    <div class="neumorphic-card p-4 p-md-5 mb-4">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-secondary border-opacity-10">
+            <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                <i class="bi bi-shield-lock-fill fs-5"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0" style="color: #2d3436;">Culture Club Global Privacy Statement</h4>
+                <span class="text-muted small">Effective Date: November 2026 &bull; Version 2.4</span>
+            </div>
+        </div>
+
+        <div class="legal-content" style="color: #4a5568; line-height: 1.8;">
+            <h5 class="fw-bold text-dark mt-4 mb-2">1. Overview & Commitment</h5>
+            <p>
+                At Culture Club, we value your trust and are fully committed to protecting your personal information. 
+                This Privacy Policy outlines the practices we employ regarding the collection, storage, processing, and disclosure 
+                of information collected when you access our digital magazines, web services, subscription plans, and mobile-friendly reader.
+            </p>
+
+            <h5 class="fw-bold text-dark mt-4 mb-2">2. Information We Collect</h5>
+            <p>We may collect information you provide directly to us, including but not limited to:</p>
+            <ul>
+                <li><strong>Account Data:</strong> Name, email address, password hashes, and profile settings when registering.</li>
+                <li><strong>Transaction Records:</strong> Payment references, UPI transaction IDs, receipt screenshots, and subscription histories.</li>
+                <li><strong>Reading History:</strong> Reading progress, accessed issues, and saved preferences to deliver personalized editorial suggestions.</li>
+                <li><strong>Technical Data:</strong> IP addresses, browser types, operating systems, and device identifiers collected automatically for security.</li>
+            </ul>
+
+            <h5 class="fw-bold text-dark mt-4 mb-2">3. How We Use Your Data</h5>
+            <p>
+                The data collected is utilized strictly to provide, authenticate, maintain, and enhance the Culture Club platform. 
+                This encompasses processing single-issue purchases and subscription upgrades, approving manual payment requests, verifying reader authentication, 
+                and delivering priority customer service tickets.
+            </p>
+
+            <h5 class="fw-bold text-dark mt-4 mb-2">4. Data Protection & Security</h5>
+            <p>
+                All sensitive communications occur over industry-standard TLS 1.3 encryption. Passwords and identity credentials are encrypted 
+                using secure cryptographic hashing. Digital publications and magazine assets are rendered on secure HTML5 canvas viewports 
+                to safeguard proprietary intellectual property.
+            </p>
+
+            <h5 class="fw-bold text-dark mt-4 mb-2">5. Your Privacy Rights</h5>
+            <p>
+                You retain the right to inspect, modify, or request the deletion of your account credentials at any time. 
+                To request data export or account closure, submit a support ticket via our <a asp-controller="Support" asp-action="Index" class="fw-semibold text-primary">Customer Support Portal</a>.
+            </p>
+        </div>
+    </div>
+</div>

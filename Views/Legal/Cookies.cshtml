@@ -1,0 +1,61 @@
+@{
+    ViewData["Title"] = "Cookie Preferences";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-0">
+    <!-- Breadcrumb / Return Navigation -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    USER PREFERENCES
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Cookie Preferences</h1>
+            <p class="text-muted small mb-0">Understand how cookies and local storage are utilized to improve your reading session.</p>
+        </div>
+        <div>
+            <a href="/" class="btn btn-neumorphic py-2 px-3 small">
+                <i class="bi bi-house-door me-1"></i> Storefront
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content Neumorphic Card -->
+    <div class="neumorphic-card p-4 p-md-5 mb-4">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom border-secondary border-opacity-10">
+            <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                <i class="bi bi-cookie fs-5"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0" style="color: #2d3436;">Cookie &amp; Tracking Technology Notice</h4>
+                <span class="text-muted small">Updated: November 2026 &bull; Transparency Guideline</span>
+            </div>
+        </div>
+
+        <div class="legal-content" style="color: #4a5568; line-height: 1.8;">
+            <h5 class="fw-bold text-dark mt-4 mb-2">1. What Are Cookies?</h5>
+            <p>
+                Cookies and browser local storage are small data files placed on your device to enable core website functionality, 
+                remember authentication states, and maintain reading preferences across sessions.
+            </p>
+
+            <h5 class="fw-bold text-dark mt-4 mb-2">2. Types of Cookies We Use</h5>
+            <ul>
+                <li><strong>Strictly Necessary Cookies:</strong> Essential for user authentication, security tokens (.AspNetCore.Antiforgery), and session tracking. The platform cannot function without these cookies.</li>
+                <li><strong>Preference Cookies:</strong> Remember your dashboard theme settings, reader zoom preferences, and carousel positions.</li>
+                <li><strong>Performance & Analytics Cookies:</strong> Aggregate anonymous telemetry to evaluate reading times, popular issues, and navigational flow to optimize server load.</li>
+            </ul>
+
+            <h5 class="fw-bold text-dark mt-4 mb-2">3. Managing Your Cookie Settings</h5>
+            <p>
+                You can configure your browser to decline or notify you when receiving cookies. However, disabling authentication cookies 
+                will prevent you from logging into your VIP Subscriber or Free Member dashboard.
+            </p>
+            <p>
+                If you have questions about our cookie policies, reach out to our team via the <a asp-controller="Support" asp-action="Index" class="fw-semibold text-primary">Customer Support Portal</a>.
+            </p>
+        </div>
+    </div>
+</div>

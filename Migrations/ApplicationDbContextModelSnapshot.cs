@@ -129,6 +129,9 @@ namespace Digital_Magzine.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
 
