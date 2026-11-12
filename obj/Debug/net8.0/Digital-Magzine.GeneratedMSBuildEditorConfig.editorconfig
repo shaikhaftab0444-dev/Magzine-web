@@ -62,6 +62,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cU3Vic2NyaWJlcnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Admin/source/repos/Digital-Magzine/Views/Admin/SupportTickets.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cU3VwcG9ydFRpY2tldHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Admin/source/repos/Digital-Magzine/Views/Admin/UploadQR.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXBsb2FkUVIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -134,6 +138,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTXlBY2NvdW50XEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Admin/source/repos/Digital-Magzine/Views/Notifications/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Admin/source/repos/Digital-Magzine/Views/Reader/Issue.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVhZGVyXElzc3VlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -168,6 +176,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Admin/source/repos/Digital-Magzine/Views/SubscriptionPlans/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3Vic2NyaXB0aW9uUGxhbnNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Admin/source/repos/Digital-Magzine/Views/Support/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Admin/source/repos/Digital-Magzine/Views/_ViewImports.cshtml]

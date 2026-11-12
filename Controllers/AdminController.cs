@@ -786,6 +786,16 @@ namespace Digital_Magzine.Controllers
                 }
             }
 
+            // Insert Notification for User
+            _context.Notifications.Add(new Notification
+            {
+                UserId = request.UserId,
+                Title = "Payment Approved",
+                Message = "Your payment was Approved. Your subscription or issue access is now active!",
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false
+            });
+
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = $"Payment request #{id} approved successfully! Entitlement granted.";
@@ -811,6 +821,17 @@ namespace Digital_Magzine.Controllers
             }
 
             request.Status = "Rejected";
+
+            // Insert Notification for User
+            _context.Notifications.Add(new Notification
+            {
+                UserId = request.UserId,
+                Title = "Payment Rejected",
+                Message = "Your payment was Rejected. Please check your transaction details or contact support.",
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false
+            });
+
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = $"Payment request #{id} has been rejected.";
@@ -863,6 +884,47 @@ namespace Digital_Magzine.Controllers
             }
 
             return RedirectToAction(nameof(UploadQR));
+        }
+
+        // GET: /Admin/SupportTickets
+        [HttpGet]
+        public async Task<IActionResult> SupportTickets()
+        {
+            var tickets = await _context.SupportTickets
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+
+            return View(tickets);
+        }
+
+        // POST: /Admin/UpdateTicketStatus
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateTicketStatus(int id, string status)
+        {
+            var ticket = await _context.SupportTickets.FindAsync(id);
+            if (ticket == null)
+            {
+                TempData["ErrorMessage"] = "Support ticket not found.";
+                return RedirectToAction(nameof(SupportTickets));
+            }
+
+            ticket.Status = status;
+
+            // Notify user
+            _context.Notifications.Add(new Notification
+            {
+                UserId = ticket.UserId,
+                Title = $"Support Ticket #{id} {status}",
+                Message = $"Your support ticket '{ticket.Subject}' has been marked as {status}.",
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false
+            });
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Support ticket #{id} status updated to {status}.";
+            return RedirectToAction(nameof(SupportTickets));
         }
     }
 }

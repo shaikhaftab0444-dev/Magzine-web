@@ -1,0 +1,119 @@
+@model IEnumerable<Digital_Magzine.Models.Notification>
+
+@{
+    ViewData["Title"] = "Notifications";
+    Layout = "_AdminLayout";
+    var unreadCount = Model.Count(n => !n.IsRead);
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Page Header & Actions -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    SYSTEM COMMUNICATIONS
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Activity &amp; Notifications</h1>
+            <p class="text-muted small mb-0">Stay updated on your payment verifications, membership approvals, and system alerts.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            @if (unreadCount > 0)
+            {
+                <form asp-action="MarkAllAsRead" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-neumorphic py-2 px-3 small fw-semibold">
+                        <i class="bi bi-check2-all me-1 text-primary"></i> Mark All as Read
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4 small d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+            <div class="fw-semibold">@TempData["SuccessMessage"]</div>
+        </div>
+    }
+
+    <!-- Notifications List Card -->
+    <div class="neumorphic-card p-4 p-md-5">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <div class="neumorphic-circle-sm mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem; color: #0284c7;">
+                    <i class="bi bi-bell-slash"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">No Notifications Yet</h5>
+                <p class="text-muted small mb-0">When you receive account updates, payment alerts, or support responses, they'll appear here.</p>
+            </div>
+        }
+        else
+        {
+            <div class="list-group list-group-flush gap-3">
+                @foreach (var item in Model)
+                {
+                    <div class="p-3 p-md-4 rounded-4 position-relative transition-all" 
+                         style="background: @(item.IsRead ? "rgba(255, 255, 255, 0.45)" : "#ffffff"); 
+                                box-shadow: @(item.IsRead ? "inset 2px 2px 5px #c8ccd6, inset -2px -2px 5px #ffffff" : "4px 4px 12px #c8ccd6, -4px -4px 12px #ffffff"); 
+                                border: @(item.IsRead ? "1px solid rgba(200, 204, 214, 0.4)" : "1px solid rgba(14, 165, 233, 0.35)");">
+                        
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                            <div class="d-flex align-items-start gap-3 flex-grow-1">
+                                <!-- Notification Icon -->
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" 
+                                     style="width: 44px; height: 44px; background: @(item.IsRead ? "rgba(100, 116, 139, 0.12)" : "rgba(14, 165, 233, 0.15)"); color: @(item.IsRead ? "#64748b" : "#0284c7"); font-size: 1.25rem;">
+                                    @if (item.Title.Contains("Approved", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    }
+                                    else if (item.Title.Contains("Reject", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger"></i>
+                                    }
+                                    else if (item.Title.Contains("Ticket", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <i class="bi bi-headset"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-bell-fill"></i>
+                                    }
+                                </div>
+
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                        <h6 class="fw-bold mb-0" style="color: #2d3436;">@item.Title</h6>
+                                        @if (!item.IsRead)
+                                        {
+                                            <span class="badge rounded-pill bg-primary" style="font-size: 0.65rem;">NEW</span>
+                                        }
+                                    </div>
+                                    <p class="text-secondary small mb-2" style="line-height: 1.5;">@item.Message</p>
+                                    <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.75rem;">
+                                        <i class="bi bi-clock"></i>
+                                        <span>@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy &bull; hh:mm tt")</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (!item.IsRead)
+                            {
+                                <form asp-action="MarkAsRead" asp-route-id="@item.Id" method="post" class="ms-md-auto">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 text-nowrap" style="font-size: 0.78rem;">
+                                        <i class="bi bi-check me-1"></i> Mark read
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

@@ -24,13 +24,26 @@
 
     <!-- Top Banner & Notification for Current Subscriber Status -->
     <div class="text-center mb-5">
-        <span class="badge rounded-pill px-3 py-1 mb-2" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.78rem;">
-            VIP ALL-ACCESS PASS
-        </span>
-        <h1 class="h2 fw-bold mb-2" style="color: #2d3436; letter-spacing: -0.5px;">Choose Your All-Access Plan</h1>
-        <p class="text-muted mx-auto" style="max-width: 600px;">
-            Read unlimited issues of Culture Club, access our digital PDF archive, and unlock exclusive editorial retrospectives.
-        </p>
+        @if (!User.IsInRole("Admin"))
+        {
+            <span class="badge rounded-pill px-3 py-1 mb-2" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.78rem;">
+                VIP ALL-ACCESS PASS
+            </span>
+            <h1 class="h2 fw-bold mb-2" style="color: #2d3436; letter-spacing: -0.5px;">Choose Your All-Access Plan</h1>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                Read unlimited issues of @SettingsService.GetValue("BrandName", "Culture Club"), access our digital PDF archive, and unlock exclusive editorial retrospectives.
+            </p>
+        }
+        else
+        {
+            <span class="badge rounded-pill px-3 py-1 mb-2" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.78rem;">
+                ADMINISTRATION &bull; MONETIZATION
+            </span>
+            <h1 class="h2 fw-bold mb-2" style="color: #2d3436; letter-spacing: -0.5px;">Subscription Plans Management</h1>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                Manage subscription pricing tiers, review active subscriber counts, and configure billing cycle options.
+            </p>
+        }
 
         @if (hasAnnual)
         {

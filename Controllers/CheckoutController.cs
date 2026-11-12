@@ -193,6 +193,18 @@ namespace Digital_Magzine.Controllers
             };
 
             _context.PaymentRequests.Add(paymentRequest);
+
+            // Generate notification for Admins
+            var adminNotification = new Notification
+            {
+                UserId = null,
+                Title = "New Payment Verification Request",
+                Message = $"New payment request from {user.Email ?? "Customer"}",
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false
+            };
+            _context.Notifications.Add(adminNotification);
+
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Payment submitted. Awaiting Admin verification.";

@@ -39,7 +39,7 @@ else
             <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center text-decoration-none me-3">
                 <img src="@SettingsService.GetValue("LogoPath", "/images/system/logo.png")?v=@DateTime.Now.Ticks" 
                      alt="@SettingsService.GetValue("BrandName", "Culture Club")" 
-                     class="me-2" style="max-height: 38px; width: auto; object-fit: contain;" 
+                     class="rounded-circle me-2" style="width: 38px; height: 38px; object-fit: cover; aspect-ratio: 1/1;" 
                      onerror="this.style.display='none';" />
                 <span class="fs-4" style="font-family: 'Inter', -apple-system, sans-serif; font-weight: 900; letter-spacing: -0.6px; color: #0f172a;">
                     @SettingsService.GetValue("BrandName", "Culture Club")

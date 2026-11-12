@@ -144,8 +144,8 @@
                         </div>
                         @if (!string.IsNullOrEmpty(Model.LogoPath))
                         {
-                            <div class="p-2 rounded-3 bg-white shadow-xs border d-inline-block">
-                                <img src="@Model.LogoPath?v=@DateTime.Now.Ticks" alt="Current Brand Logo" style="max-height: 48px; max-width: 140px; object-fit: contain;" />
+                            <div class="p-1 rounded-circle bg-white shadow-xs border d-inline-block">
+                                <img src="@Model.LogoPath?v=@DateTime.Now.Ticks" alt="Current Brand Logo" class="rounded-circle" style="width: 56px; height: 56px; object-fit: cover; aspect-ratio: 1/1;" />
                             </div>
                         }
                     </div>

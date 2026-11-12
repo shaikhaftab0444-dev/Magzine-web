@@ -1,0 +1,207 @@
+@model IEnumerable<Digital_Magzine.Models.SupportTicket>
+
+@{
+    ViewData["Title"] = "Customer Support Tickets";
+    Layout = "_AdminLayout";
+    var openCount = Model.Count(t => t.Status.Equals("Open", StringComparison.OrdinalIgnoreCase));
+    var resolvedCount = Model.Count(t => t.Status.Equals("Resolved", StringComparison.OrdinalIgnoreCase));
+}
+
+<div class="container-fluid px-0">
+
+    <!-- Page Header & Metrics Summary -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.72rem;">
+                    CUSTOMER CARE &bull; HELPDESK
+                </span>
+            </div>
+            <h1 class="h3 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Customer Support Inquiries</h1>
+            <p class="text-muted small mb-0">Review subscriber questions, payment assistance requests, and manage resolution statuses.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white;">
+                @openCount Open Inquiries
+            </span>
+        </div>
+    </div>
+
+    <!-- Quick Metrics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Open &bull; Awaiting Reply</span>
+                    <div class="neumorphic-circle-sm" style="color: #f59e0b;">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #f59e0b;">@openCount</div>
+                <span class="small text-muted">Customer issues needing review</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Resolved Inquiries</span>
+                    <div class="neumorphic-circle-sm" style="color: #10b981;">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #047857;">@resolvedCount</div>
+                <span class="small text-muted">Successfully assisted users</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="neumorphic-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Total Tickets</span>
+                    <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                        <i class="bi bi-ticket-detailed"></i>
+                    </div>
+                </div>
+                <div class="h3 fw-bold mb-1" style="color: #0284c7;">@Model.Count()</div>
+                <span class="small text-muted">All-time help requests</span>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4 small d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+            <div class="fw-semibold">@TempData["SuccessMessage"]</div>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger border-0 rounded-4 shadow-sm mb-4 small d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
+            <div class="fw-semibold">@TempData["ErrorMessage"]</div>
+        </div>
+    }
+
+    <!-- Tickets Table Card -->
+    <div class="neumorphic-card p-4 p-md-5">
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <div class="neumorphic-circle-sm mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem; color: #0284c7;">
+                    <i class="bi bi-check-all"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-1">Inbox Zero &bull; No Tickets</h5>
+                <p class="text-muted small mb-0">No customer support tickets have been opened yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="border-collapse: separate; border-spacing: 0 8px;">
+                    <thead>
+                        <tr class="text-muted small text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                            <th class="border-0 ps-3">Ticket</th>
+                            <th class="border-0">User &amp; Email</th>
+                            <th class="border-0">Subject &amp; Message</th>
+                            <th class="border-0">Submitted</th>
+                            <th class="border-0">Status</th>
+                            <th class="border-0 pe-3 text-end">Update Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ticket in Model)
+                        {
+                            <tr style="background-color: rgba(255, 255, 255, 0.65); box-shadow: 2px 2px 6px rgba(0,0,0,0.02); border-radius: 12px;">
+                                <td class="ps-3 fw-bold font-monospace" style="color: #0284c7;">
+                                    #@ticket.Id
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle text-white fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.75rem; background: var(--neu-sky-gradient);">
+                                            @(string.IsNullOrEmpty(ticket.UserEmail) ? "U" : ticket.UserEmail[0].ToString().ToUpper())
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold small" style="color: #2d3436;">@ticket.UserEmail</div>
+                                            <div class="text-muted font-monospace" style="font-size: 0.68rem;">ID: @ticket.UserId.Substring(0, Math.Min(8, ticket.UserId.Length))...</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold small text-dark mb-1">@ticket.Subject</div>
+                                    <div class="small text-secondary" style="max-width: 340px; line-height: 1.4;">
+                                        @ticket.Message
+                                    </div>
+                                </td>
+                                <td class="text-muted small">
+                                    @ticket.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy &bull; hh:mm tt")
+                                </td>
+                                <td>
+                                    @if (ticket.Status.Equals("Resolved", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700;">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Resolved
+                                        </span>
+                                    }
+                                    else if (ticket.Status.Equals("Closed", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(100, 116, 139, 0.15); color: #475569; font-weight: 700;">
+                                            <i class="bi bi-slash-circle me-1"></i> Closed
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(245, 158, 11, 0.15); color: #d97706; font-weight: 700;">
+                                            <i class="bi bi-hourglass-split me-1"></i> Open
+                                        </span>
+                                    }
+                                </td>
+                                <td class="pe-3 text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        @if (!ticket.Status.Equals("Resolved", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <form asp-controller="Admin" asp-action="UpdateTicketStatus" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@ticket.Id" />
+                                                <input type="hidden" name="status" value="Resolved" />
+                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" title="Mark as Resolved">
+                                                    <i class="bi bi-check2 me-1"></i> Resolved
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @if (!ticket.Status.Equals("Closed", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <form asp-controller="Admin" asp-action="UpdateTicketStatus" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@ticket.Id" />
+                                                <input type="hidden" name="status" value="Closed" />
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" title="Close Ticket">
+                                                    <i class="bi bi-archive me-1"></i> Close
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @if (ticket.Status.Equals("Resolved", StringComparison.OrdinalIgnoreCase) || ticket.Status.Equals("Closed", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <form asp-controller="Admin" asp-action="UpdateTicketStatus" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@ticket.Id" />
+                                                <input type="hidden" name="status" value="Open" />
+                                                <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" title="Reopen Ticket">
+                                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reopen
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

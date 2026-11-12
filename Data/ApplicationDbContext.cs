@@ -25,6 +25,8 @@ namespace Digital_Magzine.Data
         public DbSet<PaymentRequest> PaymentRequests { get; set; }
         public DbSet<ReadingHistory> ReadingHistories { get; set; }
         public DbSet<PlatformSetting> PlatformSettings { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<SupportTicket> SupportTickets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -53,6 +55,8 @@ namespace Digital_Magzine.Data
             builder.Entity<PaymentRequest>().ToTable("DM_PaymentRequests");
             builder.Entity<ReadingHistory>().ToTable("DM_ReadingHistories");
             builder.Entity<PlatformSetting>().ToTable("DM_PlatformSettings");
+            builder.Entity<Notification>().ToTable("DM_Notifications");
+            builder.Entity<SupportTicket>().ToTable("DM_SupportTickets");
 
             builder.Entity<PlatformSetting>().HasData(
                 new PlatformSetting { Id = 1, SettingKey = "BrandName", SettingValue = "Culture Club" },

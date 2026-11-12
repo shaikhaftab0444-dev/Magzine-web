@@ -47,7 +47,7 @@
                     <a asp-controller="@brandController" asp-action="@brandAction" class="cc-sidebar-brand text-decoration-none m-0 d-flex align-items-center">
                         <img src="@SettingsService.GetValue("LogoPath", "/images/system/logo.png")?v=@DateTime.Now.Ticks" 
                              alt="@SettingsService.GetValue("BrandName", "Culture Club")" 
-                             class="me-2" style="max-height: 32px; width: auto; object-fit: contain;" 
+                             class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover; aspect-ratio: 1/1;" 
                              onerror="this.style.display='none'; document.getElementById('adminMonogramFallback').style.display='flex';" />
                         <span id="adminMonogramFallback" class="cc-monogram-sky" style="display: none;">CC</span>
                         <div>
@@ -117,6 +117,12 @@
                                 <span>Settings</span>
                             </a>
                         </li>
+                        <li class="cc-nav-item">
+                            <a asp-controller="Admin" asp-action="SupportTickets" class="cc-nav-link @(currentController == "Admin" && currentAction == "SupportTickets" ? "active" : "")">
+                                <i class="bi bi-headset"></i>
+                                <span>Support Tickets</span>
+                            </a>
+                        </li>
                     }
                     else if (User.IsInRole("Subscriber"))
                     {
@@ -149,6 +155,12 @@
                             <a asp-controller="Account" asp-action="Manage" class="cc-nav-link @(currentController == "Account" && currentAction == "Manage" ? "active" : "")">
                                 <i class="bi bi-person-gear"></i>
                                 <span>Account Settings</span>
+                            </a>
+                        </li>
+                        <li class="cc-nav-item">
+                            <a asp-controller="Support" asp-action="Index" class="cc-nav-link @(currentController == "Support" ? "active" : "")">
+                                <i class="bi bi-headset"></i>
+                                <span>Customer Support</span>
                             </a>
                         </li>
                     }
@@ -186,6 +198,12 @@
                                 <span>Profile Settings</span>
                             </a>
                         </li>
+                        <li class="cc-nav-item">
+                            <a asp-controller="Support" asp-action="Index" class="cc-nav-link @(currentController == "Support" ? "active" : "")">
+                                <i class="bi bi-headset"></i>
+                                <span>Customer Support</span>
+                            </a>
+                        </li>
                     }
                 </ul>
             </div>
@@ -219,10 +237,10 @@
             </div>
 
             <div class="d-flex align-items-center gap-3">
-                <button type="button" class="neumorphic-circle-btn position-relative" aria-label="Notifications" title="Notifications">
-                    <i class="bi bi-bell"></i>
+                <a asp-controller="Notifications" asp-action="Index" class="neumorphic-circle-btn position-relative text-decoration-none d-flex align-items-center justify-content-center" aria-label="Notifications" title="Notifications">
+                    <i class="bi bi-bell" style="color: #2d3436;"></i>
                     <span class="notification-badge-dot" style="background-color: #0ea5e9; border-color: #e6e9f0;"></span>
-                </button>
+                </a>
 
                 <div class="dropdown">
                     <button class="btn btn-neumorphic d-flex align-items-center gap-2 px-3 py-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 50px !important;">
@@ -244,6 +262,7 @@
                             <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="PaymentRequests"><i class="bi bi-qr-code-scan me-2 text-warning"></i>Payment Requests</a></li>
                             <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="UploadQR"><i class="bi bi-qr-code me-2 text-info"></i>Upload QR</a></li>
                             <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="Settings"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                            <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="SupportTickets"><i class="bi bi-headset me-2 text-danger"></i>Support Tickets</a></li>
                         }
                         else if (User.IsInRole("Subscriber"))
                         {
@@ -251,6 +270,7 @@
                             <li><a class="dropdown-item py-2" href="/MyAccount/Index#library"><i class="bi bi-journal-bookmark-fill me-2 text-success"></i>My Library</a></li>
                             <li><a class="dropdown-item py-2" asp-controller="MyAccount" asp-action="History"><i class="bi bi-clock-history me-2 text-info"></i>Reading History</a></li>
                             <li><a class="dropdown-item py-2" asp-controller="Account" asp-action="Manage"><i class="bi bi-person-gear me-2"></i>Account Settings</a></li>
+                            <li><a class="dropdown-item py-2" asp-controller="Support" asp-action="Index"><i class="bi bi-headset me-2 text-primary"></i>Customer Support</a></li>
                         }
                         else
                         {
@@ -259,6 +279,7 @@
                             <li><a class="dropdown-item py-2" asp-controller="MyAccount" asp-action="History"><i class="bi bi-clock-history me-2 text-info"></i>Reading History</a></li>
                             <li><a class="dropdown-item py-2 fw-bold text-primary" asp-controller="SubscriptionPlans" asp-action="Index"><i class="bi bi-gem me-2"></i>Upgrade to VIP</a></li>
                             <li><a class="dropdown-item py-2" asp-controller="Account" asp-action="Manage"><i class="bi bi-person-gear me-2"></i>Profile Settings</a></li>
+                            <li><a class="dropdown-item py-2" asp-controller="Support" asp-action="Index"><i class="bi bi-headset me-2 text-primary"></i>Customer Support</a></li>
                         }
                         <li><hr class="dropdown-divider my-1"></li>
                         <li>
