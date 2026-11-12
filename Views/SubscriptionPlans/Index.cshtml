@@ -1,7 +1,7 @@
 @model IEnumerable<Digital_Magzine.Models.SubscriptionPlan>
 
 @{
-    ViewData["Title"] = "VIP Subscription Plans";
+    ViewData["Title"] = User.IsInRole("Admin") ? "Subscription Plans Management - Culture Club" : "VIP Subscription Plans - Culture Club";
     var isAdmin = User.IsInRole("Admin");
     Layout = isAdmin ? "_AdminLayout" : "_Layout";
 
@@ -12,7 +12,7 @@
     var hasMonthly = hasActiveSub && activePlanDuration < 12;
 
     // Filter plans according to smart upgrade rules:
-    // If user has active 12-month (1 Year) plan: completely hide the 1-Month plan option
+    // If customer has active 12-month (1 Year) plan: completely hide the 1-Month plan option
     var displayPlans = Model.Where(p => p.IsActive).ToList();
     if (hasAnnual)
     {
@@ -20,12 +20,128 @@
     }
 }
 
-<div class="container py-4">
+@if (User.IsInRole("Admin"))
+{
+    <!-- ========================================== -->
+    <!-- ADMINISTRATOR MANAGEMENT INTERFACE         -->
+    <!-- ========================================== -->
+    <div class="container-fluid py-4">
+        <!-- Admin Header -->
+        <div class="mb-4">
+            <span class="badge rounded-pill px-3 py-1 mb-2" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.78rem;">
+                ADMINISTRATION &bull; MONETIZATION
+            </span>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div>
+                    <h1 class="h2 fw-bold mb-1" style="color: #2d3436; letter-spacing: -0.5px;">Subscription Plans Management</h1>
+                    <p class="text-muted small mb-0">Manage subscription pricing tiers, review active subscriber counts, and configure billing cycle options.</p>
+                </div>
+                <div>
+                    <a asp-action="Create" class="btn btn-neumorphic-primary px-4 py-2 small fw-bold">
+                        <i class="bi bi-plus-lg me-1"></i> + Create New Plan
+                    </a>
+                </div>
+            </div>
+        </div>
 
-    <!-- Top Banner & Notification for Current Subscriber Status -->
-    <div class="text-center mb-5">
-        @if (!User.IsInRole("Admin"))
+        @if (TempData["SuccessMessage"] != null)
         {
+            <div class="alert alert-success border-0 neumorphic-card small mb-4 py-2 px-3">
+                <i class="bi bi-check-circle-fill me-1"></i> @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Admin Table of Plans -->
+        <div class="neumorphic-card p-4">
+            <div class="table-responsive">
+                <table class="table neumorphic-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Plan Name</th>
+                            <th style="width: 15%;">Price</th>
+                            <th style="width: 15%;">Duration</th>
+                            <th style="width: 15%;">Subscribers</th>
+                            <th style="width: 10%;">Status</th>
+                            <th style="width: 15%;" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    <i class="bi bi-tag fs-3 d-block text-muted mb-2"></i>
+                                    <em>No subscription plans configured in database.</em>
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                                            <i class="bi bi-gem"></i>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold" style="color: #2d3436;">@item.Name</span>
+                                            <div class="text-muted small font-monospace">Plan ID: #@item.Id</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" style="color: #047857;">@SettingsService.GetCurrencySymbol()@item.Price.ToString("N2")</span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-weight: 600;">
+                                        @item.DurationInMonths @(item.DurationInMonths == 1 ? "Month" : "Months")
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; font-weight: 600;">
+                                        @(item.UserSubscriptions?.Count ?? 0) Active
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 700;">
+                                            Active
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(100, 116, 139, 0.15); color: #64748b; font-weight: 600;">
+                                            Inactive
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-neumorphic btn-sm py-1 px-3 small" title="Edit">
+                                            <i class="bi bi-pencil me-1"></i> Edit
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-neumorphic btn-sm py-1 px-3 small text-danger" title="Delete">
+                                            <i class="bi bi-trash me-1"></i> Delete
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- ========================================== -->
+    <!-- CUSTOMER CHECKOUT & UPGRADE INTERFACE      -->
+    <!-- ========================================== -->
+    <div class="container py-4">
+        <!-- Customer Header -->
+        <div class="text-center mb-5">
             <span class="badge rounded-pill px-3 py-1 mb-2" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.78rem;">
                 VIP ALL-ACCESS PASS
             </span>
@@ -33,256 +149,145 @@
             <p class="text-muted mx-auto" style="max-width: 600px;">
                 Read unlimited issues of @SettingsService.GetValue("BrandName", "Culture Club"), access our digital PDF archive, and unlock exclusive editorial retrospectives.
             </p>
-        }
-        else
-        {
-            <span class="badge rounded-pill px-3 py-1 mb-2" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.78rem;">
-                ADMINISTRATION &bull; MONETIZATION
-            </span>
-            <h1 class="h2 fw-bold mb-2" style="color: #2d3436; letter-spacing: -0.5px;">Subscription Plans Management</h1>
-            <p class="text-muted mx-auto" style="max-width: 600px;">
-                Manage subscription pricing tiers, review active subscriber counts, and configure billing cycle options.
-            </p>
-        }
 
-        @if (hasAnnual)
-        {
-            <div class="d-inline-flex align-items-center gap-2 p-2 px-4 rounded-pill mt-2" style="background: rgba(4, 120, 87, 0.1); border: 1px solid rgba(4, 120, 87, 0.25);">
-                <i class="bi bi-shield-check text-success fs-5"></i>
-                <span class="small fw-semibold text-success">
-                    You currently have an active <strong>Annual VIP Pass</strong> (valid until @activeSub!.EndDate.ToString("MMMM dd, yyyy")).
-                </span>
-            </div>
-        }
-        else if (hasMonthly)
-        {
-            <div class="d-inline-flex align-items-center gap-2 p-2 px-4 rounded-pill mt-2" style="background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.3);">
-                <i class="bi bi-info-circle text-primary fs-5"></i>
-                <span class="small fw-semibold" style="color: #0284c7;">
-                    You are on a <strong>Monthly VIP Plan</strong>. Upgrade to Annual today to save big and lock in 12 months of unlimited access!
-                </span>
-            </div>
-        }
-    </div>
-
-    <!-- Pricing Cards Grid (Sky Blue Neumorphic) -->
-    <div class="row justify-content-center g-4 mb-5">
-        @if (!displayPlans.Any())
-        {
-            <div class="col-12 col-md-8 text-center py-5">
-                <div class="neumorphic-card p-5">
-                    <i class="bi bi-gem fs-1 text-muted d-block mb-3"></i>
-                    <h3 class="h5 fw-bold" style="color: #2d3436;">No Active Subscription Plans Available</h3>
-                    <p class="text-muted small mb-0">Check back shortly or contact our editorial support.</p>
+            @if (hasAnnual)
+            {
+                <div class="d-inline-flex align-items-center gap-2 p-2 px-4 rounded-pill mt-2" style="background: rgba(4, 120, 87, 0.1); border: 1px solid rgba(4, 120, 87, 0.25);">
+                    <i class="bi bi-shield-check text-success fs-5"></i>
+                    <span class="small fw-semibold text-success">
+                        You currently have an active <strong>Annual VIP Pass</strong> (valid until @activeSub!.EndDate.ToString("MMMM dd, yyyy")).
+                    </span>
                 </div>
-            </div>
-        }
-        @{
-            var pendingPlanIds = (ViewBag.PendingPlanIds as List<int>) ?? new List<int>();
-            var pendingRequests = (ViewBag.PendingRequests as List<Digital_Magzine.Models.PaymentRequest>) ?? new List<Digital_Magzine.Models.PaymentRequest>();
-        }
-        @foreach (var plan in displayPlans)
-        {
-            var isThisActivePlan = hasActiveSub && activeSub?.SubscriptionPlanId == plan.Id;
-            var isPendingApproval = pendingPlanIds.Contains(plan.Id) || pendingRequests.Any(pr => pr.RequestedItemType == "Plan" && pr.ItemId == plan.Id && pr.Status == "Pending");
-            var isAnnualPlan = plan.DurationInMonths >= 12;
+            }
+            else if (hasMonthly)
+            {
+                <div class="d-inline-flex align-items-center gap-2 p-2 px-4 rounded-pill mt-2" style="background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.3);">
+                    <i class="bi bi-info-circle text-primary fs-5"></i>
+                    <span class="small fw-semibold" style="color: #0284c7;">
+                        You are on a <strong>Monthly VIP Plan</strong>. Upgrade to Annual today to save big and lock in 12 months of unlimited access!
+                    </span>
+                </div>
+            }
+        </div>
 
-            <div class="col-12 col-md-6 col-lg-5">
-                <div class="neumorphic-card p-4 p-md-5 h-100 d-flex flex-column justify-content-between position-relative @(isAnnualPlan ? "border-primary-subtle" : "")"
-                     style="@(isAnnualPlan ? "border: 2px solid rgba(14, 165, 233, 0.4);" : "")">
+        <!-- Customer Pricing Cards Grid -->
+        <div class="row justify-content-center g-4 mb-5">
+            @if (!displayPlans.Any())
+            {
+                <div class="col-12 col-md-8 text-center py-5">
+                    <div class="neumorphic-card p-5">
+                        <i class="bi bi-gem fs-1 text-muted d-block mb-3"></i>
+                        <h3 class="h5 fw-bold" style="color: #2d3436;">No Active Subscription Plans Available</h3>
+                        <p class="text-muted small mb-0">Check back shortly or contact our editorial support.</p>
+                    </div>
+                </div>
+            }
+            @{
+                var pendingPlanIds = (ViewBag.PendingPlanIds as List<int>) ?? new List<int>();
+                var pendingRequests = (ViewBag.PendingRequests as List<Digital_Magzine.Models.PaymentRequest>) ?? new List<Digital_Magzine.Models.PaymentRequest>();
+            }
+            @foreach (var plan in displayPlans)
+            {
+                var isThisActivePlan = hasActiveSub && activeSub?.SubscriptionPlanId == plan.Id;
+                var isPendingApproval = pendingPlanIds.Contains(plan.Id) || pendingRequests.Any(pr => pr.RequestedItemType == "Plan" && pr.ItemId == plan.Id && pr.Status == "Pending");
+                var isAnnualPlan = plan.DurationInMonths >= 12;
 
-                    @if (isAnnualPlan)
-                    {
-                        <div class="position-absolute top-0 end-0 mt-3 me-3">
-                            <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white;">
-                                Best Value
-                            </span>
-                        </div>
-                    }
+                <div class="col-12 col-md-6 col-lg-5">
+                    <div class="neumorphic-card p-4 p-md-5 h-100 d-flex flex-column justify-content-between position-relative @(isAnnualPlan ? "border-primary-subtle" : "")"
+                         style="@(isAnnualPlan ? "border: 2px solid rgba(14, 165, 233, 0.4);" : "")">
 
-                    <div>
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
-                                <i class="bi @(isAnnualPlan ? "bi-award-fill" : "bi-lightning-charge-fill")"></i>
+                        @if (isAnnualPlan)
+                        {
+                            <div class="position-absolute top-0 end-0 mt-3 me-3">
+                                <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white;">
+                                    Best Value
+                                </span>
                             </div>
-                            <span class="fw-bold text-uppercase small" style="color: #0284c7; letter-spacing: 0.5px;">
-                                @(isAnnualPlan ? "12-Month Access" : "30-Day Access")
-                            </span>
-                        </div>
+                        }
 
-                        <h3 class="h4 fw-bold mb-1" style="color: #2d3436;">@plan.Name</h3>
-                        <p class="text-muted small mb-4">Complete digital magazine archive access on all devices.</p>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                                    <i class="bi @(isAnnualPlan ? "bi-award-fill" : "bi-lightning-charge-fill")"></i>
+                                </div>
+                                <span class="fw-bold text-uppercase small" style="color: #0284c7; letter-spacing: 0.5px;">
+                                    @(isAnnualPlan ? "12-Month Access" : "30-Day Access")
+                                </span>
+                            </div>
 
-                        <div class="d-flex align-items-baseline gap-1 mb-4">
-                            <span class="h1 fw-bolder mb-0" style="color: #2d3436; font-size: 2.75rem;">@SettingsService.GetCurrencySymbol()@plan.Price.ToString("0.00")</span>
-                            <span class="text-muted small fw-semibold">/@(isAnnualPlan ? "year" : "month")</span>
-                        </div>
+                            <h3 class="h4 fw-bold mb-1" style="color: #2d3436;">@plan.Name</h3>
+                            <p class="text-muted small mb-4">Complete digital magazine archive access on all devices.</p>
 
-                        <ul class="list-unstyled mb-4 small" style="color: #4b5563;">
-                            <li class="d-flex align-items-center gap-2 mb-2">
-                                <i class="bi bi-check-circle-fill text-success"></i>
-                                <span>Unlimited access to all published magazine issues</span>
-                            </li>
-                            <li class="d-flex align-items-center gap-2 mb-2">
-                                <i class="bi bi-check-circle-fill text-success"></i>
-                                <span>Instant high-resolution PDF downloads & reader</span>
-                            </li>
-                            <li class="d-flex align-items-center gap-2 mb-2">
-                                <i class="bi bi-check-circle-fill text-success"></i>
-                                <span>Cross-platform reading on Mobile, Tablet & Desktop</span>
-                            </li>
-                            @if (isAnnualPlan)
-                            {
+                            <div class="d-flex align-items-baseline gap-1 mb-4">
+                                <span class="h1 fw-bolder mb-0" style="color: #2d3436; font-size: 2.75rem;">@SettingsService.GetCurrencySymbol()@plan.Price.ToString("0.00")</span>
+                                <span class="text-muted small fw-semibold">/@(isAnnualPlan ? "year" : "month")</span>
+                            </div>
+
+                            <ul class="list-unstyled mb-4 small" style="color: #4b5563;">
                                 <li class="d-flex align-items-center gap-2 mb-2">
                                     <i class="bi bi-check-circle-fill text-success"></i>
-                                    <strong class="text-primary">Includes exclusive Collector's Editions & archives</strong>
+                                    <span>Unlimited access to all published magazine issues</span>
                                 </li>
-                                <li class="d-flex align-items-center gap-2">
+                                <li class="d-flex align-items-center gap-2 mb-2">
                                     <i class="bi bi-check-circle-fill text-success"></i>
-                                    <span>Over 35% savings compared to monthly plan</span>
+                                    <span>Instant high-resolution PDF downloads & reader</span>
                                 </li>
+                                <li class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                    <span>Cross-platform reading on Mobile, Tablet & Desktop</span>
+                                </li>
+                                @if (isAnnualPlan)
+                                {
+                                    <li class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                        <strong class="text-primary">Includes exclusive Collector's Editions & archives</strong>
+                                    </li>
+                                    <li class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                        <span>Over 35% savings compared to monthly plan</span>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                        <span>Cancel anytime with zero cancellation fees</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+
+                        <div class="pt-3" style="border-top: 1px solid rgba(0,0,0,0.06);">
+                            @if (isThisActivePlan)
+                            {
+                                <button type="button" class="btn btn-neumorphic w-100 py-3 fw-bold text-success" disabled>
+                                    <i class="bi bi-check-circle-fill me-1"></i> Current Active Plan
+                                </button>
+                            }
+                            else if (isPendingApproval)
+                            {
+                                <button type="button" class="btn btn-secondary rounded-pill w-100 py-3 fw-bold text-white shadow-none" disabled style="opacity: 0.85; cursor: not-allowed; background-color: #6b7280; border: none;">
+                                    <i class="bi bi-clock-history me-1"></i> Waiting for Admin Approval
+                                </button>
+                            }
+                            else if (hasMonthly && isAnnualPlan)
+                            {
+                                <!-- Smart Upgrade: 1-Month user seeing 1-Year plan -->
+                                <a href="/Checkout/Payment?planId=@plan.Id" class="btn btn-neumorphic-primary w-100 py-3 fw-bold text-center text-decoration-none">
+                                    Upgrade to Annual <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
                             }
                             else
                             {
-                                <li class="d-flex align-items-center gap-2">
-                                    <i class="bi bi-check-circle-fill text-success"></i>
-                                    <span>Cancel anytime with zero cancellation fees</span>
-                                </li>
+                                <!-- Standard subscribe button -->
+                                <a href="/Checkout/Payment?planId=@plan.Id" class="btn btn-neumorphic-primary w-100 py-3 fw-bold text-center text-decoration-none">
+                                    Subscribe <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
                             }
-                        </ul>
-                    </div>
-
-                    <div class="pt-3" style="border-top: 1px solid rgba(0,0,0,0.06);">
-                        @if (isThisActivePlan)
-                        {
-                            <button type="button" class="btn btn-neumorphic w-100 py-3 fw-bold text-success" disabled>
-                                <i class="bi bi-check-circle-fill me-1"></i> Current Active Plan
-                            </button>
-                        }
-                        else if (isPendingApproval)
-                        {
-                            <button type="button" class="btn btn-secondary rounded-pill w-100 py-3 fw-bold text-white shadow-none" disabled style="opacity: 0.85; cursor: not-allowed; background-color: #6b7280; border: none;">
-                                <i class="bi bi-clock-history me-1"></i> Waiting for Admin Approval
-                            </button>
-                        }
-                        else if (hasMonthly && isAnnualPlan)
-                        {
-                            <!-- Smart Upgrade: 1-Month user seeing 1-Year plan -->
-                            <a href="/Checkout/Payment?planId=@plan.Id" class="btn btn-neumorphic-primary w-100 py-3 fw-bold text-center text-decoration-none">
-                                Upgrade to Annual <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        }
-                        else
-                        {
-                            <!-- Standard subscribe button -->
-                            <a href="/Checkout/Payment?planId=@plan.Id" class="btn btn-neumorphic-primary w-100 py-3 fw-bold text-center text-decoration-none">
-                                Subscribe <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        }
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
-
-    @if (isAdmin)
-    {
-        <!-- Admin-Only Management Section -->
-        <div class="mt-5 pt-4" style="border-top: 2px dashed rgba(0,0,0,0.1);">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-                <div>
-                    <span class="badge rounded-pill px-3 py-1 mb-1" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; font-weight: 700; font-size: 0.72rem;">
-                        ADMINISTRATOR CONTROLS
-                    </span>
-                    <h2 class="h4 fw-bold mb-0" style="color: #2d3436;">Configure Subscription Plans</h2>
-                    <p class="text-muted small mb-0">Add, edit pricing, or archive membership packages in the live SQL database.</p>
-                </div>
-                <a asp-action="Create" class="btn btn-neumorphic-primary px-4 py-2 small">
-                    <i class="bi bi-plus-lg me-1"></i> + Create New Plan
-                </a>
-            </div>
-
-            <div class="neumorphic-card p-4">
-                <div class="table-responsive">
-                    <table class="table neumorphic-table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th style="width: 30%;">Plan Name</th>
-                                <th style="width: 15%;">Price</th>
-                                <th style="width: 15%;">Duration</th>
-                                <th style="width: 15%;">Subscribers</th>
-                                <th style="width: 10%;">Status</th>
-                                <th style="width: 15%;" class="text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (!Model.Any())
-                            {
-                                <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">
-                                        <i class="bi bi-tag fs-3 d-block text-muted mb-2"></i>
-                                        <em>No subscription plans configured in database.</em>
-                                    </td>
-                                </tr>
-                            }
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
-                                                <i class="bi bi-gem"></i>
-                                            </div>
-                                            <div>
-                                                <span class="fw-bold" style="color: #2d3436;">@item.Name</span>
-                                                <div class="text-muted small font-monospace">Plan ID: #@item.Id</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold" style="color: #047857;">@SettingsService.GetCurrencySymbol()@item.Price.ToString("N2")</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-weight: 600;">
-                                            @item.DurationInMonths @(item.DurationInMonths == 1 ? "Month" : "Months")
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge rounded-pill px-3 py-1" style="background: rgba(37, 99, 235, 0.12); color: #2563eb; font-weight: 600;">
-                                            @(item.UserSubscriptions?.Count ?? 0) Active
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if (item.IsActive)
-                                        {
-                                            <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 700;">
-                                                Active
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge rounded-pill px-3 py-1" style="background: rgba(100, 116, 139, 0.15); color: #64748b; font-weight: 600;">
-                                                Inactive
-                                            </span>
-                                        }
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="d-flex gap-2 justify-content-end">
-                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-neumorphic btn-sm py-1 px-3 small" title="Edit">
-                                                <i class="bi bi-pencil me-1"></i> Edit
-                                            </a>
-                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-neumorphic btn-sm py-1 px-3 small text-danger" title="Delete">
-                                                <i class="bi bi-trash me-1"></i> Delete
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            }
         </div>
-    }
-
-</div>
+    </div>
+}

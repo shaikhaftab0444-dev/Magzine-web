@@ -128,33 +128,27 @@
                     {
                         <!-- VIP Subscriber Navigation Links -->
                         <li class="cc-nav-item">
-                            <a asp-controller="Customer" asp-action="Dashboard" class="cc-nav-link @(currentController == "Customer" && (currentAction is "Index" or "Dashboard") ? "active" : "")">
+                            <a href="/Customer/Dashboard" class="cc-nav-link @(currentController == "Customer" && (currentAction is "Index" or "Dashboard") ? "active" : "")">
                                 <i class="bi bi-speedometer2"></i>
-                                <span>VIP Dashboard</span>
+                                <span>Dashboard</span>
                             </a>
                         </li>
                         <li class="cc-nav-item">
-                            <a href="/#magazines" class="cc-nav-link">
-                                <i class="bi bi-journal-richtext"></i>
-                                <span>Premium Content</span>
-                            </a>
-                        </li>
-                        <li class="cc-nav-item">
-                            <a href="/MyAccount/Index#library" class="cc-nav-link @(currentController == "MyAccount" && currentAction == "Index" ? "active" : "")">
+                            <a href="/Customer/Library" class="cc-nav-link @(currentController == "Customer" && currentAction == "Library" ? "active" : "")">
                                 <i class="bi bi-journal-bookmark-fill"></i>
                                 <span>My Library</span>
                             </a>
                         </li>
                         <li class="cc-nav-item">
-                            <a asp-controller="MyAccount" asp-action="History" class="cc-nav-link @(currentController == "MyAccount" && currentAction == "History" ? "active" : "")">
+                            <a href="/Customer/History" class="cc-nav-link @(currentController == "Customer" && currentAction == "History" ? "active" : "")">
                                 <i class="bi bi-clock-history"></i>
-                                <span>Reading History</span>
+                                <span>History</span>
                             </a>
                         </li>
                         <li class="cc-nav-item">
-                            <a asp-controller="Account" asp-action="Manage" class="cc-nav-link @(currentController == "Account" && currentAction == "Manage" ? "active" : "")">
+                            <a href="/Account/Manage" class="cc-nav-link @(currentController == "Account" ? "active" : "")">
                                 <i class="bi bi-person-gear"></i>
-                                <span>Account Settings</span>
+                                <span>My Account</span>
                             </a>
                         </li>
                         <li class="cc-nav-item">

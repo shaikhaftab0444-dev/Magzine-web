@@ -1,4 +1,5 @@
 @model Digital_Magzine.Models.CustomerDashboardViewModel
+@inject Digital_Magzine.Services.ISettingsService SettingsService
 
 @{
     ViewData["Title"] = "Subscriber Dashboard";
@@ -9,11 +10,12 @@
     <!-- Left-Side Neumorphic Sidebar Navigation -->
     <aside class="cc-sidebar cc-sidebar-neumorphic">
         <div>
-            <!-- Top: Pink CC Monogram Logo & CULTURE CLUB Text -->
-            <a asp-controller="Customer" asp-action="Index" class="cc-sidebar-brand text-decoration-none">
-                <span class="cc-monogram-pink">CC</span>
+            <!-- Top: Dynamic Logo & Brand Name -->
+            <a href="/Customer/Dashboard" class="cc-sidebar-brand text-decoration-none d-flex align-items-center mb-4">
+                <img src="@SettingsService.GetValue("LogoPath")" class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover; aspect-ratio: 1/1;" alt="Logo" onerror="this.style.display='none'; document.getElementById('dashMonogramFallback').style.display='flex';" />
+                <span id="dashMonogramFallback" class="cc-monogram-pink me-2" style="display: none;">CC</span>
                 <div>
-                    <span class="cc-brand-title d-block" style="color: #2d3436; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px;">CULTURE CLUB</span>
+                    <span class="cc-brand-title d-block" style="color: #2d3436; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px;">@SettingsService.GetValue("BrandName")</span>
                     <span class="cc-brand-subtitle d-block" style="color: #0ea5e9; font-weight: 700; font-size: 0.65rem;">SUBSCRIBER VIP</span>
                 </div>
             </a>
@@ -21,33 +23,39 @@
             <!-- Navigation Links -->
             <ul class="cc-nav-list">
                 <li class="cc-nav-item">
-                    <a asp-controller="Customer" asp-action="Index" class="cc-nav-link active">
+                    <a href="/Customer/Dashboard" class="cc-nav-link active">
                         <i class="bi bi-speedometer2"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="cc-nav-item">
-                    <a asp-controller="Home" asp-action="Index" class="cc-nav-link">
+                    <a href="/Customer/Library" class="cc-nav-link">
                         <i class="bi bi-journal-bookmark-fill"></i>
-                        <span>Explore Newsstand</span>
+                        <span>My Library</span>
                     </a>
                 </li>
                 <li class="cc-nav-item">
-                    <a href="#readingActivity" class="cc-nav-link">
+                    <a href="/Customer/History" class="cc-nav-link">
                         <i class="bi bi-clock-history"></i>
-                        <span>Reading Activity</span>
+                        <span>History</span>
                     </a>
                 </li>
                 <li class="cc-nav-item">
-                    <a href="#subscriptionCard" class="cc-nav-link">
-                        <i class="bi bi-credit-card"></i>
-                        <span>Subscription</span>
+                    <a href="/Account/Manage" class="cc-nav-link">
+                        <i class="bi bi-person-gear"></i>
+                        <span>My Account</span>
                     </a>
                 </li>
                 <li class="cc-nav-item">
-                    <a href="#quickActions" class="cc-nav-link">
-                        <i class="bi bi-cloud-arrow-down"></i>
-                        <span>Offline Downloads</span>
+                    <a asp-controller="Support" asp-action="Index" class="cc-nav-link">
+                        <i class="bi bi-headset"></i>
+                        <span>Customer Support</span>
+                    </a>
+                </li>
+                <li class="cc-nav-item">
+                    <a href="/" class="cc-nav-link">
+                        <i class="bi bi-shop"></i>
+                        <span>Storefront</span>
                     </a>
                 </li>
             </ul>
@@ -165,9 +173,9 @@
             </div>
         </div>
 
-        <!-- 4 Neumorphic Perk Boxes -->
+        <!-- 3 Neumorphic Perk Boxes -->
         <div class="row g-4 mb-4">
-            <div class="col-12 col-md-6 col-lg-3">
+            <div class="col-12 col-md-4">
                 <div class="neumorphic-card p-3 p-md-4 text-center h-100">
                     <div class="neumorphic-circle-sm mx-auto mb-2">
                         <i class="bi bi-infinity"></i>
@@ -177,7 +185,7 @@
                 </div>
             </div>
 
-            <div class="col-12 col-md-6 col-lg-3">
+            <div class="col-12 col-md-4">
                 <div class="neumorphic-card p-3 p-md-4 text-center h-100">
                     <div class="neumorphic-circle-sm mx-auto mb-2">
                         <i class="bi bi-laptop"></i>
@@ -187,23 +195,13 @@
                 </div>
             </div>
 
-            <div class="col-12 col-md-6 col-lg-3">
+            <div class="col-12 col-md-4">
                 <div class="neumorphic-card p-3 p-md-4 text-center h-100">
                     <div class="neumorphic-circle-sm mx-auto mb-2">
                         <i class="bi bi-shield-check"></i>
                     </div>
                     <div class="fw-bold small mb-1" style="color: #2d3436;">Ad-Free Reading</div>
                     <div class="text-muted" style="font-size: 0.75rem;">Distraction-free flipbook</div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="neumorphic-card p-3 p-md-4 text-center h-100">
-                    <div class="neumorphic-circle-sm mx-auto mb-2">
-                        <i class="bi bi-cloud-arrow-down"></i>
-                    </div>
-                    <div class="fw-bold small mb-1" style="color: #2d3436;">Offline Downloads</div>
-                    <div class="text-muted" style="font-size: 0.75rem;">Save & read anywhere</div>
                 </div>
             </div>
         </div>

@@ -7,7 +7,7 @@ using Digital_Magzine.Models;
 
 namespace Digital_Magzine.Controllers
 {
-    [Authorize(Roles = "Subscriber")]
+    [Authorize(Roles = "Subscriber,Admin")]
     public class CustomerController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,6 +22,13 @@ namespace Digital_Magzine.Controllers
         // GET: /Customer
         [HttpGet]
         public async Task<IActionResult> Index()
+        {
+            return await Dashboard();
+        }
+
+        // GET: /Customer/Dashboard
+        [HttpGet]
+        public async Task<IActionResult> Dashboard()
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
@@ -44,7 +51,7 @@ namespace Digital_Magzine.Controllers
                 .Include(m => m.Magazine)
                     .ThenInclude(mag => mag!.Category)
                 .Include(m => m.Category)
-                .Where(m => m.IsPublished)
+                .Where(m => m.Status == "Published" || m.IsPublished)
                 .OrderByDescending(m => m.PublishDate)
                 .Take(8)
                 .ToListAsync();
@@ -57,21 +64,43 @@ namespace Digital_Magzine.Controllers
                 AvailableIssues = availableIssues
             };
 
-            return View("Index", model);
+            return View("Dashboard", model);
         }
 
-        // GET: /Customer/Dashboard
+        // GET: /Customer/Library
         [HttpGet]
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Library()
         {
-            return await Index();
+            var catalog = await _context.MagazineIssues
+                .Include(m => m.Category)
+                .Include(m => m.Magazine)
+                .Where(m => m.Status == "Published" || m.IsPublished)
+                .OrderByDescending(m => m.PublishDate)
+                .ToListAsync();
+
+            return View(catalog);
         }
 
         // GET: /Customer/History
         [HttpGet]
-        public IActionResult History()
+        public async Task<IActionResult> History()
         {
-            return RedirectToAction("History", "MyAccount");
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Challenge();
+            }
+
+            var history = await _context.ReadingHistories
+                .Include(h => h.MagazineIssue)
+                    .ThenInclude(i => i!.Category)
+                .Include(h => h.MagazineIssue)
+                    .ThenInclude(i => i!.Magazine)
+                .Where(h => h.UserId == userId && h.MagazineIssue != null)
+                .OrderByDescending(h => h.LastReadDate)
+                .ToListAsync();
+
+            return View(history);
         }
     }
 }
