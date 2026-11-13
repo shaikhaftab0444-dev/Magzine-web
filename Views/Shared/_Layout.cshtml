@@ -33,171 +33,178 @@
 }
 else
 {
-    <!-- Top Header Navigation (Clean, White Zinio-Style with Responsive Bootstrap Collapse) -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top shadow-xs py-2" style="z-index: 1040;">
-        <div class="container-fluid px-3 px-lg-5">
-            <!-- Left: Brand Logo -->
-            <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center text-decoration-none me-3">
-                <img src="@SettingsService.GetValue("LogoPath", "/images/system/logo.png")?v=@DateTime.Now.Ticks" 
-                     alt="@SettingsService.GetValue("BrandName", "Culture Club")" 
-                     class="rounded-circle me-2" style="width: 38px; height: 38px; object-fit: cover; aspect-ratio: 1/1;" 
-                     onerror="this.style.display='none';" />
-                <span class="fs-4" style="font-family: 'Inter', -apple-system, sans-serif; font-weight: 900; letter-spacing: -0.6px; color: #0f172a;">
-                    @SettingsService.GetValue("BrandName", "Culture Club")
-                </span>
-            </a>
-
-            <!-- Right Controls (Search + Profile) and Standard Navbar Toggler -->
-            <div class="d-flex align-items-center gap-2 order-lg-3">
-                <!-- Top Navbar Search Form -->
-                <form asp-controller="Magazines" asp-action="Search" method="get" class="d-flex align-items-center d-none d-md-flex me-1">
-                    <div class="input-group input-group-sm">
-                        <input type="text" name="query" class="form-control rounded-pill-start border bg-light px-3" placeholder="Search magazines..." style="font-size: 0.85rem; width: 170px;" />
-                        <button class="btn btn-outline-dark rounded-pill-end border px-3" type="submit" title="Search">
-                            <i class="bi bi-search text-dark"></i>
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Search Modal Trigger (Mobile) -->
-                <button class="nav-icon-btn d-md-none" type="button" data-bs-toggle="modal" data-bs-target="#searchModal" title="Search digital magazines">
-                    <i class="bi bi-search fs-5 text-dark"></i>
-                </button>
-
-                <!-- Cart / Library Icon -->
-                @if (User.IsInRole("Subscriber"))
-                {
-                    <a asp-controller="Customer" asp-action="Dashboard" class="nav-icon-btn position-relative" title="Subscriber Dashboard">
-                        <i class="bi bi-journal-bookmark fs-5 text-dark"></i>
+    <!-- Floating Pill Header Navigation -->
+    <header class="sticky-top" style="z-index: 1040;">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light" style="background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 50px; margin-top: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 0.5rem 2rem; border: 1px solid rgba(255, 255, 255, 0.6);">
+                <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
+                    <!-- Left: Brand Logo -->
+                    <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center text-decoration-none me-3">
+                        <img src="@SettingsService.GetValue("LogoPath", "/images/system/logo.png")?v=@DateTime.Now.Ticks" 
+                             alt="@SettingsService.GetValue("BrandName", "Culture Club")" 
+                             class="rounded-circle me-2" style="width: 38px; height: 38px; object-fit: cover; aspect-ratio: 1/1;" 
+                             onerror="this.style.display='none';" />
+                        <span class="fs-5 fw-bold" style="font-family: 'Inter', -apple-system, sans-serif; font-weight: 900; letter-spacing: -0.5px; color: #0f172a;">
+                            @SettingsService.GetValue("BrandName", "Culture Club")
+                        </span>
                     </a>
-                }
-                else
-                {
-                    <a asp-controller="MyAccount" asp-action="Index" class="nav-icon-btn position-relative" title="My Library & Account">
-                        <i class="bi bi-journal-bookmark fs-5 text-dark"></i>
-                    </a>
-                }
 
-                @if (User.Identity != null && User.Identity.IsAuthenticated)
-                {
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center gap-2 fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle fs-6"></i>
-                            <span class="d-none d-sm-inline">@User.Identity.Name</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-3 py-2 mt-2" style="min-width: 220px;">
-                            <li class="px-3 py-2 border-bottom">
-                                <div class="small fw-bold text-truncate" style="max-width: 180px;">@User.Identity.Name</div>
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <span class="badge bg-danger mt-1">Administrator</span>
-                                }
-                                else if (User.IsInRole("Subscriber"))
-                                {
-                                    <span class="badge bg-success mt-1">Paid Subscriber</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary mt-1">Free Member</span>
-                                }
+                    <!-- Center: Navigation Links -->
+                    <div class="collapse navbar-collapse order-lg-2" id="storefrontNavbarNav">
+                        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-center gap-2 pt-3 pt-lg-0">
+                            <!-- Active State: Home link as a gradient pill -->
+                            <li class="nav-item">
+                                <a asp-controller="Home" asp-action="Index" class="nav-link text-decoration-none shadow-sm" style="background: linear-gradient(90deg, #6366f1, #a855f7); color: white !important; border-radius: 30px; padding: 8px 20px; font-weight: bold;">
+                                    Home
+                                </a>
                             </li>
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="Dashboard"><i class="bi bi-speedometer2 me-2 text-danger"></i>Admin Console</a></li>
-                                <li><a class="dropdown-item py-2" asp-controller="MagazineIssues" asp-action="Index"><i class="bi bi-journal-text me-2"></i>Magazine Issues</a></li>
-                                <li><a class="dropdown-item py-2" asp-controller="SubscriptionPlans" asp-action="Index"><i class="bi bi-tag me-2"></i>Subscription Plans</a></li>
-                                <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="Dashboard"><i class="bi bi-person me-2"></i>Admin Dashboard</a></li>
-                            }
-                            else if (User.IsInRole("Subscriber"))
-                            {
-                                <li><a class="dropdown-item py-2" asp-controller="Customer" asp-action="Dashboard"><i class="bi bi-journal-bookmark me-2 text-success"></i>Subscriber Dashboard</a></li>
-                            }
-                            else
-                            {
-                                <li><a class="dropdown-item py-2" asp-controller="MyAccount" asp-action="Index"><i class="bi bi-person me-2"></i>My Account</a></li>
-                            }
-                            <li><hr class="dropdown-divider my-1"></li>
-                            <li>
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="px-2 py-1">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100 text-start rounded-pill">
-                                        <i class="bi bi-box-arrow-right me-2"></i>Sign Out
-                                    </button>
-                                </form>
+
+                            <!-- CATEGORIES Dynamic Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle fw-bold text-dark text-uppercase letter-spacing-1 d-flex align-items-center gap-1 px-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.88rem;">
+                                    Categories <i class="bi bi-chevron-down small text-muted" style="font-size: 0.7rem;"></i>
+                                </a>
+                                <ul class="dropdown-menu border-0 shadow-lg rounded-4 py-2 mt-2">
+                                    <li><a class="dropdown-item py-2 fw-semibold" asp-controller="Home" asp-action="Index"><i class="bi bi-grid-fill me-2 text-primary"></i>All Titles</a></li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    @foreach (var cat in _context.Categories.OrderBy(c => c.Name).ToList())
+                                    {
+                                        <li>
+                                            <a class="dropdown-item py-2" href="/#cat-@cat.Id">
+                                                <i class="bi bi-tag-fill me-2 text-primary small"></i>@cat.Name
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </li>
+
+                            <!-- MY LIBRARY Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle fw-bold text-dark text-uppercase letter-spacing-1 d-flex align-items-center gap-1 px-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.88rem;">
+                                    My Library <i class="bi bi-chevron-down small text-muted" style="font-size: 0.7rem;"></i>
+                                </a>
+                                <ul class="dropdown-menu border-0 shadow-lg rounded-4 py-2 mt-2" style="min-width: 240px;">
+                                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                                    {
+                                        if (User.IsInRole("Subscriber"))
+                                        {
+                                            <li><a class="dropdown-item py-2 fw-semibold" asp-controller="Customer" asp-action="Dashboard"><i class="bi bi-speedometer2 me-2 text-primary"></i>VIP Dashboard</a></li>
+                                            <li><a class="dropdown-item py-2" asp-controller="Customer" asp-action="Library"><i class="bi bi-journal-bookmark-fill me-2 text-success"></i>My Library</a></li>
+                                            <li><a class="dropdown-item py-2" asp-controller="Customer" asp-action="History"><i class="bi bi-clock-history me-2 text-info"></i>Reading History</a></li>
+                                        }
+                                        else
+                                        {
+                                            <li><a class="dropdown-item py-2 fw-semibold" asp-controller="MyAccount" asp-action="Index"><i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>My Library</a></li>
+                                            <li><a class="dropdown-item py-2" asp-controller="MyAccount" asp-action="History"><i class="bi bi-clock-history me-2 text-secondary"></i>Reading History</a></li>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <li class="px-3 py-2 text-muted small">Sign in to access your digital magazine shelf and reading history.</li>
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li><a class="dropdown-item py-2 fw-semibold text-primary" asp-controller="Account" asp-action="Login"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In to Library</a></li>
+                                    }
+                                </ul>
                             </li>
                         </ul>
                     </div>
-                }
-                else
-                {
-                    <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 fw-semibold">
-                        Sign In
-                    </a>
-                    <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-bold d-none d-sm-inline">
-                        Join Free
-                    </a>
-                }
 
-                <!-- Standard Bootstrap Navbar Toggler Button for Mobile Phones -->
-                <button class="navbar-toggler border-0 shadow-none p-1 ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#storefrontNavbarNav" aria-controls="storefrontNavbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-            </div>
+                    <!-- Right Controls (Search + Profile) -->
+                    <div class="d-flex align-items-center gap-2 order-lg-3">
+                        <!-- Search Bar: completely rounded with subtle search icon inside it -->
+                        <form asp-controller="Magazines" asp-action="Search" method="get" class="d-none d-md-flex align-items-center me-1 position-relative" style="width: 210px;">
+                            <i class="bi bi-search position-absolute text-muted" style="left: 14px; z-index: 2; font-size: 0.85rem;"></i>
+                            <input type="text" name="query" class="form-control" placeholder="Search..." style="border-radius: 50px; background: #f3f4f6; border: none; padding-left: 36px; padding-right: 14px; font-size: 0.85rem; height: 38px; width: 100%; box-shadow: none;" />
+                            <button type="submit" class="visually-hidden">Search</button>
+                        </form>
 
-            <!-- Center: Collapsible Navigation for MAGAZINES, EXPLORE, and MY LIBRARY -->
-            <div class="collapse navbar-collapse order-lg-2" id="storefrontNavbarNav">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3 pt-3 pt-lg-0">
-                    <!-- CATEGORIES Dynamic Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle fw-bold text-dark text-uppercase letter-spacing-1 d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.88rem;">
-                            CATEGORIES <i class="bi bi-chevron-down small text-muted" style="font-size: 0.7rem;"></i>
-                        </a>
-                        <ul class="dropdown-menu border-0 shadow-lg rounded-3 py-2 mt-2">
-                            <li><a class="dropdown-item py-2 fw-semibold" asp-controller="Home" asp-action="Index"><i class="bi bi-grid-fill me-2 text-primary"></i>All Titles</a></li>
-                            <li><hr class="dropdown-divider my-1"></li>
-                            @foreach (var cat in _context.Categories.OrderBy(c => c.Name).ToList())
-                            {
-                                <li>
-                                    <a class="dropdown-item py-2" href="/#cat-@cat.Id">
-                                        <i class="bi bi-tag-fill me-2 text-primary small"></i>@cat.Name
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    </li>
+                        <!-- Search Modal Trigger (Mobile) -->
+                        <button class="nav-icon-btn d-md-none" type="button" data-bs-toggle="modal" data-bs-target="#searchModal" title="Search digital magazines">
+                            <i class="bi bi-search fs-5 text-dark"></i>
+                        </button>
 
-                    <!-- MY LIBRARY Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle fw-bold text-dark text-uppercase letter-spacing-1 d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.88rem;">
-                            MY LIBRARY <i class="bi bi-chevron-down small text-muted" style="font-size: 0.7rem;"></i>
-                        </a>
-                        <ul class="dropdown-menu border-0 shadow-lg rounded-3 py-2 mt-2" style="min-width: 240px;">
-                            @if (User.Identity != null && User.Identity.IsAuthenticated)
-                            {
-                                if (User.IsInRole("Subscriber"))
-                                {
-                                    <li><a class="dropdown-item py-2 fw-semibold" asp-controller="Customer" asp-action="Dashboard"><i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>VIP Dashboard</a></li>
-                                    <li><a class="dropdown-item py-2" asp-controller="Customer" asp-action="Dashboard"><i class="bi bi-clock-history me-2 text-secondary"></i>Reading History</a></li>
-                                    <li><a class="dropdown-item py-2" asp-controller="Customer" asp-action="Dashboard"><i class="bi bi-bookmark-star me-2 text-secondary"></i>Saved Titles</a></li>
-                                }
-                                else
-                                {
-                                    <li><a class="dropdown-item py-2 fw-semibold" asp-controller="MyAccount" asp-action="Index"><i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>Purchased Issues</a></li>
-                                    <li><a class="dropdown-item py-2" asp-controller="MyAccount" asp-action="Index"><i class="bi bi-clock-history me-2 text-secondary"></i>Reading History</a></li>
-                                    <li><a class="dropdown-item py-2" asp-controller="MyAccount" asp-action="Index"><i class="bi bi-bookmark-star me-2 text-secondary"></i>Saved Titles</a></li>
-                                }
-                            }
-                            else
-                            {
-                                <li class="px-3 py-2 text-muted small">Sign in to access your digital magazine shelf and reading history.</li>
-                                <li><hr class="dropdown-divider my-1"></li>
-                                <li><a class="dropdown-item py-2 fw-semibold text-primary" asp-controller="Account" asp-action="Login"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In to Library</a></li>
-                            }
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+                        <!-- Cart / Library Icon -->
+                        @if (User.IsInRole("Subscriber"))
+                        {
+                            <a asp-controller="Customer" asp-action="Dashboard" class="nav-icon-btn position-relative" title="Subscriber Dashboard">
+                                <i class="bi bi-journal-bookmark fs-5 text-dark"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="MyAccount" asp-action="Index" class="nav-icon-btn position-relative" title="My Library & Account">
+                                <i class="bi bi-journal-bookmark fs-5 text-dark"></i>
+                            </a>
+                        }
+
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center gap-2 fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle fs-6"></i>
+                                    <span class="d-none d-sm-inline">@User.Identity.Name</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 py-2 mt-2" style="min-width: 220px;">
+                                    <li class="px-3 py-2 border-bottom">
+                                        <div class="small fw-bold text-truncate" style="max-width: 180px;">@User.Identity.Name</div>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <span class="badge bg-danger mt-1">Administrator</span>
+                                        }
+                                        else if (User.IsInRole("Subscriber"))
+                                        {
+                                            <span class="badge bg-success mt-1">Paid Subscriber</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary mt-1">Free Member</span>
+                                        }
+                                    </li>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><a class="dropdown-item py-2" asp-controller="Admin" asp-action="Dashboard"><i class="bi bi-speedometer2 me-2 text-danger"></i>Admin Console</a></li>
+                                        <li><a class="dropdown-item py-2" asp-controller="MagazineIssues" asp-action="Index"><i class="bi bi-journal-text me-2"></i>Magazine Issues</a></li>
+                                        <li><a class="dropdown-item py-2" asp-controller="SubscriptionPlans" asp-action="Index"><i class="bi bi-tag me-2"></i>Subscription Plans</a></li>
+                                    }
+                                    else if (User.IsInRole("Subscriber"))
+                                    {
+                                        <li><a class="dropdown-item py-2" asp-controller="Customer" asp-action="Dashboard"><i class="bi bi-speedometer2 me-2 text-success"></i>VIP Dashboard</a></li>
+                                        <li><a class="dropdown-item py-2" asp-controller="Customer" asp-action="Library"><i class="bi bi-journal-bookmark me-2 text-success"></i>My Library</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a class="dropdown-item py-2" asp-controller="MyAccount" asp-action="Index"><i class="bi bi-person me-2"></i>My Account</a></li>
+                                    }
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="px-2 py-1">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100 text-start rounded-pill">
+                                                <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1 fw-semibold">
+                                Sign In
+                            </a>
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-bold d-none d-sm-inline" style="background: linear-gradient(90deg, #6366f1, #a855f7); border: none;">
+                                Join Free
+                            </a>
+                        }
+
+                        <!-- Standard Bootstrap Navbar Toggler Button for Mobile Phones -->
+                        <button class="navbar-toggler border-0 shadow-none p-1 ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#storefrontNavbarNav" aria-controls="storefrontNavbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                </div>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <!-- Offcanvas Navigation Drawer (Sidebar on click hamburger) -->
     <div class="offcanvas offcanvas-start offcanvas-editorial" tabindex="-1" id="cultureOffcanvas" aria-labelledby="cultureOffcanvasLabel">

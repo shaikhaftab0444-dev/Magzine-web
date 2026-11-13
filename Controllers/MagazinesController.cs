@@ -73,6 +73,11 @@ namespace Digital_Magzine.Controllers
             }
             ViewBag.HasPurchased = hasPurchased;
 
+            // Fetch live VIP Plan Price
+            var vipPlan = await _context.SubscriptionPlans
+                .FirstOrDefaultAsync(p => p.Name.Contains("VIP") || p.DurationInMonths == 12);
+            ViewBag.VipPrice = vipPlan != null ? vipPlan.Price.ToString("0") : "999";
+
             // Also load related issues in the same category or magazine
             ViewBag.RelatedIssues = await _context.MagazineIssues
                 .Include(m => m.Category)

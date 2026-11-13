@@ -41,12 +41,24 @@
         position: relative;
     }
 
-    .zinio-hero-title {
-        font-size: clamp(2.2rem, 4vw, 3.5rem);
+    .hero-title {
+        font-size: clamp(2.5rem, 8vw, 4.5rem);
         font-weight: 900;
-        letter-spacing: -0.035em;
         line-height: 1.1;
-        color: #0f172a;
+        letter-spacing: -2px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #d946ef);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .zinio-hero-title {
+        font-size: clamp(2.5rem, 8vw, 4.5rem);
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -2px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #d946ef);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
     .zinio-hero-sub {
@@ -55,6 +67,29 @@
         max-width: 540px;
         line-height: 1.5;
         font-weight: 500;
+    }
+
+    .btn-hero-primary {
+        background: linear-gradient(90deg, #6366f1, #a855f7);
+        border: none;
+        box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+        border-radius: 50px;
+        padding: 12px 30px;
+        color: white !important;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-hero-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(168, 85, 247, 0.6);
+        color: white !important;
     }
 
     /* Solid Bold Buttons with Distinct Hover States (Light Brutalism Style) */
@@ -108,10 +143,54 @@
         box-shadow: 6px 6px 0px #0f172a;
     }
 
-    /* 3D Rotating Stack Positions */
-    .pos-front { z-index: 3; transform: scale(1) translateX(0) translateY(0); opacity: 1; filter: brightness(1); }
-    .pos-back-right { z-index: 2; transform: scale(0.85) translateX(30%) translateY(-10px) rotate(5deg); opacity: 0.8; filter: brightness(0.8); }
-    .pos-back-left { z-index: 1; transform: scale(0.85) translateX(-30%) translateY(-10px) rotate(-5deg); opacity: 0.8; filter: brightness(0.8); }
+    /* 3D Rotating Stack & Glowing Pedestal */
+    .pedestal-base {
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        max-width: 350px;
+        height: 60px; /* Reduced for mobile proportion */
+        background: radial-gradient(ellipse at center, #e0e7ff 0%, #a5b4fc 100%);
+        border-radius: 50%;
+        box-shadow: 0 20px 50px rgba(99, 102, 241, 0.5), inset 0 -10px 20px rgba(255,255,255,0.9);
+        z-index: 0;
+    }
+
+    .glowing-ring {
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 400px;
+        height: 80px; /* Reduced for mobile proportion */
+        border: 2px solid rgba(168, 85, 247, 0.5);
+        border-radius: 50%;
+        box-shadow: 0 0 30px rgba(168, 85, 247, 0.4), inset 0 0 20px rgba(168, 85, 247, 0.4);
+        z-index: 0;
+    }
+
+    .pos-front { 
+        z-index: 3; 
+        transform: translateY(10px) scale(1.05); 
+        opacity: 1; 
+        filter: brightness(1); 
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    }
+    .pos-back-right { 
+        z-index: 2; 
+        transform: scale(0.88) translateX(70px) translateY(-25px) rotate(8deg); 
+        opacity: 0.85; 
+        filter: brightness(0.85); 
+    }
+    .pos-back-left { 
+        z-index: 1; 
+        transform: scale(0.88) translateX(-70px) translateY(-25px) rotate(-8deg); 
+        opacity: 0.85; 
+        filter: brightness(0.85); 
+    }
 
     .hero-magazine-stack {
         position: relative;
@@ -291,7 +370,7 @@
                     <span class="badge border border-dark text-dark fw-bold text-uppercase px-3 py-2 rounded-pill mb-3" style="background-color: #dbeafe; font-size: 0.75rem; letter-spacing: 0.5px;">
                         <i class="bi bi-stars me-1 text-primary"></i> Special Digital Newsstand Offer
                     </span>
-                    <h1 class="zinio-hero-title mb-3">
+                    <h1 class="hero-title mb-3">
                         Unmissable Savings!
                     </h1>
                     <p class="zinio-hero-sub mb-4">
@@ -300,7 +379,7 @@
                     <div class="d-flex flex-wrap align-items-center gap-3">
                         @if (User.Identity == null || !User.Identity.IsAuthenticated)
                         {
-                            <a asp-controller="Account" asp-action="Register" class="btn-editorial-primary">
+                            <a asp-controller="Account" asp-action="Register" class="btn-hero-primary" style="background: linear-gradient(90deg, #6366f1, #a855f7); border: none; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4); border-radius: 50px; padding: 12px 30px; color: white; font-weight: bold;">
                                 CREATE AN ACCOUNT &rarr;
                             </a>
                             <a asp-controller="SubscriptionPlans" asp-action="Index" class="btn-editorial-secondary">
@@ -309,7 +388,7 @@
                         }
                         else
                         {
-                            <a href="#popular-section" class="btn-editorial-primary">
+                            <a href="#popular-section" class="btn-hero-primary" style="background: linear-gradient(90deg, #6366f1, #a855f7); border: none; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4); border-radius: 50px; padding: 12px 30px; color: white; font-weight: bold;">
                                 EXPLORE MAGAZINES &rarr;
                             </a>
                             <a asp-controller="SubscriptionPlans" asp-action="Index" class="btn-editorial-secondary">
@@ -319,17 +398,21 @@
                     </div>
                 </div>
 
-                <!-- Right: Dynamic 3D Rotating Magazine Stack -->
+                <!-- Right: Dynamic 3D Rotating Magazine Stack with Glowing Pedestal -->
                 <div class="col-12 col-md-6 text-center">
                     @if (ViewBag.HeroMagazines != null && ((List<MagazineIssue>)ViewBag.HeroMagazines).Any())
                     {
-                        <div id="hero3DStack" class="position-relative d-flex justify-content-center align-items-center" style="height: 350px; width: 100%; max-width: 400px; margin: 0 auto;">
+                        <div id="hero3DStack" class="position-relative d-flex justify-content-center align-items-center mt-4 mt-md-0" style="height: 380px; width: 100%; max-width: 420px; margin: 0 auto;">
+                            <!-- Glowing 3D Pedestal Base and Ring -->
+                            <div class="glowing-ring"></div>
+                            <div class="pedestal-base"></div>
+
                             @foreach(var (issue, index) in ((List<MagazineIssue>)ViewBag.HeroMagazines).Select((v, i) => (v, i)))
                             {
                                 var coverSrc = !string.IsNullOrEmpty(issue.CoverImagePath)
                                     ? issue.CoverImagePath
                                     : (!string.IsNullOrEmpty(issue.CoverImageUrl) ? issue.CoverImageUrl : "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80");
-                                <img src="@coverSrc" class="hero-stack-img position-absolute shadow-lg" data-index="@index" alt="@issue.Title" onclick="window.location.href='/Magazines/Details/@issue.Id'" style="width: 220px; aspect-ratio: 3/4; object-fit: cover; border-radius: 1.5rem !important; cursor: pointer; transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);" />
+                                <img src="@coverSrc" class="hero-stack-img position-absolute shadow-lg" data-index="@index" alt="@issue.Title" onclick="window.location.href='/Magazines/Details/@issue.Id'" style="width: 55%; max-width: 220px; aspect-ratio: 3/4; object-fit: cover; border-radius: 1.5rem !important; cursor: pointer; transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);" />
                             }
                         </div>
                     }
@@ -338,11 +421,11 @@
         </div>
     </div>
 
-    <!-- Quick Browse Categories (Connected to Live Database) -->
+    <!-- Quick Browse Categories (Connected to Live Database & Floating Glassmorphism Pill) -->
     @if (Model.Categories != null && Model.Categories.Any())
     {
         <div class="container-fluid px-3 px-lg-5 mb-4">
-            <div class="glass-card p-3">
+            <div class="mx-auto" style="border-radius: 50px; background: white; box-shadow: 0 15px 35px rgba(0,0,0,0.05); padding: 15px 30px; border: 1px solid rgba(255,255,255,0.7); max-width: 1200px;">
                 <div class="d-flex flex-wrap gap-2 justify-content-center py-1">
                     <a href="#popular-section" class="category-browse-pill">
                         <i class="bi bi-grid-fill text-primary small"></i> All Titles
