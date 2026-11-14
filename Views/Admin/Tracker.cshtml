@@ -1,0 +1,346 @@
+@model IEnumerable<Digital_Magzine.Models.UserSessionTrack>
+
+@{
+    ViewData["Title"] = "Live User Tracker";
+    Layout = "_AdminLayout";
+}
+
+<!-- Header & Controls -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h1 class="h3 fw-bold mb-0" style="color: #2d3436; font-size: 1.85rem; letter-spacing: -0.5px;">Live User Tracker</h1>
+            <span class="badge rounded-pill px-3 py-1 d-inline-flex align-items-center gap-2" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700; font-size: 0.75rem;">
+                <span class="live-pulse-dot"></span> REAL-TIME (10s)
+            </span>
+        </div>
+        <p class="text-muted mb-0 small">Real-time session monitoring, active login tracking, and client telemetry.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-neumorphic py-2 px-3 small" onclick="refreshTracker()">
+            <i class="bi bi-arrow-clockwise me-1 text-primary"></i> Refresh Now
+        </button>
+        <span id="trackerPollingStatus" class="text-muted small ps-2">
+            <span class="spinner-grow spinner-grow-sm text-primary d-none" id="trackerSpinner" role="status"></span>
+            <span id="trackerLastUpdated">Live stream connected</span>
+        </span>
+    </div>
+</div>
+
+<!-- 4 Neumorphic Telemetry Cards -->
+<div class="row g-4 mb-4">
+    <!-- Active Sessions -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Active Sessions</span>
+                    <h2 id="statActiveSessions" class="display-6 fw-bold mb-0 mt-1" style="color: #047857;">
+                        @(Model?.Count(s => s.Status == "Active") ?? 0)
+                    </h2>
+                </div>
+                <div class="neumorphic-circle-sm" style="color: #047857;">
+                    <i class="bi bi-person-check-fill"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(4, 120, 87, 0.12); color: #047857;">
+                    <i class="bi bi-broadcast me-1"></i>Connected
+                </span>
+                <span class="text-muted small">now online</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Logins Logged -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Total Logins</span>
+                    <h2 id="statTotalLogins" class="display-6 fw-bold mb-0 mt-1" style="color: #2d3436;">
+                        @(Model?.Count() ?? 0)
+                    </h2>
+                </div>
+                <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(14, 165, 233, 0.15); color: #0284c7;">
+                    <i class="bi bi-clock-history me-1"></i>Last 50 Logins
+                </span>
+                <span class="text-muted small">rolling window</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unique Users -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Unique Users</span>
+                    <h2 id="statUniqueUsers" class="display-6 fw-bold mb-0 mt-1" style="color: #2563eb;">
+                        @(Model?.Select(s => s.UserEmail).Distinct().Count() ?? 0)
+                    </h2>
+                </div>
+                <div class="neumorphic-circle-sm" style="color: #2563eb;">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(37, 99, 235, 0.12); color: #2563eb;">
+                    <i class="bi bi-shield-check me-1"></i>Authenticated
+                </span>
+                <span class="text-muted small">member profiles</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Telemetry Status -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Telemetry Status</span>
+                    <h2 class="display-6 fw-bold mb-0 mt-1" style="color: #7c3aed;">
+                        10s
+                    </h2>
+                </div>
+                <div class="neumorphic-circle-sm" style="color: #7c3aed;">
+                    <i class="bi bi-activity"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(124, 58, 237, 0.12); color: #7c3aed;">
+                    <i class="bi bi-arrow-repeat me-1"></i>Auto-Polling
+                </span>
+                <span class="text-muted small">zero page reload</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Live Session Table Section -->
+<div class="neumorphic-card p-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+        <div>
+            <h3 class="h5 fw-bold mb-0" style="color: #2d3436;">Active &amp; Recent User Sessions</h3>
+            <span class="text-muted small">Real-time authentication records captured directly upon user sign-in</span>
+        </div>
+        <span id="sessionCountBadge" class="badge rounded-pill px-3 py-2 align-self-start align-self-sm-center" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-weight: 700;">
+            @(Model?.Count() ?? 0) Active Tracked
+        </span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table neumorphic-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>User Email</th>
+                    <th>Login Time</th>
+                    <th>Device / Browser</th>
+                    <th>IP Address</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="trackerTableBody">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var session in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="neumorphic-circle-sm" style="color: #0ea5e9; width: 32px; height: 32px; font-size: 0.85rem;">
+                                        <i class="bi bi-person-badge-fill"></i>
+                                    </div>
+                                    <span class="fw-bold" style="color: #2d3436;">@session.UserEmail</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-nowrap fw-semibold" style="color: #2d3436;">
+                                    <i class="bi bi-clock me-1 text-primary"></i>@session.LoginTime.ToString("MMM dd, yyyy HH:mm:ss")
+                                </div>
+                                <div class="text-muted small" style="font-size: 0.75rem;">
+                                    UTC timestamp
+                                </div>
+                            </td>
+                            <td>
+                                <div class="small fw-semibold text-truncate" style="max-width: 320px;" title="@session.DeviceName">
+                                    <i class="bi bi-laptop me-1 text-muted"></i>@session.DeviceName
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill px-3 py-1 font-monospace" style="background: rgba(100, 116, 139, 0.12); color: #475569; font-size: 0.8rem;">
+                                    <i class="bi bi-hdd-network me-1"></i>@session.IPAddress
+                                </span>
+                            </td>
+                            <td>
+                                @if (session.Status == "Active")
+                                {
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.15); color: #047857; font-weight: 700;">
+                                        <span class="d-inline-block rounded-circle me-1" style="width: 7px; height: 7px; background-color: #047857;"></span> Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(100, 116, 139, 0.15); color: #64748b; font-weight: 600;">
+                                        <i class="bi bi-box-arrow-right me-1"></i> Logged Out
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-broadcast fs-2 d-block text-muted mb-2"></i>
+                            <em>No user session tracks recorded yet. User logins will appear here in real time.</em>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .live-pulse-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #0284c7;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.7);
+        animation: pulseAnimation 2s infinite;
+    }
+
+    @@keyframes pulseAnimation {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.7);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 8px rgba(2, 132, 199, 0);
+        }
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(2, 132, 199, 0);
+        }
+    }
+</style>
+
+@section Scripts {
+<script>
+    async function refreshTracker() {
+        const spinner = document.getElementById('trackerSpinner');
+        const statusText = document.getElementById('trackerLastUpdated');
+        if (spinner) spinner.classList.remove('d-none');
+
+        try {
+            const response = await fetch('/Admin/Tracker?ajax=true', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const sessions = await response.json();
+
+                // Update quick stats
+                const activeCount = sessions.filter(s => s.status === 'Active').length;
+                const totalCount = sessions.length;
+                const uniqueUsers = new Set(sessions.map(s => s.userEmail)).size;
+
+                const activeEl = document.getElementById('statActiveSessions');
+                if (activeEl) activeEl.textContent = activeCount;
+
+                const totalEl = document.getElementById('statTotalLogins');
+                if (totalEl) totalEl.textContent = totalCount;
+
+                const uniqueEl = document.getElementById('statUniqueUsers');
+                if (uniqueEl) uniqueEl.textContent = uniqueUsers;
+
+                const badgeEl = document.getElementById('sessionCountBadge');
+                if (badgeEl) badgeEl.textContent = `${totalCount} Active Tracked`;
+
+                // Update table
+                const tbody = document.getElementById('trackerTableBody');
+                if (tbody) {
+                    if (sessions.length > 0) {
+                        tbody.innerHTML = sessions.map(s => `
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="neumorphic-circle-sm" style="color: #0ea5e9; width: 32px; height: 32px; font-size: 0.85rem;">
+                                            <i class="bi bi-person-badge-fill"></i>
+                                        </div>
+                                        <span class="fw-bold" style="color: #2d3436;">${escapeHtml(s.userEmail)}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-nowrap fw-semibold" style="color: #2d3436;">
+                                        <i class="bi bi-clock me-1 text-primary"></i>${s.loginTime}
+                                    </div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;">
+                                        ${s.timeAgo}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small fw-semibold text-truncate" style="max-width: 320px;" title="${escapeHtml(s.deviceName)}">
+                                        <i class="bi bi-laptop me-1 text-muted"></i>${escapeHtml(s.deviceSummary || s.deviceName)}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-1 font-monospace" style="background: rgba(100, 116, 139, 0.12); color: #475569; font-size: 0.8rem;">
+                                        <i class="bi bi-hdd-network me-1"></i>${escapeHtml(s.ipAddress)}
+                                    </span>
+                                </td>
+                                <td>
+                                    ${s.status === 'Active'
+                                        ? '<span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.15); color: #047857; font-weight: 700;"><span class="d-inline-block rounded-circle me-1" style="width: 7px; height: 7px; background-color: #047857;"></span> Active</span>'
+                                        : '<span class="badge rounded-pill px-3 py-1" style="background: rgba(100, 116, 139, 0.15); color: #64748b; font-weight: 600;"><i class="bi bi-box-arrow-right me-1"></i> Logged Out</span>'}
+                                </td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="bi bi-broadcast fs-2 d-block text-muted mb-2"></i>
+                                    <em>No user session tracks recorded yet. User logins will appear here in real time.</em>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                }
+
+                if (statusText) {
+                    const now = new Date();
+                    statusText.textContent = `Updated ${now.toLocaleTimeString()}`;
+                }
+            }
+        } catch (err) {
+            console.error('Tracker polling error:', err);
+        } finally {
+            if (spinner) spinner.classList.add('d-none');
+        }
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/[&<>"']/g, function(m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+        });
+    }
+
+    // Auto-poll every 10 seconds in real time
+    setInterval(refreshTracker, 10000);
+</script>
+}

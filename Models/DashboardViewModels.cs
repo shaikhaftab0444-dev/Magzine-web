@@ -7,8 +7,35 @@ namespace Digital_Magzine.Models
         public int TotalSubscribers { get; set; }
         public int PendingRequestsCount { get; set; }
         public decimal TotalRevenue { get; set; }
+        public string CurrentRange { get; set; } = "30days";
+        public List<MagazineIssue> TopPublications { get; set; } = new();
         public List<SubscriptionRequestItemViewModel> PendingRequests { get; set; } = new();
         public List<SubscriberItemViewModel> RecentSubscribers { get; set; } = new();
+    }
+
+    public class AdminCollectionsViewModel
+    {
+        public decimal TodayRevenue { get; set; }
+        public decimal ThisMonthRevenue { get; set; }
+        public decimal ThisYearRevenue { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string ItemType { get; set; } = "All";
+        public List<CollectionTransactionViewModel> RecentTransactions { get; set; } = new();
+    }
+
+    public class CollectionTransactionViewModel
+    {
+        public int Id { get; set; }
+        public DateTime Date { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public string UserEmail { get; set; } = string.Empty;
+        public string ItemType { get; set; } = string.Empty; // "Single Issue" or "VIP Plan"
+        public string ItemTitle { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public string Status { get; set; } = "Approved";
+        public string Reference { get; set; } = string.Empty;
     }
 
     public class SubscriptionRequestItemViewModel

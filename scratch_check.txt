@@ -1,0 +1,16 @@
+using System;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using Digital_Magzine.Data;
+
+namespace Scratch
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Just a check
+        }
+    }
+}

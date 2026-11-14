@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Digital-Magzine")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b8a51265f3096cba8b7bf1364c3bcdeb18aa0617")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc7de77c6f7b7095a482dbd1688e39ddb2c30f79")]
 [assembly: System.Reflection.AssemblyProductAttribute("Digital-Magzine")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Digital-Magzine")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

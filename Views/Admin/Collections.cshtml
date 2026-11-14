@@ -1,0 +1,341 @@
+@model Digital_Magzine.Models.AdminCollectionsViewModel
+
+@{
+    ViewData["Title"] = "Collections";
+    Layout = "_AdminLayout";
+}
+
+<!-- Page Header Bar -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1" style="color: #2d3436; font-size: 1.85rem; letter-spacing: -0.5px;">Financial Collections</h1>
+        <p class="text-muted mb-0 small">Real-time revenue monitoring and completed transaction logs from database.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-neumorphic py-2 px-3 small" onclick="applyCollectionsFilter()">
+            <i class="bi bi-arrow-clockwise me-1 text-primary"></i> Refresh
+        </button>
+        <a asp-action="PaymentRequests" class="btn btn-neumorphic-primary py-2 px-3 small">
+            <i class="bi bi-qr-code-scan me-1"></i> Payment Requests
+        </a>
+    </div>
+</div>
+
+<!-- Neumorphic Real-Time Filter Bar -->
+<form id="filterForm" class="d-flex flex-wrap gap-3 align-items-end mb-4 neumorphic-card p-3" onsubmit="event.preventDefault(); applyCollectionsFilter();">
+    <div>
+        <label for="startDate" class="form-label small fw-bold text-muted mb-1">Start Date</label>
+        <input type="date" id="startDate" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" class="form-control neumorphic-input" onchange="applyCollectionsFilter()" />
+    </div>
+
+    <div>
+        <label for="endDate" class="form-label small fw-bold text-muted mb-1">End Date</label>
+        <input type="date" id="endDate" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" class="form-control neumorphic-input" onchange="applyCollectionsFilter()" />
+    </div>
+
+    <div>
+        <label for="itemType" class="form-label small fw-bold text-muted mb-1">Item Type</label>
+        <select id="itemType" name="itemType" class="form-select neumorphic-input" onchange="applyCollectionsFilter()">
+            <option value="All" selected="@(Model.ItemType == "All" || string.IsNullOrEmpty(Model.ItemType))">All</option>
+            <option value="VIP Plan" selected="@(Model.ItemType == "VIP Plan")">VIP Plan</option>
+            <option value="Single Issue" selected="@(Model.ItemType == "Single Issue")">Single Issue</option>
+        </select>
+    </div>
+
+    <div>
+        <button type="button" class="btn btn-neumorphic py-2 px-3 small" onclick="resetCollectionsFilter()">
+            <i class="bi bi-x-circle me-1"></i> Reset
+        </button>
+    </div>
+
+    <div class="ms-auto d-flex align-items-center text-muted small py-1">
+        <span id="filterLoadingIndicator" class="spinner-border spinner-border-sm text-primary d-none me-2" role="status"></span>
+        <span id="filterStatusText"><i class="bi bi-funnel-fill me-1 text-primary"></i> Live Filter Active</span>
+    </div>
+</form>
+
+<!-- 4 Neumorphic Revenue Aggregate Cards -->
+<div class="row g-4 mb-4">
+    <!-- Card 1: Today's Revenue -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Today</span>
+                    <h2 id="cardTodayRevenue" class="display-6 fw-bold mb-0 mt-1" style="color: #2d3436;">
+                        @SettingsService.GetCurrencySymbol()@Model.TodayRevenue.ToString("N2")
+                    </h2>
+                </div>
+                <div class="neumorphic-circle-sm" style="color: #0ea5e9;">
+                    <i class="bi bi-calendar2-day"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(14, 165, 233, 0.15); color: #0284c7;">
+                    <i class="bi bi-lightning-charge-fill me-1"></i>Filtered Today
+                </span>
+                <span class="text-muted small">@DateTime.UtcNow.ToString("MMM dd, yyyy")</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: This Month's Revenue -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">This Month</span>
+                    <h2 id="cardMonthRevenue" class="display-6 fw-bold mb-0 mt-1" style="color: #2d3436;">
+                        @SettingsService.GetCurrencySymbol()@Model.ThisMonthRevenue.ToString("N2")
+                    </h2>
+                </div>
+                <div class="neumorphic-circle-sm" style="color: #047857;">
+                    <i class="bi bi-calendar3"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(4, 120, 87, 0.12); color: #047857;">
+                    <i class="bi bi-arrow-up-right me-1"></i>Filtered Month
+                </span>
+                <span class="text-muted small">@DateTime.UtcNow.ToString("MMMM yyyy")</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: This Year's Revenue -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">This Year</span>
+                    <h2 id="cardYearRevenue" class="display-6 fw-bold mb-0 mt-1" style="color: #2d3436;">
+                        @SettingsService.GetCurrencySymbol()@Model.ThisYearRevenue.ToString("N2")
+                    </h2>
+                </div>
+                <div class="neumorphic-circle-sm" style="color: #2563eb;">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(37, 99, 235, 0.12); color: #2563eb;">
+                    <i class="bi bi-trophy me-1"></i>Filtered Year
+                </span>
+                <span class="text-muted small">Fiscal Year @DateTime.UtcNow.Year</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Total Revenue -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="neumorphic-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Total Revenue</span>
+                    <h2 id="cardTotalRevenue" class="display-6 fw-bold mb-0 mt-1" style="color: #2d3436;">
+                        @SettingsService.GetCurrencySymbol()@Model.TotalRevenue.ToString("N2")
+                    </h2>
+                </div>
+                <div class="neumorphic-circle-sm" style="color: #7c3aed;">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <span class="badge rounded-pill small fw-semibold" style="background: rgba(124, 58, 237, 0.12); color: #7c3aed;">
+                    <i class="bi bi-check2-all me-1"></i>Selection Total
+                </span>
+                <span id="cardCountBadge" class="text-muted small">@Model.RecentTransactions.Count transactions</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction Table Section -->
+<div class="neumorphic-card p-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+        <div>
+            <h3 class="h5 fw-bold mb-0" style="color: #2d3436;">Recent Completed Transactions</h3>
+            <span class="text-muted small">Real-time ledger of completed single issue purchases and VIP subscription plans</span>
+        </div>
+        <span id="totalCountBadge" class="badge rounded-pill px-3 py-2 align-self-start align-self-sm-center" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; font-weight: 700;">
+            @Model.RecentTransactions.Count Records
+        </span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table neumorphic-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>User Email</th>
+                    <th>Item Type</th>
+                    <th>Reference</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="transactionsTableBody">
+                @if (Model.RecentTransactions != null && Model.RecentTransactions.Any())
+                {
+                    @foreach (var txn in Model.RecentTransactions)
+                    {
+                        <tr>
+                            <td class="text-muted small text-nowrap">
+                                <i class="bi bi-clock me-1 text-muted"></i>@txn.Date.ToString("MMM dd, yyyy HH:mm")
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="neumorphic-circle-sm" style="color: #0ea5e9; width: 28px; height: 28px; font-size: 0.75rem;">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <div>
+                                        <span class="fw-semibold d-block" style="color: #2d3436;">@txn.UserEmail</span>
+                                        <span class="text-muted small d-block" style="font-size: 0.72rem;">@txn.ItemTitle</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (txn.ItemType == "VIP Plan")
+                                {
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(168, 85, 247, 0.15); color: #7c3aed; font-weight: 700;">
+                                        <i class="bi bi-gem me-1"></i>VIP Plan
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700;">
+                                        <i class="bi bi-journal-text me-1"></i>Single Issue
+                                    </span>
+                                }
+                            </td>
+                            <td class="small text-muted font-monospace">@txn.Reference</td>
+                            <td class="fw-bold" style="color: #047857; font-size: 1.05rem;">
+                                @SettingsService.GetCurrencySymbol()@txn.Amount.ToString("N2")
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 700;">
+                                    <i class="bi bi-check-circle-fill me-1"></i>@txn.Status
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-wallet2 fs-2 d-block text-muted mb-2"></i>
+                            <em>No completed transactions recorded yet. Completed purchases and approved payment requests will appear here in real time.</em>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function applyCollectionsFilter() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const itemType = document.getElementById('itemType').value;
+
+        const spinner = document.getElementById('filterLoadingIndicator');
+        if (spinner) spinner.classList.remove('d-none');
+
+        const params = new URLSearchParams();
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        if (itemType) params.append('itemType', itemType);
+        params.append('ajax', 'true');
+
+        try {
+            const response = await fetch(`/Admin/Collections?${params.toString()}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+
+                // Update 4 revenue cards
+                document.getElementById('cardTodayRevenue').textContent = data.todayRevenueFormatted;
+                document.getElementById('cardMonthRevenue').textContent = data.thisMonthRevenueFormatted;
+                document.getElementById('cardYearRevenue').textContent = data.thisYearRevenueFormatted;
+                document.getElementById('cardTotalRevenue').textContent = data.totalRevenueFormatted;
+
+                const countBadge = document.getElementById('cardCountBadge');
+                if (countBadge) countBadge.textContent = `${data.count} transactions`;
+
+                const totalBadge = document.getElementById('totalCountBadge');
+                if (totalBadge) totalBadge.textContent = `${data.count} Records`;
+
+                // Update transaction table
+                const tbody = document.getElementById('transactionsTableBody');
+                if (tbody) {
+                    if (data.transactions && data.transactions.length > 0) {
+                        tbody.innerHTML = data.transactions.map(t => `
+                            <tr>
+                                <td class="text-muted small text-nowrap">
+                                    <i class="bi bi-clock me-1 text-muted"></i>${t.date}
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="neumorphic-circle-sm" style="color: #0ea5e9; width: 28px; height: 28px; font-size: 0.75rem;">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                        <div>
+                                            <span class="fw-semibold d-block" style="color: #2d3436;">${escapeHtml(t.userEmail)}</span>
+                                            <span class="text-muted small d-block" style="font-size: 0.72rem;">${escapeHtml(t.itemTitle)}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    ${t.itemType === 'VIP Plan' 
+                                        ? '<span class="badge rounded-pill px-3 py-1" style="background: rgba(168, 85, 247, 0.15); color: #7c3aed; font-weight: 700;"><i class="bi bi-gem me-1"></i>VIP Plan</span>' 
+                                        : '<span class="badge rounded-pill px-3 py-1" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-weight: 700;"><i class="bi bi-journal-text me-1"></i>Single Issue</span>'}
+                                </td>
+                                <td class="small text-muted font-monospace">${escapeHtml(t.reference)}</td>
+                                <td class="fw-bold" style="color: #047857; font-size: 1.05rem;">${t.amountFormatted}</td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-1" style="background: rgba(4, 120, 87, 0.12); color: #047857; font-weight: 700;">
+                                        <i class="bi bi-check-circle-fill me-1"></i>${escapeHtml(t.status)}
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-wallet2 fs-2 d-block text-muted mb-2"></i>
+                                    <em>No transactions found matching the selected filter criteria.</em>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Filter fetch error:', err);
+        } finally {
+            if (spinner) spinner.classList.add('d-none');
+        }
+    }
+
+    function resetCollectionsFilter() {
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        document.getElementById('itemType').value = 'All';
+        applyCollectionsFilter();
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/[&<>"']/g, function(m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+        });
+    }
+</script>
+}

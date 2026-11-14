@@ -32,11 +32,80 @@ namespace Digital_Magzine.Controllers
 
         // GET: /Admin or /Admin/Dashboard
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string range = "30days")
         {
-            var totalMagazines = await _context.Magazines.CountAsync();
-            var totalIssues = await _context.MagazineIssues.CountAsync();
-            var totalSubscribers = await _context.UserSubscriptions.Where(s => s.Status == "Active").CountAsync();
+            range = string.IsNullOrWhiteSpace(range) ? "30days" : range.Trim().ToLowerInvariant();
+
+            // TotalMagazines: real count of magazine issues
+            var totalMagazines = await _context.MagazineIssues.CountAsync();
+            var totalPublications = await _context.Magazines.CountAsync();
+
+            // ActiveSubscribers: Count users in Subscriber role or with Active user subscription
+            var subscriberRole = await _roleManager.FindByNameAsync("Subscriber");
+            int roleSubscribers = 0;
+            if (subscriberRole != null)
+            {
+                roleSubscribers = await _context.UserRoles.CountAsync(ur => ur.RoleId == subscriberRole.Id);
+            }
+            int activeUserSubs = await _context.UserSubscriptions.CountAsync(s => s.Status == "Active");
+            int activeSubscribers = Math.Max(roleSubscribers, activeUserSubs);
+
+            // Date filter for range
+            DateTime filterStartDate = range switch
+            {
+                "quarter" => DateTime.UtcNow.AddDays(-90),
+                "ytd" => new DateTime(DateTime.UtcNow.Year, 1, 1),
+                _ => DateTime.UtcNow.AddDays(-30)
+            };
+
+            // TotalRevenue based on date filter
+            var purchasesQuery = _context.Purchases.Where(p => p.PurchaseDate >= filterStartDate);
+            decimal purchasesSum = await purchasesQuery.SumAsync(p => (decimal?)p.AmountPaid) ?? 0m;
+
+            if (purchasesSum == 0)
+            {
+                var approvedReqSum = await _context.PaymentRequests
+                    .Where(r => r.Status == "Approved" && r.RequestDate >= filterStartDate)
+                    .SumAsync(r => (decimal?)r.AmountPaid) ?? 0m;
+                purchasesSum = approvedReqSum;
+            }
+
+            decimal totalRevenue = purchasesSum;
+
+            // TopPublications: _context.Purchases.GroupBy(p => p.MagazineIssue).OrderByDescending(g => g.Count()).Take(2)...
+            var topIssueIds = await _context.Purchases
+                .Where(p => p.MagazineIssueId != null)
+                .GroupBy(p => p.MagazineIssueId!.Value)
+                .OrderByDescending(g => g.Count())
+                .Take(2)
+                .Select(g => g.Key)
+                .ToListAsync();
+
+            List<MagazineIssue> topPublications = new();
+            if (topIssueIds.Any())
+            {
+                topPublications = await _context.MagazineIssues
+                    .Include(m => m.Magazine)
+                    .Include(m => m.Category)
+                    .Where(m => topIssueIds.Contains(m.Id))
+                    .ToListAsync();
+
+                topPublications = topIssueIds
+                    .Select(id => topPublications.FirstOrDefault(m => m.Id == id))
+                    .Where(m => m != null)
+                    .ToList()!;
+            }
+
+            if (!topPublications.Any())
+            {
+                topPublications = await _context.MagazineIssues
+                    .Include(m => m.Magazine)
+                    .Include(m => m.Category)
+                    .Where(m => m.Status == "Published")
+                    .OrderByDescending(m => m.PublishDate)
+                    .Take(2)
+                    .ToListAsync();
+            }
 
             var recentSubs = await _context.UserSubscriptions
                 .Include(s => s.SubscriptionPlan)
@@ -65,17 +134,22 @@ namespace Digital_Magzine.Controllers
                 .Where(r => r.Status == "Pending")
                 .CountAsync();
 
-            var purchases = await _context.Purchases.ToListAsync();
-            decimal totalRevenue = purchases.Any() ? purchases.Sum(p => p.AmountPaid) : 384500m;
+            ViewBag.TotalMagazines = totalMagazines;
+            ViewBag.ActiveSubscribers = activeSubscribers;
+            ViewBag.TotalRevenue = totalRevenue;
+            ViewBag.TopPublications = topPublications;
+            ViewBag.CurrentRange = range;
 
             var model = new AdminDashboardViewModel
             {
                 TotalMagazines = totalMagazines,
-                TotalIssues = totalIssues,
-                TotalSubscribers = totalSubscribers > 0 ? totalSubscribers : (1240 + subscriberList.Count),
+                TotalIssues = totalMagazines,
+                TotalSubscribers = activeSubscribers,
                 TotalRevenue = totalRevenue,
                 PendingRequestsCount = pendingRequestsCount,
-                RecentSubscribers = subscriberList
+                RecentSubscribers = subscriberList,
+                TopPublications = topPublications,
+                CurrentRange = range
             };
 
             return View("Index", model);
@@ -83,9 +157,276 @@ namespace Digital_Magzine.Controllers
 
         // GET: /Admin/Dashboard (alias for Index)
         [HttpGet]
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(string range = "30days")
         {
-            return await Index();
+            return await Index(range);
+        }
+
+        // GET: /Admin/Collections
+        [HttpGet]
+        public async Task<IActionResult> Collections(DateTime? startDate = null, DateTime? endDate = null, string itemType = "All")
+        {
+            itemType = string.IsNullOrWhiteSpace(itemType) ? "All" : itemType.Trim();
+
+            // 1. Base query on approved PaymentRequests as requested
+            var prQuery = _context.PaymentRequests.Where(pr => pr.Status == "Approved");
+
+            if (startDate.HasValue)
+            {
+                prQuery = prQuery.Where(pr => pr.RequestDate >= startDate.Value.Date);
+            }
+            if (endDate.HasValue)
+            {
+                var endInclusive = endDate.Value.Date.AddDays(1).AddTicks(-1);
+                prQuery = prQuery.Where(pr => pr.RequestDate <= endInclusive);
+            }
+            if (!itemType.Equals("All", StringComparison.OrdinalIgnoreCase))
+            {
+                if (itemType.Equals("VIP Plan", StringComparison.OrdinalIgnoreCase) || itemType.Equals("Plan", StringComparison.OrdinalIgnoreCase))
+                {
+                    prQuery = prQuery.Where(pr => pr.RequestedItemType == "Plan" || pr.RequestedItemType == "VIP Plan");
+                }
+                else if (itemType.Equals("Single Issue", StringComparison.OrdinalIgnoreCase) || itemType.Equals("Issue", StringComparison.OrdinalIgnoreCase))
+                {
+                    prQuery = prQuery.Where(pr => pr.RequestedItemType == "Issue" || pr.RequestedItemType == "Single Issue");
+                }
+                else
+                {
+                    prQuery = prQuery.Where(pr => pr.RequestedItemType == itemType);
+                }
+            }
+
+            var approvedPaymentRequests = await prQuery
+                .OrderByDescending(pr => pr.RequestDate)
+                .ToListAsync();
+
+            // Also check Purchases with matching filters to ensure complete transaction coverage
+            var purchasesQuery = _context.Purchases
+                .Include(p => p.MagazineIssue)
+                .Include(p => p.Magazine)
+                .AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                purchasesQuery = purchasesQuery.Where(p => p.PurchaseDate >= startDate.Value.Date);
+            }
+            if (endDate.HasValue)
+            {
+                var endInclusive = endDate.Value.Date.AddDays(1).AddTicks(-1);
+                purchasesQuery = purchasesQuery.Where(p => p.PurchaseDate <= endInclusive);
+            }
+            if (!itemType.Equals("All", StringComparison.OrdinalIgnoreCase))
+            {
+                if (itemType.Equals("VIP Plan", StringComparison.OrdinalIgnoreCase) || itemType.Equals("Plan", StringComparison.OrdinalIgnoreCase))
+                {
+                    purchasesQuery = purchasesQuery.Where(p => p.MagazineIssueId == null);
+                }
+                else if (itemType.Equals("Single Issue", StringComparison.OrdinalIgnoreCase) || itemType.Equals("Issue", StringComparison.OrdinalIgnoreCase))
+                {
+                    purchasesQuery = purchasesQuery.Where(p => p.MagazineIssueId != null);
+                }
+            }
+
+            var purchases = await purchasesQuery
+                .OrderByDescending(p => p.PurchaseDate)
+                .ToListAsync();
+
+            var allUsers = await _userManager.Users
+                .ToDictionaryAsync(u => u.Id, u => u.Email ?? u.UserName ?? "Customer");
+
+            var allTransactions = new List<CollectionTransactionViewModel>();
+
+            // Add Purchases
+            foreach (var p in purchases)
+            {
+                string email = allUsers.TryGetValue(p.UserId, out var em) ? em : p.UserId;
+                string pItemType = p.MagazineIssueId != null ? "Single Issue" : "VIP Plan";
+                string itemTitle = p.MagazineIssue != null 
+                    ? p.MagazineIssue.Title 
+                    : (p.Magazine != null ? p.Magazine.Title : "All-Access VIP Plan");
+
+                allTransactions.Add(new CollectionTransactionViewModel
+                {
+                    Id = p.Id,
+                    Date = p.PurchaseDate,
+                    UserId = p.UserId,
+                    UserEmail = email,
+                    ItemType = pItemType,
+                    ItemTitle = itemTitle,
+                    Amount = p.AmountPaid,
+                    Status = "Approved",
+                    Reference = $"PUR-{p.Id:D5}"
+                });
+            }
+
+            // Add Approved Payment Requests without duplicates
+            foreach (var req in approvedPaymentRequests)
+            {
+                bool alreadyExists = allTransactions.Any(t =>
+                    t.UserId == req.UserId &&
+                    t.Amount == req.AmountPaid &&
+                    Math.Abs((t.Date - req.RequestDate).TotalMinutes) < 10);
+
+                if (!alreadyExists)
+                {
+                    string email = allUsers.TryGetValue(req.UserId, out var em) ? em : req.UserId;
+                    string reqType = req.RequestedItemType.Equals("Plan", StringComparison.OrdinalIgnoreCase) 
+                        ? "VIP Plan" 
+                        : "Single Issue";
+                    string itemTitle = reqType == "VIP Plan" ? "All-Access VIP Plan" : $"Issue #{req.ItemId}";
+
+                    allTransactions.Add(new CollectionTransactionViewModel
+                    {
+                        Id = req.Id,
+                        Date = req.RequestDate,
+                        UserId = req.UserId,
+                        UserEmail = email,
+                        ItemType = reqType,
+                        ItemTitle = itemTitle,
+                        Amount = req.AmountPaid,
+                        Status = "Approved",
+                        Reference = string.IsNullOrEmpty(req.TransactionReference) ? $"TXN-{req.Id:D5}" : req.TransactionReference
+                    });
+                }
+            }
+
+            // Recalculate 4 Cards strictly based on the filtered query results
+            var now = DateTime.UtcNow;
+            var today = now.Date;
+
+            decimal todayRevenue = allTransactions
+                .Where(t => t.Date.Date == today)
+                .Sum(t => t.Amount);
+
+            decimal thisMonthRevenue = allTransactions
+                .Where(t => t.Date.Year == now.Year && t.Date.Month == now.Month)
+                .Sum(t => t.Amount);
+
+            decimal thisYearRevenue = allTransactions
+                .Where(t => t.Date.Year == now.Year)
+                .Sum(t => t.Amount);
+
+            decimal totalRevenue = allTransactions.Sum(t => t.Amount);
+
+            var recentTransactions = allTransactions
+                .OrderByDescending(t => t.Date)
+                .Take(50)
+                .ToList();
+
+            var currencySymbol = _settingsService.GetCurrencySymbol();
+
+            // Check if AJAX request to return JSON
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest"
+                || Request.Query.ContainsKey("ajax")
+                || Request.Headers["Accept"].ToString().Contains("application/json");
+
+            if (isAjax)
+            {
+                return Json(new
+                {
+                    todayRevenue,
+                    todayRevenueFormatted = $"{currencySymbol}{todayRevenue:N2}",
+                    thisMonthRevenue,
+                    thisMonthRevenueFormatted = $"{currencySymbol}{thisMonthRevenue:N2}",
+                    thisYearRevenue,
+                    thisYearRevenueFormatted = $"{currencySymbol}{thisYearRevenue:N2}",
+                    totalRevenue,
+                    totalRevenueFormatted = $"{currencySymbol}{totalRevenue:N2}",
+                    count = recentTransactions.Count,
+                    transactions = recentTransactions.Select(t => new
+                    {
+                        t.Id,
+                        date = t.Date.ToString("MMM dd, yyyy HH:mm"),
+                        t.UserEmail,
+                        t.ItemType,
+                        t.ItemTitle,
+                        t.Reference,
+                        amount = t.Amount,
+                        amountFormatted = $"{currencySymbol}{t.Amount:N2}",
+                        t.Status
+                    })
+                });
+            }
+
+            ViewBag.TodayRevenue = todayRevenue;
+            ViewBag.ThisMonthRevenue = thisMonthRevenue;
+            ViewBag.ThisYearRevenue = thisYearRevenue;
+            ViewBag.TotalRevenue = totalRevenue;
+            ViewBag.RecentTransactions = recentTransactions;
+
+            var model = new AdminCollectionsViewModel
+            {
+                TodayRevenue = todayRevenue,
+                ThisMonthRevenue = thisMonthRevenue,
+                ThisYearRevenue = thisYearRevenue,
+                TotalRevenue = totalRevenue,
+                StartDate = startDate,
+                EndDate = endDate,
+                ItemType = itemType,
+                RecentTransactions = recentTransactions
+            };
+
+            return View(model);
+        }
+
+        // GET: /Admin/Tracker
+        [HttpGet]
+        public async Task<IActionResult> Tracker(bool ajax = false)
+        {
+            var sessions = await _context.UserSessionTracks
+                .OrderByDescending(s => s.LoginTime)
+                .Take(50)
+                .ToListAsync();
+
+            bool isAjax = ajax 
+                || Request.Headers["X-Requested-With"] == "XMLHttpRequest"
+                || Request.Headers["Accept"].ToString().Contains("application/json");
+
+            if (isAjax)
+            {
+                return Json(sessions.Select(s => new
+                {
+                    s.Id,
+                    s.UserEmail,
+                    loginTime = s.LoginTime.ToString("MMM dd, yyyy HH:mm:ss"),
+                    timeAgo = GetTimeAgo(s.LoginTime),
+                    deviceSummary = GetDeviceSummary(s.DeviceName),
+                    s.DeviceName,
+                    s.IPAddress,
+                    s.Status
+                }));
+            }
+
+            return View(sessions);
+        }
+
+        private static string GetTimeAgo(DateTime dt)
+        {
+            var span = DateTime.UtcNow - dt;
+            if (span.TotalSeconds < 60) return $"{Math.Max(1, (int)span.TotalSeconds)}s ago";
+            if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes}m ago";
+            if (span.TotalHours < 24) return $"{(int)span.TotalHours}h ago";
+            return $"{(int)span.TotalDays}d ago";
+        }
+
+        private static string GetDeviceSummary(string userAgent)
+        {
+            if (string.IsNullOrWhiteSpace(userAgent)) return "Standard Web Browser";
+            string browser = "Browser";
+            if (userAgent.Contains("Edg/", StringComparison.OrdinalIgnoreCase)) browser = "Microsoft Edge";
+            else if (userAgent.Contains("Chrome", StringComparison.OrdinalIgnoreCase)) browser = "Google Chrome";
+            else if (userAgent.Contains("Firefox", StringComparison.OrdinalIgnoreCase)) browser = "Mozilla Firefox";
+            else if (userAgent.Contains("Safari", StringComparison.OrdinalIgnoreCase)) browser = "Apple Safari";
+            else if (userAgent.Contains("curl", StringComparison.OrdinalIgnoreCase) || userAgent.Contains("Python", StringComparison.OrdinalIgnoreCase)) browser = "API Client";
+
+            string os = "Device";
+            if (userAgent.Contains("Windows", StringComparison.OrdinalIgnoreCase)) os = "Windows";
+            else if (userAgent.Contains("Android", StringComparison.OrdinalIgnoreCase)) os = "Android";
+            else if (userAgent.Contains("iPhone", StringComparison.OrdinalIgnoreCase) || userAgent.Contains("iPad", StringComparison.OrdinalIgnoreCase)) os = "iOS";
+            else if (userAgent.Contains("Macintosh", StringComparison.OrdinalIgnoreCase)) os = "macOS";
+            else if (userAgent.Contains("Linux", StringComparison.OrdinalIgnoreCase)) os = "Linux";
+
+            return $"{browser} on {os}";
         }
 
         // GET: /Admin/Issues
